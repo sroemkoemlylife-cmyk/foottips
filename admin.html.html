@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>FootTips Admin 🛡️</title>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<style>
+:root{
+  --g:#00C37A;--red:#FF4B6E;--blue:#4B8BFF;--gold:#F5C842;--purple:#8B5CF6;--orange:#FF7D40;
+  --bg:#0A0E1A;--bg2:#111827;--bg3:#1A2236;--card:#161E30;--card2:#1C2840;
+  --b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
+  --t:#F0F4FF;--t2:#8A95B0;--t3:#4A5470;
+  --r:12px;--rs:8px;--font:'Segoe UI','Noto Sans Khmer',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--t);min-height:100vh;}
+/* LOGIN */
+#login-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.admin-login-box{background:var(--card);border:1px solid var(--b2);border-radius:var(--r);padding:32px;width:100%;max-width:360px;text-align:center;}
+.admin-logo{font-size:48px;margin-bottom:12px;}
+.admin-title{font-size:22px;font-weight:700;margin-bottom:4px;}
+.admin-sub{font-size:13px;color:var(--t2);margin-bottom:24px;}
+.inp{width:100%;padding:12px 14px;background:var(--bg3);border:1px solid var(--b2);border-radius:var(--rs);font-family:var(--font);font-size:14px;color:var(--t);outline:none;margin-bottom:10px;}
+.inp:focus{border-color:var(--g);}
+.btn-primary{width:100%;padding:13px;background:var(--g);color:#000;font-family:var(--font);font-size:14px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;}
+.btn-primary:hover{opacity:.9;}
+/* LAYOUT */
+#admin-app{display:none;min-height:100vh;flex-direction:column;}
+.topbar{background:var(--card);border-bottom:1px solid var(--b);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.tb-logo{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;}
+.tb-badge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.tb-right{display:flex;align-items:center;gap:12px;}
+.tb-stat{font-size:12px;color:var(--t2);background:var(--bg3);padding:6px 12px;border-radius:20px;}
+.logout-btn{font-size:12px;color:var(--red);cursor:pointer;padding:6px 12px;border:1px solid var(--red);border-radius:20px;}
+.main-layout{display:flex;flex:1;}
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--card);border-right:1px solid var(--b);padding:16px 0;flex-shrink:0;min-height:calc(100vh - 57px);position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;}
+.nav-group{padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t2);border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{background:var(--bg3);color:var(--t);}
+.nav-item.act{background:var(--gg,rgba(0,195,122,.08));color:var(--g);border-left-color:var(--g);}
+.nav-item .ni{font-size:16px;width:20px;text-align:center;}
+/* CONTENT */
+.content{flex:1;padding:20px;overflow-x:hidden;}
+.page{display:none;}
+.page.act{display:block;}
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:16px;display:flex;align-items:flex-start;gap:12px;}
+.stat-ic{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.stat-n{font-size:26px;font-weight:700;line-height:1;}
+.stat-l{font-size:12px;color:var(--t2);margin-top:3px;}
+/* CARDS */
+.section-card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);margin-bottom:16px;overflow:hidden;}
+.sc-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b);}
+.sc-title{font-size:14px;font-weight:600;}
+/* TABLE */
+table{width:100%;border-collapse:collapse;}
+th{padding:10px 14px;font-size:11px;font-weight:700;color:var(--t3);text-align:left;text-transform:uppercase;letter-spacing:.6px;background:var(--bg3);}
+td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--b);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-g{background:rgba(0,195,122,.12);color:var(--g);}
+.badge-r{background:rgba(255,75,110,.1);color:var(--red);}
+.badge-b{background:rgba(75,139,255,.12);color:var(--blue);}
+.badge-gold{background:rgba(245,200,66,.12);color:var(--gold);}
+.badge-gray{background:var(--bg3);color:var(--t2);}
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:var(--rs);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:opacity .15s;}
+.btn:hover{opacity:.85;}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.btn-g{background:var(--g);color:#000;}
+.btn-r{background:var(--red);color:#fff;}
+.btn-b{background:var(--blue);color:#fff;}
+.btn-o{background:transparent;border:1px solid var(--b2);color:var(--t2);}
+.btn-gold{background:var(--gold);color:#000;}
+/* FORM */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:11px;font-weight:700;color:var(--t2);margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.5px;}
+.form-inp{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--b2);border-radius:var(--rs);font-family:var(--font);font-size:13px;color:var(--t);outline:none;}
+.form-inp:focus{border-color:var(--g);}
+.form-row{display:flex;gap:10px;}
+.form-row .form-group{flex:1;}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.on{display:flex;}
+.modal{background:var(--card);border:1px solid var(--b2);border-radius:var(--r);padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.modal-close{cursor:pointer;font-size:20px;color:var(--t3);}
+/* AVATAR */
+.uav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;overflow:hidden;flex-shrink:0;}
+.uav img{width:100%;height:100%;object-fit:cover;}
+.user-row{display:flex;align-items:center;gap:8px;}
+/* AD CARD */
+.ad-item{border:1px solid var(--blue);border-radius:var(--r);padding:12px;margin-bottom:10px;background:rgba(75,139,255,.04);position:relative;}
+.ad-badge{position:absolute;top:8px;right:8px;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;}
+/* CHARTS (simple) */
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:80px;padding-top:8px;}
+.bar{flex:1;background:var(--g);border-radius:3px 3px 0 0;min-width:8px;transition:height .3s;}
+.bar:hover{opacity:.8;}
+/* SUGGEST */
+.suggest-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b);}
+.suggest-row:last-child{border-bottom:none;}
+/* MISC */
+.flex{display:flex;align-items:center;gap:8px;}
+.flex-1{flex:1;}
+.mt-8{margin-top:8px;}
+.mt-12{margin-top:12px;}
+.text-green{color:var(--g);}
+.text-red{color:var(--red);}
+.text-gold{color:var(--gold);}
+.text-muted{color:var(--t2);}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast-c{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:6px;}
+.toast{background:var(--card);border:1px solid var(--b2);padding:10px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.3);animation:ti .25s ease;}
+@keyframes ti{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast.ok{border-color:rgba(0,195,122,.3);color:var(--g);}
+.toast.err{border-color:rgba(255,75,110,.3);color:var(--red);}
+.toast.inf{border-color:rgba(75,139,255,.3);color:var(--blue);}
+select.form-inp option{background:var(--card);}
+@media(max-width:768px){.sidebar{display:none;}.stats-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div id="toast-c"></div>
+
+<!-- LOGIN -->
+<div id="login-page">
+  <div class="admin-login-box">
+    <div class="admin-logo">🛡️</div>
+    <div class="admin-title">FootTips Admin</div>
+    <div class="admin-sub">CEO Dashboard — Restricted Access</div>
+    <input class="inp" id="admin-pw" type="password" placeholder="Admin Password" onkeydown="if(event.key==='Enter')adminLogin()">
+    <input class="inp" id="admin-uid" placeholder="Your Firebase User ID (optional)">
+    <button class="btn-primary" onclick="adminLogin()">🔐 Login Admin</button>
+    <div style="margin-top:12px;font-size:11px;color:var(--t3)">FootTips CEO Panel · Authorized only</div>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="admin-app">
+  <div class="topbar">
+    <div class="tb-logo">
+      <span style="font-size:24px">⚽</span>
+      FootTips Admin
+      <span class="tb-badge">CEO</span>
+    </div>
+    <div class="tb-right">
+      <div class="tb-stat" id="tb-online">⚡ Loading...</div>
+      <div class="tb-stat" id="tb-today">📅 Today: 0</div>
+      <div class="logout-btn" onclick="adminLogout()">🚪 Logout</div>
+    </div>
+  </div>
+  <div class="main-layout">
+    <div class="sidebar">
+      <div class="nav-group">Overview</div>
+      <div class="nav-item act" onclick="showPage('dashboard')"><span class="ni">📊</span>Dashboard</div>
+      <div class="nav-item" onclick="showPage('analytics')"><span class="ni">📈</span>Analytics</div>
+      <div class="nav-group">Management</div>
+      <div class="nav-item" onclick="showPage('users')"><span class="ni">👥</span>Users</div>
+      <div class="nav-item" onclick="showPage('posts')"><span class="ni">📝</span>Posts & Tips</div>
+      <div class="nav-item" onclick="showPage('matches')"><span class="ni">⚽</span>Matches</div>
+      <div class="nav-item" onclick="showPage('predictions')"><span class="ni">🎯</span>Predictions</div>
+      <div class="nav-group">Monetization</div>
+      <div class="nav-item" onclick="showPage('ads')"><span class="ni">📢</span>Advertisements</div>
+      <div class="nav-item" onclick="showPage('suggest')"><span class="ni">✨</span>Suggest/Boost</div>
+      <div class="nav-group">Tools</div>
+      <div class="nav-item" onclick="showPage('tip-admin')"><span class="ni">🎯</span>Post Tips (CEO)</div>
+      <div class="nav-item" onclick="showPage('moderation')"><span class="ni">🛡️</span>Moderation</div>
+      <div class="nav-item" onclick="showPage('points')"><span class="ni">💰</span>Points Manager</div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page act" id="page-dashboard">
+        <div style="font-size:20px;font-weight:700;margin-bottom:16px">📊 Dashboard Overview</div>
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card"><div class="stat-ic" style="background:rgba(0,195,122,.12);color:var(--g)">👥</div><div><div class="stat-n" id="s-users">-</div><div class="stat-l">Total Users</div></div></div>
+          <div class="stat-card"><div class="stat-ic" style="background:rgba(75,139,255,.12);color:var(--blue)">📝</div><div><div class="stat-n" id="s-posts">-</div><div class="stat-l">Total Posts</div></div></div>
+          <div class="stat-card"><div class="stat-ic" style="background:rgba(245,200,66,.12);color:var(--gold)">🎯</div><div><div class="stat-n" id="s-preds">-</div><div class="stat-l">Predictions</div></div></div>
+          <div class="stat-card"><div class="stat-ic" style="background:rgba(255,75,110,.12);color:var(--red)">❤️</div><div><div class="stat-n" id="s-likes">-</div><div class="stat-l">Total Likes</div></div></div>
+          <div class="stat-card"><div class="stat-ic" style="background:rgba(139,92,246,.12);color:var(--purple)">📢</div><div><div class="stat-n" id="s-ads">-</div><div class="stat-l">Active Ads</div></div></div>
+          <div class="stat-card"><div class="stat-ic" style="background:rgba(255,125,64,.12);color:var(--orange)">🔒</div><div><div class="stat-n" id="s-blocked">-</div><div class="stat-l">Blocked Users</div></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="section-card">
+            <div class="sc-head"><div class="sc-title">🆕 New Users (Today)</div></div>
+            <div id="new-users-list" style="padding:0"></div>
+          </div>
+          <div class="section-card">
+            <div class="sc-head"><div class="sc-title">🔥 Top Posts Today</div></div>
+            <div id="top-posts-list" style="padding:0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="page" id="page-analytics">
+        <div style="font-size:20px;font-weight:700;margin-bottom:16px">📈 Analytics</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div class="section-card">
+            <div class="sc-head"><div class="sc-title">👥 User Growth</div></div>
+            <div style="padding:16px" id="user-chart"></div>
+          </div>
+          <div class="section-card">
+            <div class="sc-head"><div class="sc-title">📝 Post Activity</div></div>
+            <div style="padding:16px" id="post-chart"></div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="sc-head"><div class="sc-title">💰 Points Economy</div></div>
+          <div id="points-analytics" style="padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;"></div>
+        </div>
+        <div class="section-card mt-12">
+          <div class="sc-head"><div class="sc-title">📢 Ad Performance</div></div>
+          <div id="ad-analytics" style="padding:16px"></div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="page" id="page-users">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:20px;font-weight:700">👥 User Management</div>
+          <div style="display:flex;gap:8px;">
+            <input class="form-inp" id="user-search" placeholder="Search users..." oninput="filterUsers(this.value)" style="width:200px;padding:8px 12px;">
+            <select class="form-inp" id="user-filter" onchange="filterUsers()" style="width:150px;padding:8px;">
+              <option value="all">All Users</option>
+              <option value="blocked">Blocked</option>
+              <option value="verified">Verified</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="section-card">
+          <table>
+            <thead><tr>
+              <th>User</th><th>Points</th><th>Followers</th><th>Posts</th><th>Joined</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="users-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- POSTS -->
+      <div class="page" id="page-posts">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:20px;font-weight:700">📝 Posts & Tips</div>
+          <div style="display:flex;gap:8px">
+            <select class="form-inp" id="post-filter" onchange="loadPosts()" style="width:160px;padding:8px;">
+              <option value="all">All Posts</option>
+              <option value="pending">⏳ Pending</option>
+              <option value="won">✅ Won</option>
+              <option value="lost">❌ Lost</option>
+            </select>
+          </div>
+        </div>
+        <div class="section-card">
+          <table>
+            <thead><tr>
+              <th>Post</th><th>User</th><th>Likes</th><th>Views</th><th>Status</th><th>Created</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="posts-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MATCHES -->
+      <div class="page" id="page-matches">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:20px;font-weight:700">⚽ Match Manager</div>
+          <button class="btn btn-g" onclick="openAddMatch()">+ Add Match</button>
+        </div>
+        <div class="section-card">
+          <table>
+            <thead><tr><th>Home</th><th>Away</th><th>League</th><th>Date</th><th>Time</th><th>Result</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody id="matches-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PREDICTIONS -->
+      <div class="page" id="page-predictions">
+        <div style="font-size:20px;font-weight:700;margin-bottom:16px">🎯 Predictions & Results</div>
+        <div class="section-card" style="margin-bottom:16px">
+          <div class="sc-head"><div class="sc-title">⚽ Mark Match Results</div></div>
+          <div id="result-matches" style="padding:12px"></div>
+        </div>
+        <div class="section-card">
+          <div class="sc-head"><div class="sc-title">📊 Prediction Stats</div></div>
+          <div id="pred-stats" style="padding:16px"></div>
+        </div>
+      </div>
+
+      <!-- ADS -->
+      <div class="page" id="page-ads">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:20px;font-weight:700">📢 Advertisement Manager</div>
+          <button class="btn btn-g" onclick="openAddAd()">+ New Ad</button>
+        </div>
+        <div style="background:rgba(75,139,255,.08);border:1px solid rgba(75,139,255,.25);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.7;color:var(--t2)">
+          💡 <strong style="color:var(--t)">Ad System:</strong> User ចុច Ad → +3pts ភ្លាម · ក្នុង Post/Ad ដូចគ្នា User ម្នាក់ចុចបាន 1 ដង · Post ផ្សេង Ad ផ្សេង = ចុចបានថ្មី
+        </div>
+        <div id="ads-list"></div>
+      </div>
+
+      <!-- SUGGEST/BOOST -->
+      <div class="page" id="page-suggest">
+        <div style="font-size:20px;font-weight:700;margin-bottom:16px">✨ Suggest & Boost</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="section-card">
+            <div class="sc-head">
+              <div class="sc-title">👤 Boost User</div>
+              <div class="text-muted" style="font-size:11px">Show first in search & feed</div>
+            </div>
+            <div style="padding:14px">
+              <div class="form-group"><div class="form-label">Select User</div>
+                <select class="form-inp" id="boost-user-sel"><option value="">-- ជ្រើស User --</option></select>
+              </div>
+              <div class="form-group"><div class="form-label">Boost Duration</div>
+                <select class="form-inp" id="boost-dur">
+                  <option value="1">1 ថ្ងៃ</option><option value="3">3 ថ្ងៃ</option><option value="7">7 ថ្ងៃ</option><option value="30">30 ថ្ងៃ</option>
+                </select>
+              </div>
+              <button class="btn btn-gold" onclick="boostUser()" style="width:100%">⚡ Boost User</button>
+            </div>
+            <div id="boosted-users" style="padding:0"></div>
+          </div>
+          <div class="section-card">
+            <div class="sc-head">
+              <div class="sc-title">📝 Boost Post</div>
+              <div class="text-muted" style="font-size:11px">Pin to top of feed</div>
+            </div>
+            <div style="padding:14px">
+              <div class="form-group"><div class="form-label">Post ID or Search</div>
+                <input class="form-inp" id="boost-post-inp" placeholder="Post ID...">
+              </div>
+              <div class="form-group"><div class="form-label">Duration</div>
+                <select class="form-inp" id="boost-post-dur">
+                  <option value="1">1 ថ្ងៃ</option><option value="3">3 ថ្ងៃ</option><option value="7">7 ថ្ងៃ</option>
+                </select>
+              </div>
+              <button class="btn btn-gold" onclick="boostPost()" style="width:100%">⚡ Boost Post</button>
+            </div>
+          </div>
+        </div>
+        <div class="section-card mt-12">
+          <div class="sc-head"><div class="sc-title">🤖 Auto Suggest Rules</div></div>
+          <div style="padding:14px">
+            <div style="font-size:13px;color:var(--t2);margin-bottom:12px">Posts with more Likes/Comments get higher reach automatically</div>
+            <div class="form-row">
+              <div class="form-group"><div class="form-label">Min Likes for Boost</div><input class="form-inp" id="auto-likes" type="number" value="10" min="1"></div>
+              <div class="form-group"><div class="form-label">Reach Multiplier</div><input class="form-inp" id="auto-mult" type="number" value="2" min="1" max="10"></div>
+            </div>
+            <button class="btn btn-g" onclick="saveAutoRules()" style="width:100%">💾 Save Rules</button>
+          </div>
+          <div id="suggest-rules" style="padding:0"></div>
+        </div>
+      </div>
+
+      <!-- CEO TIP POSTING -->
+      <div class="page" id="page-tip-admin">
+        <div style="font-size:20px;font-weight:700;margin-bottom:16px">🎯 CEO Post Tips & Matches</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <!-- Post Tip -->
+          <div class="section-card">
+            <div class="sc-head"><div class="sc-title">📝 Post CEO Tip</div></div>
+            <div style="padding:14px">
+              <div class="form-group"><div class="form-label">ការប្រកួត</div><input class="form-inp" id="ceo-match" placeholder="Barcelona vs Real Madrid"></div>
+              <div class="form-row">
+                <div class="form-group"><div class="form-label">ការទស្សន៍ទាយ</div><input class="form-inp" id="ceo-pred" placeholder="Barcelona Win"></div>
+                <div class="form-group"><div class="form-label">Odds</div><input class="form-inp" id="ceo-odds" type="number" step="0.01" placeholder="1.85"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><div class="form-label">លីក</div><input class="form-inp" id="ceo-league" placeholder="La Liga"></div>
+                <div class="form-group"><div class="form-label">ប្រភេទ</div>
+                  <select class="form-inp" id="ceo-type"><option>Match Winner</option><option>Over/Under</option><option>Both Teams Score</option><option>Asian Handicap</option></select>
+                </div>
+              </div>
+              <div class="form-group"><div class="form-label">ការវិភាគ</div><textarea class="form-inp" id="ceo-analysis" rows="3" placeholder="CEO analysis..."></textarea></div>
+              <button class="btn btn-g" onclick="cePostTip()" style="width:100%">📢 Post as CEO FootTips</button>
+            </div>
+          </div>
+          <!-- Add Match -->
+          <div class="section-card">
+            <div class="sc-head"><div class="sc-title">⚽ Add Today's Match</div></div>
+            <div style="padding:14px" id="add-match-form">
+              <div class="form-row">
+                <div class="form-group"><div class="form-label">ក្រុមម្ចាស់ផ្ទះ</div><input class="form-inp" id="m-home" placeholder="Barcelona"></div>
+                <div class="form-group"><div class="form-label">ក្រុមភ្ញៀវ</div><input class="form-inp" id="m-away" placeholder="Real Madrid"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><div class="form-label">Home Icon</div><input class="form-inp" id="m-hic" placeholder="🔵🔴"></div>
+                <div class="form-group"><div class="form-label">Away Icon</div><input class="form-inp" id="m-aic" placeholder="⚪"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><div class="form-label">លីក</div><input class="form-inp" id="m-lg" placeholder="La Liga"></div>
+                <div class="form-group"><div class="form-label">ម៉ោង (KH)</div><input class="form-inp" id="m-time" placeholder="22:00"></div>
+              </div>
+              <div class="form-group"><div class="form-label">ថ្ងៃប្រកួត</div><input class="form-inp" id="m-date" type="date"></div>
+              <button class="btn btn-g" onclick="addMatch()" style="width:100%">+ Add Match</button>
+            </div>
+          </div>
+        </div>
+        <div class="section-card mt-12">
+          <div class="sc-head"><div class="sc-title">📋 Recent CEO Posts</div></div>
+          <div id="ceo-posts-list" style="padding:0"></div>
+        </div>
+      </div>
+
+      <!-- MODERATION -->
+      <div class="page" id="page-moderation">
+        <div style="font-size:20px;font-weight:700;margin-bottom:16px">🛡️ Moderation Center</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div class="section-card">
+            <div class="sc-head"><div class="sc-title">🚫 Blocked Users</div></div>
+            <div id="blocked-list" style="padding:0"></div>
+          </div>
+          <div class="section-card">
+            <div class="sc-head"><div class="sc-title">🚩 Reported Content</div></div>
+            <div id="reports-list" style="padding:0"></div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="sc-head"><div class="sc-title">📝 All Comments (Monitor)</div></div>
+          <div id="all-comments" style="max-height:400px;overflow-y:auto;"></div>
+        </div>
+      </div>
+
+      <!-- POINTS MANAGER -->
+      <div class="page" id="page-points">
+        <div style="font-size:20px;font-weight:700;margin-bottom:16px">💰 Points Manager</div>
+        <div class="section-card" style="margin-bottom:16px">
+          <div class="sc-head"><div class="sc-title">⚡ Add/Remove Points</div></div>
+          <div style="padding:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <select class="form-inp" id="pts-user" style="flex:2;min-width:180px"><option value="">-- ជ្រើស User --</option></select>
+            <input class="form-inp" id="pts-amount" type="number" placeholder="Amount (+ or -)" style="flex:1;min-width:120px">
+            <input class="form-inp" id="pts-reason" placeholder="Reason..." style="flex:2;min-width:180px">
+            <button class="btn btn-g" onclick="givePoints()">💰 Apply</button>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="sc-head"><div class="sc-title">🏆 Points Leaderboard</div></div>
+          <table>
+            <thead><tr><th>#</th><th>User</th><th>Points</th><th>Followers</th><th>Posts</th><th>Stars</th><th>Actions</th></tr></thead>
+            <tbody id="pts-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- content -->
+  </div><!-- main-layout -->
+</div><!-- admin-app -->
+
+<!-- MODALS -->
+<!-- User Detail Modal -->
+<div class="modal-bg" id="user-modal">
+  <div class="modal">
+    <div class="modal-title">👤 User Details <span class="modal-close" onclick="closeModal('user-modal')">✕</span></div>
+    <div id="user-modal-body"></div>
+  </div>
+</div>
+
+<!-- Add Match Modal -->
+<div class="modal-bg" id="match-modal">
+  <div class="modal">
+    <div class="modal-title">⚽ Add Match <span class="modal-close" onclick="closeModal('match-modal')">✕</span></div>
+    <div id="match-modal-body"></div>
+  </div>
+</div>
+
+<!-- Add Ad Modal -->
+<div class="modal-bg" id="ad-modal">
+  <div class="modal">
+    <div class="modal-title">📢 New Advertisement <span class="modal-close" onclick="closeModal('ad-modal')">✕</span></div>
+    <div style="padding:4px 0">
+      <div class="form-group"><div class="form-label">Ad Title</div><input class="form-inp" id="ad-title" placeholder="ចំណងជើង Ad..."></div>
+      <div class="form-group"><div class="form-label">Description</div><textarea class="form-inp" id="ad-desc" rows="2" placeholder="ការពិពណ៌នា..."></textarea></div>
+      <div class="form-group"><div class="form-label">Link URL</div><input class="form-inp" id="ad-url" placeholder="https://..."></div>
+      <div class="form-group"><div class="form-label">Banner Image URL (optional)</div><input class="form-inp" id="ad-img" placeholder="https://image.url..."></div>
+      <div class="form-row">
+        <div class="form-group"><div class="form-label">Points per Click</div><input class="form-inp" id="ad-pts" type="number" value="3" min="1"></div>
+        <div class="form-group"><div class="form-label">Placement</div>
+          <select class="form-inp" id="ad-placement">
+            <option value="feed">Feed (between posts)</option>
+            <option value="profile">Profile Page</option>
+            <option value="chat">Chat List</option>
+            <option value="all">All Pages</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><div class="form-label">Max Budget (pts)</div><input class="form-inp" id="ad-budget" type="number" placeholder="0 = unlimited"></div>
+      <button class="btn btn-g" onclick="createAd()" style="width:100%;margin-top:4px">📢 Create Ad</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════
+// FIREBASE
+// ════════════════════════════════
+firebase.initializeApp({
+  apiKey:"AIzaSyPlaceholderKeyForFootTips",
+  databaseURL:"https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
+const db=firebase.database();
+const FG=p=>db.ref(p).once('value').then(s=>s.val());
+const FS=(p,d)=>db.ref(p).set(d);
+const FP=(p,d)=>db.ref(p).push(d);
+const FU=(p,d)=>db.ref(p).update(d);
+const FD=p=>db.ref(p).remove();
+
+// ════════════════════════════════
+// ADMIN AUTH
+// ════════════════════════════════
+const ADMIN_PASS='FootTips2024CEO!'; // Change this password!
+let adminUID='';
+let allUsers={};let allPosts={};let allAds={};
+
+function adminLogin(){
+  const pw=document.getElementById('admin-pw').value;
+  const uid=document.getElementById('admin-uid').value.trim();
+  if(pw!==ADMIN_PASS){toast('❌ Wrong password','err');return;}
+  adminUID=uid;
+  document.getElementById('login-page').style.display='none';
+  document.getElementById('admin-app').style.display='flex';
+  document.getElementById('admin-app').style.flexDirection='column';
+  loadDashboard();
+  startRealtimeListeners();
+  toast('✅ Admin Login Success','ok');
+}
+function adminLogout(){document.getElementById('login-page').style.display='flex';document.getElementById('admin-app').style.display='none';}
+
+// ════════════════════════════════
+// REALTIME LISTENERS
+// ════════════════════════════════
+function startRealtimeListeners(){
+  db.ref('users').on('value',s=>{allUsers=s.val()||{};updateTopBar();populateUserSelects();});
+  db.ref('posts').on('value',s=>{allPosts=s.val()||{};});
+  db.ref('ads').on('value',s=>{allAds=s.val()||{};});
+}
+
+function updateTopBar(){
+  const total=Object.keys(allUsers).length;
+  const today=new Date().toDateString();
+  const newToday=Object.values(allUsers).filter(u=>new Date(u.createdAt).toDateString()===today).length;
+  document.getElementById('tb-online').textContent='👥 Total: '+total;
+  document.getElementById('tb-today').textContent='🆕 Today: +'+newToday;
+}
+
+// ════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('act'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('act'));
+  document.getElementById('page-'+p).classList.add('act');
+  document.querySelector(`.nav-item[onclick="showPage('${p}')"]`)?.classList.add('act');
+  // Load page data
+  const loaders={dashboard:loadDashboard,users:loadUsers,posts:loadPosts,matches:loadMatchesAdmin,predictions:loadPredictions,ads:loadAds,suggest:loadSuggest,moderation:loadModeration,'tip-admin':loadCEOPosts,'points':loadPoints,analytics:loadAnalytics};
+  loaders[p]?.();
+}
+
+// ════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════
+async function loadDashboard(){
+  const [users,posts,preds,ads]=await Promise.all([FG('users'),FG('posts'),FG('predictions'),FG('ads')]);
+  const U=users||{};const P=posts||{};const A=ads||{};
+  const uArr=Object.values(U);const pArr=Object.values(P);
+  document.getElementById('s-users').textContent=uArr.length;
+  document.getElementById('s-posts').textContent=pArr.length;
+  document.getElementById('s-blocked').textContent=uArr.filter(u=>u.blocked).length;
+  document.getElementById('s-likes').textContent=pArr.reduce((a,p)=>a+(p.likes||0),0);
+  document.getElementById('s-ads').textContent=Object.values(A).filter(a=>a.active).length;
+  // Pred count
+  let predCount=0;
+  if(preds){Object.values(preds).forEach(day=>{if(typeof day==='object')Object.values(day).forEach(m=>{if(typeof m==='object')predCount+=Object.keys(m).length;});})}
+  document.getElementById('s-preds').textContent=predCount;
+  // New users today
+  const today=new Date().toDateString();
+  const newU=uArr.filter(u=>new Date(u.createdAt).toDateString()===today).slice(-5).reverse();
+  document.getElementById('new-users-list').innerHTML=newU.length?newU.map(u=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--b)">
+    <div style="width:30px;height:30px;border-radius:50%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:12px">${u.avatar}</div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:600">${u.displayName}</div><div style="font-size:11px;color:var(--t2)">@${u.username}</div></div>
+    ${u.tgId?'<span class="badge badge-b">TG</span>':''}
+  </div>`).join(''):'<div style="padding:16px;text-align:center;color:var(--t2);font-size:13px">No new users today</div>';
+  // Top posts
+  const topP=pArr.sort((a,b)=>(b.likes||0)-(a.likes||0)).slice(0,5);
+  document.getElementById('top-posts-list').innerHTML=topP.length?topP.map(p=>{const u=U[p.userId]||{};return`<div style="padding:10px 14px;border-bottom:1px solid var(--b)">
+    <div style="font-size:13px;font-weight:500;margin-bottom:3px">${(p.caption||p.prediction||'No caption').slice(0,50)}${(p.caption||p.prediction||'').length>50?'...':''}</div>
+    <div style="display:flex;gap:8px;font-size:11px;color:var(--t2)"><span>👤 ${u.displayName||'User'}</span><span>❤️ ${p.likes||0}</span><span>👁️ ${Object.keys(p.views||{}).length}</span></div>
+  </div>`;}).join(''):'<div style="padding:16px;text-align:center;color:var(--t2);font-size:13px">No posts yet</div>';
+}
+
+// ════════════════════════════════
+// ANALYTICS
+// ════════════════════════════════
+async function loadAnalytics(){
+  const users=Object.values(allUsers);
+  const posts=Object.values(allPosts);
+  const totalPts=users.reduce((a,u)=>a+(u.points||0),0);
+  const avgPts=users.length?Math.floor(totalPts/users.length):0;
+  const totalLikes=posts.reduce((a,p)=>a+(p.likes||0),0);
+  const totalViews=posts.reduce((a,p)=>a+Object.keys(p.views||{}).length,0);
+  document.getElementById('points-analytics').innerHTML=
+    [['💰 Total Points',Math.floor(totalPts),'var(--gold)'],['📊 Avg Points',avgPts,'var(--g)'],['❤️ Total Likes',totalLikes,'var(--red)'],['👁️ Total Views',totalViews,'var(--blue)']]
+    .map(([l,v,c])=>`<div style="background:var(--bg3);border-radius:var(--rs);padding:14px;text-align:center"><div style="font-size:24px;font-weight:700;color:${c}">${v.toLocaleString()}</div><div style="font-size:11px;color:var(--t2);margin-top:4px">${l}</div></div>`).join('');
+
+  // Simple bar chart - users by day
+  const days={};users.forEach(u=>{if(u.createdAt){const d=new Date(u.createdAt).toLocaleDateString();days[d]=(days[d]||0)+1;}});
+  const dayEntries=Object.entries(days).slice(-7);const maxD=Math.max(...dayEntries.map(([k,v])=>v),1);
+  document.getElementById('user-chart').innerHTML=`<div class="bar-chart">${dayEntries.map(([d,v])=>`<div title="${d}: ${v}" class="bar" style="height:${Math.max(8,(v/maxD)*72)}px"></div>`).join('')}</div>
+  <div style="font-size:11px;color:var(--t2);margin-top:6px">Last 7 days · Total: ${users.length}</div>`;
+
+  // Post chart
+  const pdays={};Object.values(allPosts).forEach(p=>{if(p.createdAt){const d=new Date(p.createdAt).toLocaleDateString();pdays[d]=(pdays[d]||0)+1;}});
+  const pdayE=Object.entries(pdays).slice(-7);const maxP=Math.max(...pdayE.map(([k,v])=>v),1);
+  document.getElementById('post-chart').innerHTML=`<div class="bar-chart">${pdayE.map(([d,v])=>`<div title="${d}: ${v}" class="bar" style="height:${Math.max(8,(v/maxP)*72)}px;background:var(--blue)"></div>`).join('')}</div>
+  <div style="font-size:11px;color:var(--t2);margin-top:6px">Last 7 days · Total: ${Object.keys(allPosts).length}</div>`;
+
+  // Ad analytics
+  const ads=Object.entries(allAds);
+  document.getElementById('ad-analytics').innerHTML=ads.length?`<table style="width:100%"><thead><tr><th>Ad</th><th>Clicks</th><th>pts Given</th><th>Status</th></tr></thead><tbody>${ads.map(([id,a])=>`<tr><td>${a.title}</td><td>${Object.keys(a.clicks||{}).length}</td><td>${(Object.keys(a.clicks||{}).length*(a.ptsPerClick||3)).toLocaleString()}</td><td><span class="badge ${a.active?'badge-g':'badge-gray'}">${a.active?'Active':'Paused'}</span></td></tr>`).join('')}</tbody></table>`:'<div style="color:var(--t2);font-size:13px">No ads yet</div>';
+}
+
+// ════════════════════════════════
+// USERS
+// ════════════════════════════════
+let filteredUsers=[];
+async function loadUsers(){
+  const users=Object.entries(allUsers).map(([k,v])=>({...v,id:k})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  filteredUsers=users;renderUsersTable(users);
+}
+function filterUsers(q=''){
+  const filter=document.getElementById('user-filter').value;
+  let users=Object.entries(allUsers).map(([k,v])=>({...v,id:k}));
+  const search=q||document.getElementById('user-search')?.value||'';
+  if(search)users=users.filter(u=>u.displayName?.toLowerCase().includes(search.toLowerCase())||u.username?.toLowerCase().includes(search.toLowerCase()));
+  if(filter==='blocked')users=users.filter(u=>u.blocked);
+  else if(filter==='verified')users=users.filter(u=>(u.followers||0)>=500&&(u.posts||0)>=200||u.isAdmin);
+  else if(filter==='admin')users=users.filter(u=>u.isAdmin);
+  renderUsersTable(users);
+}
+function renderUsersTable(users){
+  document.getElementById('users-table').innerHTML=users.map(u=>`<tr>
+    <td><div class="user-row">
+      <div style="width:32px;height:32px;border-radius:50%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden">${u.avUrl?`<img src="${u.avUrl}" style="width:100%;height:100%;object-fit:cover">`:u.avatar}</div>
+      <div><div style="font-size:13px;font-weight:600">${u.displayName}${u.isAdmin?'<span class="badge badge-b" style="margin-left:4px">CEO</span>':''}</div><div style="font-size:11px;color:var(--t2)">@${u.username} ${u.tgId?'✈️':''}</div></div>
+    </div></td>
+    <td class="text-gold" style="font-weight:600">${Math.floor(u.points||0)}</td>
+    <td>${u.followers||0}</td>
+    <td>${u.posts||0}</td>
+    <td style="font-size:11px;color:var(--t2)">${u.createdAt?new Date(u.createdAt).toLocaleDateString():'-'}</td>
+    <td>${u.blocked?'<span class="badge badge-r">Blocked</span>':'<span class="badge badge-g">Active</span>'}</td>
+    <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-b" onclick="viewUserDetail('${u.id}')">👁</button>
+      <button class="btn btn-sm ${u.blocked?'btn-g':'btn-r'}" onclick="${u.blocked?`unblockUser('${u.id}')`:`blockUser('${u.id}','${u.displayName}')`}">${u.blocked?'Unblock':'Block'}</button>
+      <button class="btn btn-sm btn-o" onclick="deleteUser('${u.id}','${u.displayName}')">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+async function viewUserDetail(uid){
+  const u={...allUsers[uid],id:uid};
+  const posts=Object.entries(allPosts).filter(([k,v])=>v.userId===uid).map(([k,v])=>({...v,id:k}));
+  document.getElementById('user-modal-body').innerHTML=`
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="width:60px;height:60px;border-radius:50%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 8px;overflow:hidden">${u.avUrl?`<img src="${u.avUrl}" style="width:100%;height:100%;object-fit:cover">`:u.avatar}</div>
+      <div style="font-size:16px;font-weight:700">${u.displayName}</div>
+      <div style="font-size:12px;color:var(--t2)">@${u.username} · ${u.tgId?'Telegram ✅':'No TG'}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+      ${[['Points',Math.floor(u.points||0),'var(--gold)'],['Followers',u.followers||0,'var(--g)'],['Posts',u.posts||0,'var(--blue)']].map(([l,v,c])=>`<div style="background:var(--bg3);border-radius:var(--rs);padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:${c}">${v}</div><div style="font-size:11px;color:var(--t2)">${l}</div></div>`).join('')}
+    </div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:12px"><strong style="color:var(--t)">Bio:</strong> ${u.bio||'No bio'}</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:12px"><strong style="color:var(--t)">Firebase ID:</strong> <code style="font-size:11px;background:var(--bg3);padding:2px 6px;border-radius:4px">${u.id}</code></div>
+    <div style="margin-bottom:12px"><strong style="font-size:13px">Recent Posts (${posts.length}):</strong>
+      ${posts.slice(0,3).map(p=>`<div style="padding:8px;background:var(--bg3);border-radius:var(--rs);margin-top:6px;font-size:12px;color:var(--t2)">${(p.caption||p.prediction||'Media post').slice(0,60)} · ❤️${p.likes||0}</div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-g" onclick="givePointsTo('${u.id}','${u.displayName}')">💰 Give Points</button>
+      <button class="btn btn-r" onclick="blockUser('${u.id}','${u.displayName}');closeModal('user-modal')">🚫 Block</button>
+      <button class="btn btn-o" onclick="deleteAllPosts('${u.id}')">🗑 Delete Posts</button>
+      ${u.isAdmin?'':`<button class="btn btn-b" onclick="makeAdmin('${u.id}')">👑 Make Admin</button>`}
+    </div>`;
+  openModal('user-modal');
+}
+
+async function blockUser(uid,name){
+  if(!confirm('Block '+name+'?'))return;
+  await FU('users/'+uid,{blocked:true,blockedAt:Date.now()});
+  await FS('blocked/'+uid,{uid,name,blockedAt:Date.now()});
+  toast('🚫 '+name+' blocked','ok');loadUsers();loadModeration();
+}
+async function unblockUser(uid){
+  await FU('users/'+uid,{blocked:false});await FD('blocked/'+uid);
+  toast('✅ User unblocked','ok');loadUsers();
+}
+async function deleteUser(uid,name){
+  if(!confirm('DELETE '+name+'? This is permanent!'))return;
+  await FD('users/'+uid);await FD('blocked/'+uid);
+  toast('🗑️ User deleted','ok');loadUsers();
+}
+async function makeAdmin(uid){
+  await FU('users/'+uid,{isAdmin:true});toast('👑 Admin granted','ok');closeModal('user-modal');
+}
+async function deleteAllPosts(uid){
+  if(!confirm('Delete ALL posts of this user?'))return;
+  const posts=Object.entries(allPosts).filter(([k,v])=>v.userId===uid);
+  for(const [k] of posts)await FD('posts/'+k);
+  await FU('users/'+uid,{posts:0});toast('🗑️ All posts deleted','ok');closeModal('user-modal');
+}
+async function givePointsTo(uid,name){
+  const amt=prompt('Points to give (use - for remove):');if(!amt)return;
+  const n=parseFloat(amt);if(isNaN(n))return;
+  const cur=(await FG('users/'+uid+'/points'))||0;
+  await FS('users/'+uid+'/points',Math.max(0,cur+n));
+  toast('💰 '+(n>0?'+':'')+n+' pts to '+name,'ok');
+}
+
+// ════════════════════════════════
+// POSTS
+// ════════════════════════════════
+async function loadPosts(){
+  const filter=document.getElementById('post-filter').value;
+  let posts=Object.entries(allPosts).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+  if(filter!=='all')posts=posts.filter(p=>p.status===filter);
+  const tbody=document.getElementById('posts-table');
+  tbody.innerHTML=posts.map(p=>{const u=allUsers[p.userId]||{};const views=Object.keys(p.views||{}).length;
+    return`<tr>
+      <td style="max-width:200px"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.caption||p.prediction||'[Media]'}</div>${p.prediction?`<div style="font-size:11px;color:var(--g)">🎯 ${p.prediction}</div>`:''}</td>
+      <td><div style="font-size:12px;font-weight:500">${u.displayName||'Unknown'}</div></td>
+      <td>❤️ ${p.likes||0}</td><td>👁 ${views}</td>
+      <td>${p.status==='won'?'<span class="badge badge-g">Won</span>':p.status==='lost'?'<span class="badge badge-r">Lost</span>':'<span class="badge badge-gray">Pending</span>'}</td>
+      <td style="font-size:11px;color:var(--t2)">${p.createdAt?new Date(p.createdAt).toLocaleDateString():'-'}</td>
+      <td><div style="display:flex;gap:4px">
+        <select style="font-size:11px;background:var(--bg3);color:var(--t);border:1px solid var(--b2);border-radius:4px;padding:4px" onchange="setPostStatus('${p.id}',this.value)">
+          <option ${p.status==='pending'?'selected':''} value="pending">⏳</option>
+          <option ${p.status==='won'?'selected':''} value="won">✅ Won</option>
+          <option ${p.status==='lost'?'selected':''} value="lost">❌ Lost</option>
+        </select>
+        <button class="btn btn-sm btn-r" onclick="deletePost('${p.id}')">🗑</button>
+      </div></td>
+    </tr>`;}).join('');
+}
+async function setPostStatus(pid,status){
+  await FU('posts/'+pid,{status});
+  if(status==='won'){
+    const post=allPosts[pid];if(!post)return;
+    const preds=await FG('predictions');
+    if(preds){Object.entries(preds).forEach(async([uid,days])=>{Object.entries(days).forEach(async([day,matches])=>{if(matches[pid]==='home'||matches[pid]==='draw'||matches[pid]==='away'){const cur=(await FG('users/'+uid+'/points'))||0;await FS('users/'+uid+'/points',cur+10);}});});}
+  }
+  toast('✅ Status updated','ok');
+}
+async function deletePost(pid){if(!confirm('Delete post?'))return;await FD('posts/'+pid);toast('🗑️ Post deleted','ok');loadPosts();}
+
+// ════════════════════════════════
+// MATCHES
+// ════════════════════════════════
+async function loadMatchesAdmin(){
+  const data=await FG('matches');const matches=data?Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>new Date(b.matchDate)-new Date(a.matchDate)):[];
+  document.getElementById('matches-table').innerHTML=matches.map(m=>`<tr>
+    <td>${m.homeIcon||'⚽'} ${m.home}</td><td>${m.awayIcon||'⚽'} ${m.away}</td>
+    <td>${m.league}</td><td>${m.matchDate||'-'}</td><td>${m.time}</td>
+    <td>${m.result?`<span class="badge badge-g">${m.result}</span>`:'<span class="badge badge-gray">TBD</span>'}</td>
+    <td><span class="badge ${m.active!==false?'badge-g':'badge-r'}">${m.active!==false?'Active':'Off'}</span></td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-sm btn-b" onclick="setResult('${m.id}','${m.home}','${m.away}')">🏆 Result</button>
+      <button class="btn btn-sm ${m.active!==false?'btn-r':'btn-g'}" onclick="toggleMatch('${m.id}',${m.active!==false})">${m.active!==false?'Off':'On'}</button>
+      <button class="btn btn-sm btn-r" onclick="deleteMatch('${m.id}')">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+function openAddMatch(){document.querySelector('#page-tip-admin .section-card:nth-child(2)')?.scrollIntoView();showPage('tip-admin');}
+async function addMatch(){
+  const home=document.getElementById('m-home').value.trim();const away=document.getElementById('m-away').value.trim();
+  if(!home||!away){toast('⚠️ Fill home & away','err');return;}
+  const d=document.getElementById('m-date').value||new Date().toISOString().slice(0,10);
+  const matchDate=new Date(d).toDateString();
+  await FP('matches',{home,away,homeIcon:document.getElementById('m-hic').value||'⚽',awayIcon:document.getElementById('m-aic').value||'⚽',league:document.getElementById('m-lg').value||'Football',time:document.getElementById('m-time').value||'22:00',matchDate,active:true,createdAt:Date.now()});
+  ['m-home','m-away','m-hic','m-aic','m-lg','m-time','m-date'].forEach(id=>document.getElementById(id).value='');
+  toast('✅ Match added!','ok');loadMatchesAdmin();
+}
+async function deleteMatch(id){if(!confirm('Delete match?'))return;await FD('matches/'+id);toast('🗑️ Deleted','ok');loadMatchesAdmin();}
+async function toggleMatch(id,wasActive){await FU('matches/'+id,{active:!wasActive});loadMatchesAdmin();}
+async function setResult(id,home,away){
+  const r=prompt(`Result for ${home} vs ${away}:\n"home" = ${home} wins\n"away" = ${away} wins\n"draw" = Draw`);
+  if(!r)return;await FU('matches/'+id,{result:r,active:false});
+  // Award prediction points
+  const allPreds=await FG('predictions');
+  if(allPreds){for(const [uid,days] of Object.entries(allPreds)){for(const [day,matches] of Object.entries(days)){if(matches&&matches[id]===r){const cur=(await FG('users/'+uid+'/points'))||0;await FS('users/'+uid+'/points',cur+10);}}}}
+  toast('🏆 Result set! Points awarded','ok');loadMatchesAdmin();
+}
+
+// ════════════════════════════════
+// PREDICTIONS
+// ════════════════════════════════
+async function loadPredictions(){
+  const [matches,preds]=await Promise.all([FG('matches'),FG('predictions')]);
+  const matchArr=matches?Object.entries(matches).map(([k,v])=>({...v,id:k})).filter(m=>!m.result&&m.active!==false):[];
+  document.getElementById('result-matches').innerHTML=matchArr.length?matchArr.map(m=>{
+    const today=new Date().toDateString();
+    let homeCnt=0,drawCnt=0,awayCnt=0;
+    if(preds)Object.values(preds).forEach(days=>{if(days[today]&&days[today][m.id]){if(days[today][m.id]==='home')homeCnt++;else if(days[today][m.id]==='draw')drawCnt++;else awayCnt++;}});
+    const total=homeCnt+drawCnt+awayCnt;
+    return`<div style="padding:12px;border-bottom:1px solid var(--b)">
+      <div style="font-size:14px;font-weight:600;margin-bottom:8px">${m.homeIcon||'⚽'} ${m.home} vs ${m.away} ${m.awayIcon||'⚽'} <span style="font-size:11px;color:var(--t2)">· ${m.league}</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;font-size:12px;color:var(--t2)">
+        <span>🏠 ${homeCnt} (${total?Math.round(homeCnt/total*100):0}%)</span>
+        <span>🤝 ${drawCnt} (${total?Math.round(drawCnt/total*100):0}%)</span>
+        <span>✈️ ${awayCnt} (${total?Math.round(awayCnt/total*100):0}%)</span>
+        <span style="color:var(--t)">Total: ${total} predictions</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-g" onclick="setResult('${m.id}','${m.home}','${m.away}')">🏆 Set Result</button>
+      </div>
+    </div>`;}).join(''):'<div style="padding:16px;text-align:center;color:var(--t2)">No pending matches</div>';
+}
+
+// ════════════════════════════════
+// ADVERTISEMENTS
+// ════════════════════════════════
+async function loadAds(){
+  const ads=await FG('ads');const el=document.getElementById('ads-list');
+  if(!ads){el.innerHTML='<div style="text-align:center;color:var(--t2);padding:24px">No ads yet. Create your first ad!</div>';return;}
+  el.innerHTML=Object.entries(ads).map(([id,a])=>{
+    const clicks=Object.keys(a.clicks||{}).length;const pts=clicks*(a.ptsPerClick||3);
+    return`<div class="ad-item">
+      <div class="ad-badge">${a.placement||'feed'}</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">${a.title}</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">${a.desc||''}</div>
+      ${a.imgUrl?`<img src="${a.imgUrl}" style="max-height:80px;border-radius:var(--rs);margin-bottom:8px;display:block" onerror="this.style.display='none'">`:'' }
+      <div style="font-size:12px;color:var(--t2);margin-bottom:10px">🔗 <a href="${a.url}" target="_blank" style="color:var(--blue)">${a.url}</a></div>
+      <div style="display:flex;gap:12px;font-size:12px;margin-bottom:10px">
+        <span>👆 ${clicks} clicks</span>
+        <span class="text-gold">💰 ${pts} pts given</span>
+        <span>⚡ ${a.ptsPerClick||3} pts/click</span>
+        <span class="badge ${a.active?'badge-g':'badge-gray'}">${a.active?'Active':'Paused'}</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm ${a.active?'btn-r':'btn-g'}" onclick="toggleAd('${id}',${a.active})">${a.active?'Pause':'Activate'}</button>
+        <button class="btn btn-sm btn-o" onclick="editAd('${id}')">✏️ Edit</button>
+        <button class="btn btn-sm btn-r" onclick="deleteAd('${id}')">🗑 Delete</button>
+      </div>
+    </div>`;}).join('');
+}
+function openAddAd(){openModal('ad-modal');}
+async function createAd(){
+  const title=document.getElementById('ad-title').value.trim();const url=document.getElementById('ad-url').value.trim();
+  if(!title||!url){toast('⚠️ Title & URL required','err');return;}
+  const ad={title,desc:document.getElementById('ad-desc').value.trim(),url,imgUrl:document.getElementById('ad-img').value.trim(),ptsPerClick:parseInt(document.getElementById('ad-pts').value)||3,placement:document.getElementById('ad-placement').value,budget:parseInt(document.getElementById('ad-budget').value)||0,clicks:{},active:true,createdAt:Date.now()};
+  await FP('ads',ad);closeModal('ad-modal');toast('📢 Ad created!','ok');loadAds();
+  ['ad-title','ad-desc','ad-url','ad-img'].forEach(id=>document.getElementById(id).value='');
+}
+async function toggleAd(id,wasActive){await FU('ads/'+id,{active:!wasActive});toast('✅ Updated','ok');loadAds();}
+async function deleteAd(id){if(!confirm('Delete ad?'))return;await FD('ads/'+id);toast('🗑️ Deleted','ok');loadAds();}
+
+// ════════════════════════════════
+// SUGGEST/BOOST
+// ════════════════════════════════
+function populateUserSelects(){
+  const users=Object.entries(allUsers).map(([k,v])=>({...v,id:k})).sort((a,b)=>a.displayName?.localeCompare(b.displayName));
+  const opts=users.map(u=>`<option value="${u.id}">${u.displayName} (@${u.username})</option>`).join('');
+  ['boost-user-sel','pts-user'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">-- ជ្រើស User --</option>'+opts;});
+}
+async function boostUser(){
+  const uid=document.getElementById('boost-user-sel').value;const dur=parseInt(document.getElementById('boost-dur').value)||1;
+  if(!uid){toast('⚠️ Select user','err');return;}
+  const exp=Date.now()+dur*86400000;
+  await FU('users/'+uid,{boosted:true,boostExp:exp});
+  await FU('boosted/'+uid,{uid,exp,dur,boostAt:Date.now()});
+  toast('⚡ User boosted for '+dur+' days!','ok');loadSuggest();
+}
+async function boostPost(){
+  const pid=document.getElementById('boost-post-inp').value.trim();const dur=parseInt(document.getElementById('boost-post-dur').value)||1;
+  if(!pid){toast('⚠️ Enter Post ID','err');return;}
+  const exp=Date.now()+dur*86400000;
+  await FU('posts/'+pid,{boosted:true,boostExp:exp});
+  toast('⚡ Post boosted!','ok');document.getElementById('boost-post-inp').value='';
+}
+async function saveAutoRules(){
+  const minLikes=parseInt(document.getElementById('auto-likes').value)||10;
+  const mult=parseFloat(document.getElementById('auto-mult').value)||2;
+  await FS('config/autoSuggest',{minLikes,mult,updatedAt:Date.now()});
+  toast('💾 Auto rules saved!','ok');
+}
+async function loadSuggest(){
+  const boosted=await FG('boosted');const el=document.getElementById('boosted-users');
+  if(!boosted){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--t2);font-size:13px">No boosted users</div>';return;}
+  const now=Date.now();
+  el.innerHTML=Object.entries(boosted).map(([uid,b])=>{const u=allUsers[uid]||{};const expired=b.exp<now;
+    return`<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--b)">
+      <div style="font-size:13px;flex:1">${u.displayName||'Unknown'} ${expired?'<span class="badge badge-r">Expired</span>':'<span class="badge badge-gold">Active</span>'}</div>
+      <div style="font-size:11px;color:var(--t2)">${b.dur}d · ${expired?'Expired':new Date(b.exp).toLocaleDateString()}</div>
+      <button class="btn btn-sm btn-r" onclick="unboostUser('${uid}')">✕</button>
+    </div>`;}).join('');
+}
+async function unboostUser(uid){await FU('users/'+uid,{boosted:false,boostExp:null});await FD('boosted/'+uid);toast('✅ Unboost','ok');loadSuggest();}
+
+// ════════════════════════════════
+// CEO TIP POST
+// ════════════════════════════════
+async function cePostTip(){
+  const match=document.getElementById('ceo-match').value.trim();const pred=document.getElementById('ceo-pred').value.trim();
+  if(!match||!pred){toast('⚠️ Match & prediction required','err');return;}
+  // Find or create CEO user
+  let ceoId=adminUID;
+  if(!ceoId){const snap=await db.ref('users').orderByChild('isAdmin').equalTo(true).once('value');const d=snap.val();if(d)ceoId=Object.keys(d)[0];}
+  if(!ceoId){toast('⚠️ Set Admin UID first','err');return;}
+  const post={userId:ceoId,caption:'',prediction:pred,odds:parseFloat(document.getElementById('ceo-odds').value)||1,league:document.getElementById('ceo-league').value.trim()||'Football',tipType:document.getElementById('ceo-type').value,analysis:document.getElementById('ceo-analysis').value.trim(),mediaUrl:'',mediaType:'',likes:0,comments:0,shares:0,status:'pending',views:{},isCEO:true,createdAt:Date.now()};
+  await FP('posts',post);
+  ['ceo-match','ceo-pred','ceo-odds','ceo-league','ceo-analysis'].forEach(id=>document.getElementById(id).value='');
+  toast('✅ CEO Tip posted!','ok');loadCEOPosts();
+}
+async function loadCEOPosts(){
+  const posts=Object.entries(allPosts).filter(([k,v])=>v.isCEO).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt).slice(0,10);
+  document.getElementById('ceo-posts-list').innerHTML=posts.length?posts.map(p=>`<div style="padding:12px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px">
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:600">🎯 ${p.prediction} · Odds ${p.odds||1}</div>
+      <div style="font-size:11px;color:var(--t2)">${p.league} · ❤️${p.likes||0} · ${new Date(p.createdAt).toLocaleDateString()}</div>
+    </div>
+    <span class="badge ${p.status==='won'?'badge-g':p.status==='lost'?'badge-r':'badge-gray'}">${p.status}</span>
+    <select style="font-size:11px;background:var(--bg3);color:var(--t);border:1px solid var(--b2);border-radius:4px;padding:4px" onchange="setPostStatus('${p.id}',this.value)">
+      <option ${p.status==='pending'?'selected':''} value="pending">⏳</option>
+      <option ${p.status==='won'?'selected':''} value="won">✅ Won</option>
+      <option ${p.status==='lost'?'selected':''} value="lost">❌ Lost</option>
+    </select>
+    <button class="btn btn-sm btn-r" onclick="deletePost('${p.id}')">🗑</button>
+  </div>`).join(''):'<div style="padding:16px;text-align:center;color:var(--t2)">No CEO posts yet</div>';
+}
+
+// ════════════════════════════════
+// MODERATION
+// ════════════════════════════════
+async function loadModeration(){
+  const [blocked,reports]=await Promise.all([FG('blocked'),FG('reports')]);
+  // Blocked users
+  const bl=document.getElementById('blocked-list');
+  if(!blocked){bl.innerHTML='<div style="padding:14px;text-align:center;color:var(--t2);font-size:13px">No blocked users</div>';}
+  else{bl.innerHTML=Object.entries(blocked).map(([uid,b])=>{const u=allUsers[uid]||{};return`<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--b)">
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${u.displayName||b.name||'Unknown'}</div><div style="font-size:11px;color:var(--t2)">${new Date(b.blockedAt).toLocaleDateString()}</div></div>
+    <button class="btn btn-sm btn-g" onclick="unblockUser('${uid}')">Unblock</button>
+  </div>`;}).join('');}
+  // Reports
+  const rl=document.getElementById('reports-list');
+  rl.innerHTML='<div style="padding:14px;text-align:center;color:var(--t2);font-size:13px">No reports</div>';
+}
+
+// ════════════════════════════════
+// POINTS
+// ════════════════════════════════
+async function loadPoints(){
+  const users=Object.entries(allUsers).map(([k,v])=>({...v,id:k})).sort((a,b)=>(b.points||0)-(a.points||0));
+  document.getElementById('pts-table').innerHTML=users.map((u,i)=>`<tr>
+    <td style="font-weight:700;color:var(--t2)">${i+1}</td>
+    <td><div class="user-row">
+      <div style="width:28px;height:28px;border-radius:50%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:11px">${u.avatar}</div>
+      <div><div style="font-size:13px;font-weight:600">${u.displayName}</div><div style="font-size:11px;color:var(--t2)">@${u.username}</div></div>
+    </div></td>
+    <td class="text-gold" style="font-weight:700">${Math.floor(u.points||0)}</td>
+    <td>${u.followers||0}</td><td>${u.posts||0}</td>
+    <td>${u.avgStars?'⭐'+u.avgStars:'—'}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-sm btn-g" onclick="givePointsTo('${u.id}','${u.displayName}')">💰</button>
+      <button class="btn btn-sm btn-b" onclick="viewUserDetail('${u.id}')">👁</button>
+    </div></td>
+  </tr>`).join('');
+  populateUserSelects();
+}
+async function givePoints(){
+  const uid=document.getElementById('pts-user').value;const amt=parseFloat(document.getElementById('pts-amount').value);
+  if(!uid||isNaN(amt)){toast('⚠️ Select user & amount','err');return;}
+  const cur=(await FG('users/'+uid+'/points'))||0;await FS('users/'+uid+'/points',Math.max(0,cur+amt));
+  toast('💰 '+(amt>0?'+':'')+amt+' pts applied','ok');loadPoints();
+}
+
+// ════════════════════════════════
+// MODAL / UTILS
+// ════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('on');}
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');}));
+function toast(msg,type='inf'){const c=document.getElementById('toast-c'),t=document.createElement('div');t.className='toast '+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),2800);}
+
+// Set default date to today
+document.getElementById('m-date').value=new Date().toISOString().slice(0,10);
+</script>
+</body>
+</html>
