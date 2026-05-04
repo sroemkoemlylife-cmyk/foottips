@@ -302,9 +302,14 @@ body{display:flex;flex-direction:column;}
       <div id="matches"></div>
     </div>
     <div class="pg" id="pg-lead">
-      <div class="sh"><div class="sh-t">🏆 Top Weekly</div><div class="pill p-gold" id="wt"></div></div>
+      <div class="sh"><div class="sh-t">🏆 Leaderboard</div><div class="pill p-gold" id="wt"></div></div>
+      <div style="display:flex;padding:0 12px 0;border-bottom:1px solid var(--b);margin-bottom:8px;">
+        <div id="lt-pts" style="padding:8px 14px;font-size:12px;font-weight:600;color:var(--g);border-bottom:2px solid var(--g);cursor:pointer" onclick="switchLeadTab('pts')">💰 Points</div>
+        <div id="lt-wr" style="padding:8px 14px;font-size:12px;font-weight:500;color:var(--t2);border-bottom:2px solid transparent;cursor:pointer" onclick="switchLeadTab('wr')">🎯 Win Rate</div>
+        <div id="lt-tips" style="padding:8px 14px;font-size:12px;font-weight:500;color:var(--t2);border-bottom:2px solid transparent;cursor:pointer" onclick="switchLeadTab('tips')">📝 Most Tips</div>
+      </div>
       <div style="margin:0 12px 12px;background:var(--card);border:1px solid var(--b);border-radius:var(--rs);padding:10px;display:flex;gap:12px" id="wib"></div>
-      <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase">🥇 TOP 3</div>
+      <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase" id="lead-sec1-title">🥇 TOP 3</div>
       <div id="top3"></div>
       <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase">📊 ទូទៅ</div>
       <div id="leader-all"></div>
@@ -539,6 +544,21 @@ function launch(){
     document.getElementById('ndot').classList.toggle('on',n>0);
   });
   loadMatches();loadNotifs();renderMyProf();updateWT();setInterval(updateWT,60000);
+  setTimeout(syncAllWinRates,3000);
+}
+
+async function calcWinRate(uid){
+  const snap=await db.ref('posts').orderByChild('userId').equalTo(uid).once('value');
+  const posts=snap.val()?Object.values(snap.val()):[];
+  const won=posts.filter(p=>p.status==='won').length;
+  const settled=posts.filter(p=>p.status==='won'||p.status==='lost').length;
+  const rate=settled>0?Math.round((won/settled)*100):null;
+  if(settled>0)await FU('users/'+uid,{winRate:rate,wonTips:won,settledTips:settled});
+  return rate;
+}
+async function syncAllWinRates(){
+  const uids=Object.keys(AU||{}).slice(0,20);
+  for(const uid of uids)await calcWinRate(uid);
 }
 
 // ═══════════════════════════ NAV ═══════════════════════════
@@ -607,7 +627,7 @@ function postH(p,ml){
     <div class="pc-h">
       <div class="uav" style="background:${u.color}22;color:${u.color}" onclick="viewProf('${p.userId}')">${avHTML(u,38)}</div>
       <div class="pc-info">
-        <div class="pc-name">${nameH(u)}</div>
+        <div class="pc-name">${nameH(u)}${u.winRate!=null?`<span style="font-size:10px;font-weight:500;color:${u.winRate>=70?'#1D9E75':u.winRate>=50?'#BA7517':'#D85A30'};margin-left:4px">${u.winRate}%</span>`:''}</div>
         ${u.isAdmin?'<span class="ceo-lbl">CEO FootTips</span>':''}
         <div class="pc-time">${ta(p.createdAt)}</div>
       </div>
@@ -922,25 +942,66 @@ async function predict(mid,ch,lbl){
 
 // ═══════════════════════════ LEADERBOARD ═══════════════════════════
 function renderLead(data){
-  const users=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>(b.points||0)-(a.points||0));
-  const q300=users.filter(u=>u.points>=300);const top3=q300.slice(0,3);
+  let users=Object.entries(data).map(([k,v])=>({...v,id:k}));
+  // Sort based on active tab
+  if(leadTab==='wr'){
+    users=users.filter(u=>u.settledTips>=3);// min 3 settled tips for win rate
+    users.sort((a,b)=>(b.winRate||0)-(a.winRate||0));
+  } else if(leadTab==='tips'){
+    users.sort((a,b)=>(b.posts||0)-(a.posts||0));
+  } else {
+    users.sort((a,b)=>(b.points||0)-(a.points||0));
+  }
+  const q300=leadTab==='pts'?users.filter(u=>u.points>=300):users.filter(u=>leadTab==='wr'?u.winRate>=60:u.posts>=5);
+  const top3=q300.slice(0,3);
   const medals=['🥇','🥈','🥉'],bc=['bg-g','bg-s','bg-b'],bt=['Champion','Runner-up','3rd'];
-  document.getElementById('top3').innerHTML=top3.length?top3.map((u,i)=>`<div class="lc" onclick="viewProf('${u.id}')">
+  const secTitle=leadTab==='wr'?'🎯 Top Win Rate (min 3 tips)':leadTab==='tips'?'📝 Most Active Tipsters':'🥇 TOP 3';
+  const emptyMsg=leadTab==='wr'?'ត្រូវការ 3+ settled tips':leadTab==='tips'?'ត្រូវការ 5+ posts':'មិនទាន់មាន 300+ pts';
+  document.getElementById('lead-sec1-title').textContent=secTitle;
+  document.getElementById('top3').innerHTML=top3.length?top3.map((u,i)=>{
+    const statVal=leadTab==='wr'?u.winRate+'%':leadTab==='tips'?u.posts+' tips':Math.floor(u.points||0)+' pts';
+    const statColor=leadTab==='wr'?(u.winRate>=70?'#1D9E75':u.winRate>=50?'#BA7517':'#D85A30'):'var(--gold)';
+    return`<div class="lc" onclick="viewProf('${u.id}')">
     <span style="font-size:18px;width:28px;text-align:center">${medals[i]}</span>
     <div style="width:38px;height:38px;border-radius:50%;overflow:hidden;flex-shrink:0;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center">${avHTML(u,38)}</div>
-    <div style="flex:1"><div class="ln">${nameH(u)}</div><div class="lp">${Math.floor(u.points||0)} pts${u.avgStars?' · ⭐'+u.avgStars:''}</div></div>
-    <span class="lbg ${bc[i]}">${bt[i]}</span></div>`).join(''):'<div class="empty"><div class="empty-ic">🏆</div><div class="empty-h">មិនទាន់មាន 300+ pts</div></div>';
-  document.getElementById('leader-all').innerHTML=users.map((u,i)=>`<div class="lc" onclick="viewProf('${u.id}')">
+    <div style="flex:1">
+      <div class="ln">${nameH(u)}</div>
+      <div class="lp">${Math.floor(u.points||0)} pts${u.avgStars?' · ⭐'+u.avgStars:''}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:16px;font-weight:700;color:${statColor}">${statVal}</div>
+      <span class="lbg ${bc[i]}">${bt[i]}</span>
+    </div></div>`;}).join(''):`<div class="empty"><div class="empty-ic">🏆</div><div class="empty-h">${emptyMsg}</div></div>`;
+  document.getElementById('leader-all').innerHTML=users.map((u,i)=>{
+    const mainVal=leadTab==='wr'?(u.winRate!=null?u.winRate+'%':'—'):leadTab==='tips'?(u.posts||0)+' tips':Math.floor(u.points||0)+' pts';
+    const mainColor=leadTab==='wr'?(u.winRate>=70?'#1D9E75':u.winRate>=50?'#BA7517':'#D85A30'):'var(--gold)';
+    const subVal=leadTab==='wr'?`${u.wonTips||0}W/${u.settledTips||0} settled`:leadTab==='tips'?`${Math.floor(u.points||0)} pts`:`${u.winRate!=null?u.winRate+'% win':''}`;
+    return`<div class="lc" onclick="viewProf('${u.id}')">
     <span style="font-size:12px;color:var(--t2);font-weight:600;width:28px;text-align:center">${i+1}</span>
     <div style="width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center">${avHTML(u,32)}</div>
-    <div style="flex:1"><div class="ln">${nameH(u)}</div><div class="lp">${Math.floor(u.points||0)} pts</div></div>
-    ${u.id===U?.id?'<span class="pill p-g" style="font-size:9px">អ្នក</span>':''}</div>`).join('');
+    <div style="flex:1"><div class="ln">${nameH(u)}</div><div class="lp" style="font-size:11px">${subVal}</div></div>
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-size:14px;font-weight:700;color:${mainColor}">${mainVal}</div>
+      ${u.id===U?.id?'<span class="pill p-g" style="font-size:9px">អ្នក</span>':''}
+    </div></div>`;}).join('');
   document.getElementById('wib').innerHTML=`
     <div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--g)">${users.length}</div><div style="font-size:10px;color:var(--t2);margin-top:2px">Users</div></div>
     <div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--g)">${q300.length}</div><div style="font-size:10px;color:var(--t2);margin-top:2px">Qualified</div></div>
     <div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--g)">$10</div><div style="font-size:10px;color:var(--t2);margin-top:2px">Prize</div></div>`;
 }
 function updateWT(){const now=new Date(),end=new Date();end.setDate(now.getDate()+(7-now.getDay()));end.setHours(23,59,59,0);const d=end-now,dy=Math.floor(d/86400000),h=Math.floor((d%86400000)/3600000),m=Math.floor((d%3600000)/60000);document.getElementById('wt').textContent=dy+'d '+h+'h '+m+'m';}
+
+let leadTab='pts';
+function switchLeadTab(tab){
+  leadTab=tab;
+  ['pts','wr','tips'].forEach(t=>{
+    const el=document.getElementById('lt-'+t);if(!el)return;
+    el.style.color=t===tab?'var(--g)':'var(--t2)';
+    el.style.borderBottomColor=t===tab?'var(--g)':'transparent';
+    el.style.fontWeight=t===tab?'600':'500';
+  });
+  renderLead(AU);
+}
 
 // ═══════════════════════════ CHAT ═══════════════════════════
 function renderChatList(data){
@@ -1099,6 +1160,12 @@ function profH(u,posts,isMe){
   const isFol=(U.followingList||{})[u.id];const f=u.followers||0;
   const ver=isVerified(u);const d2x=ver&&!u.isAdmin;
   const si=f>=50,grp=f>=100;
+  // Calculate win rate from posts
+  const wonPosts=posts.filter(p=>p.status==='won').length;
+  const settledPosts=posts.filter(p=>p.status==='won'||p.status==='lost').length;
+  const winRate=settledPosts>0?Math.round((wonPosts/settledPosts)*100):null;
+  const winRateColor=winRate>=70?'#1D9E75':winRate>=50?'#BA7517':'#D85A30';
+  const winRateBadge=winRate!==null?`<span style="display:inline-flex;align-items:center;gap:4px;background:${winRateColor}18;color:${winRateColor};border:1px solid ${winRateColor}30;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">${winRate>=70?'🔥':winRate>=50?'⚡':'📉'} ${winRate}% Win Rate</span>`:'';
   return`<div class="phero">
     <div class="pav-wrap" ${isMe?'onclick="changeAv()"':''}>
       <div class="pav" style="background:${u.color}22;color:${u.color}">${u.avUrl?`<img src="${u.avUrl}">`:`<span style="font-size:30px">${u.avatar}</span>`}</div>
@@ -1109,7 +1176,9 @@ function profH(u,posts,isMe){
     ${d2x?'<div style="font-size:10px;color:var(--gold);margin-bottom:4px">⚡ 2x Points Active</div>':''}
     <div class="ph">@${u.username}${u.tgId?' · ✈️':''}</div>
     <div class="pbio">${u.bio||''}</div>
-    ${u.avgStars?`<div style="font-size:13px;color:var(--gold);margin-bottom:10px">⭐ ${u.avgStars} (${u.starCount||0})</div>`:''}
+    ${u.avgStars?`<div style="font-size:13px;color:var(--gold);margin-bottom:6px">⭐ ${u.avgStars} (${u.starCount||0} reviews)</div>`:''}
+    ${winRateBadge?`<div style="margin-bottom:10px">${winRateBadge}</div>`:''}
+    ${settledPosts>0?`<div style="font-size:11px;color:var(--t2);margin-bottom:10px">${wonPosts}W · ${settledPosts-wonPosts}L · ${settledPosts} settled tips</div>`:''}
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px">
       ${isMe?`
         <button class="btn-o" style="width:auto;padding:7px 14px;font-size:12px" onclick="openSets()">⚙️ ការកំណត់</button>
