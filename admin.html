@@ -750,12 +750,22 @@ async function loadPosts(){
 }
 async function setPostStatus(pid,status){
   await FU('posts/'+pid,{status});
-  if(status==='won'){
-    const post=allPosts[pid];if(!post)return;
+  const post=allPosts[pid]||await FG('posts/'+pid);
+  if(post?.userId){
+    // Recalculate win rate for tipster
+    const snap=await db.ref('posts').orderByChild('userId').equalTo(post.userId).once('value');
+    const posts=snap.val()?Object.values(snap.val()):[];
+    // Include current post with new status
+    const won=posts.filter(p=>p.status==='won'||(p===post&&status==='won')).length;
+    const settled=posts.filter(p=>p.status==='won'||p.status==='lost'||(p===post&&(status==='won'||status==='lost'))).length;
+    const rate=settled>0?Math.round((won/settled)*100):null;
+    if(settled>0)await FU('users/'+post.userId,{winRate:rate,wonTips:won,settledTips:settled});
+    toast('✅ Status · Win Rate: '+(rate!=null?rate+'%':'N/A'),'ok');
+  } else toast('✅ Status updated','ok');
+  if(status==='won'&&post){
     const preds=await FG('predictions');
     if(preds){Object.entries(preds).forEach(async([uid,days])=>{Object.entries(days).forEach(async([day,matches])=>{if(matches[pid]==='home'||matches[pid]==='draw'||matches[pid]==='away'){const cur=(await FG('users/'+uid+'/points'))||0;await FS('users/'+uid+'/points',cur+10);}});});}
   }
-  toast('✅ Status updated','ok');
 }
 async function deletePost(pid){if(!confirm('Delete post?'))return;await FD('posts/'+pid);toast('🗑️ Post deleted','ok');loadPosts();}
 
