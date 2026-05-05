@@ -639,45 +639,50 @@ let longPressTimer=null;
 // ══════════════════════════════════════════════
 const toB64=f=>new Promise((r,j)=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.onerror=j;rd.readAsDataURL(f);});
 
-// ── Fast video poster extraction ──
-// Seek to 0.1s, capture frame on canvas, show as poster, then unload video
-function extractPoster(vid){
-  if(vid._posterDone)return;vid._posterDone=true;
-  vid.currentTime=0.1;
-  vid.onseeked=()=>{
-    try{
-      const canvas=document.createElement('canvas');
-      canvas.width=vid.videoWidth||320;canvas.height=vid.videoHeight||180;
-      canvas.getContext('2d').drawImage(vid,0,0);
-      const poster=canvas.toDataURL('image/jpeg',0.7);
-      vid.style.opacity='1';
-      // Replace video with img for memory efficiency
-      const img=document.createElement('img');
-      img.src=poster;img.style.cssText=vid.style.cssText;img.style.opacity='0';
-      img.style.transition='opacity .25s';
-      img.onload=()=>img.style.opacity='1';
-      vid.parentNode?.insertBefore(img,vid);
-      vid.pause();vid.src='';vid.remove();
-    }catch(e){vid.style.opacity='1';}
-  };
-  vid.onerror=()=>vid.style.opacity='1';
+// ── Navigation Stack (replaces broken history API) ──
+// Simple push/pop stack — works in Telegram WebApp
+const NAV={
+  _stack:[],
+  push(name,closeFn){
+    this._stack.push({name,closeFn});
+    try{window.Telegram?.WebApp?.BackButton?.show();}catch(e){}
+  },
+  pop(){
+    const top=this._stack.pop();
+    if(top){top.closeFn();return true;}
+    try{window.Telegram?.WebApp?.BackButton?.hide();}catch(e){}
+    return false;
+  },
+  clear(){this._stack=[];try{window.Telegram?.WebApp?.BackButton?.hide();}catch(e){}}
+};
+
+// ── Fast Video Thumbnail ──
+// Use #t=0.001 in URL — browser fetches first keyframe only, no canvas needed
+function vidThumb(src,cls,style){
+  // The browser's native thumbnail via preload=metadata + currentTime=0
+  // Much faster than canvas extraction
+  const id='vt_'+Math.random().toString(36).slice(2);
+  setTimeout(()=>{
+    const v=document.getElementById(id);
+    if(!v)return;
+    v.currentTime=0.5;
+    v.onloadeddata=()=>{v.style.opacity='1';};
+  },50);
+  return`<video id="${id}" src="${src}" preload="metadata" muted playsinline
+    class="${cls||''}" style="${style||''};opacity:0;transition:opacity .25s"
+    oncanplay="this.style.opacity=1">
+  </video>`;
 }
 
-// ── Lazy load videos in viewport ──
-const vidObserver=typeof IntersectionObserver!=='undefined'?new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    const vid=e.target;
-    if(e.isIntersecting&&vid.dataset.src&&!vid.src){
-      vid.src=vid.dataset.src;vid.load();
+// Simple lazy: only load videos near viewport
+function lazyVids(){
+  const vids=document.querySelectorAll('video[data-lazy]');
+  vids.forEach(v=>{
+    const r=v.getBoundingClientRect();
+    if(r.top<window.innerHeight+200&&!v.src){
+      v.src=v.dataset.lazy;v.load();
+      v.removeAttribute('data-lazy');
     }
-  });
-},{threshold:.1,rootMargin:'100px'}):null;
-
-// Call after render to observe all lazy videos
-function observeLazyVideos(){
-  if(!vidObserver)return;
-  document.querySelectorAll('video[data-src]').forEach(v=>{
-    if(!v.src)vidObserver.observe(v);
   });
 }
 function avHTML(u,sz=38){
@@ -782,23 +787,10 @@ function launch(){
   setTimeout(()=>loadAdCache().then(()=>{}),2000);
   setTimeout(syncWR,4000);
   initPTR();
-  // Back button handler for Telegram Android
-  window.addEventListener('popstate',e=>{
-    const state=e.state?.overlay;
-    if(state==='tk'){closeTK();}
-    else if(state==='po'){closePO();}
-    else if(state==='post'){document.getElementById('pf-ov')?.remove();}
-    else if(state==='cmt'){closeCmt();}
-    else if(state==='cw'){closeCW();}
-    else if(state==='search'){closeSearch();}
-    else if(state==='sets'){closeSets();}
-    else{// close any open overlay
-      const pf=document.getElementById('pf-ov');if(pf){pf.remove();return;}
-      document.querySelectorAll('.ov.op').forEach(o=>o.classList.remove('op'));
-    }
-  });
-  // Telegram back button
-  try{window.Telegram?.WebApp?.BackButton?.onClick(()=>{history.back();});}catch(e){}
+  // Telegram back button → NAV stack
+  try{window.Telegram?.WebApp?.BackButton?.onClick(()=>NAV.pop());}catch(e){}
+  // Android hardware back
+  window.addEventListener('popstate',()=>NAV.pop());
 }
 
 // ══════════════════════════════════════════════
@@ -828,7 +820,7 @@ function initPTR(){
     Promise.all([db.ref('posts').limitToLast(60).once('value'),db.ref('users').once('value')])
     .then(([ps,us])=>{
       AU=us.val()||AU;const d=ps.val();if(d)allPosts=d;
-      renderFeed(allPosts);renderReels(allPosts);requestAnimationFrame(observeLazyVideos);renderLead(AU);
+      renderFeed(allPosts);renderReels(allPosts);renderLead(AU);
       if(ic)ic.innerHTML='✓';if(tx)tx.textContent='Refresh ហើយ!';
       setTimeout(()=>{reset();setTimeout(()=>busy=false,250);},900);
     }).catch(()=>{reset();busy=false;});
@@ -872,7 +864,7 @@ function nav(p){
 function loadFeed(){
   db.ref('posts').limitToLast(60).once('value').then(s=>{
     const d=s.val();if(d){allPosts={...allPosts,...d};}
-    renderFeed(allPosts);renderReels(allPosts);requestAnimationFrame(observeLazyVideos);
+    renderFeed(allPosts);renderReels(allPosts);
   });
 }
 
@@ -919,7 +911,6 @@ function renderFeed(data){
     if(!(p.views||{})[U.id])FU('posts/'+p.id+'/views',{[U.id]:true});
   });
   el.innerHTML=html;
-  requestAnimationFrame(observeLazyVideos);
 }
 
 function switchTab(el,tab){
@@ -940,9 +931,11 @@ function videoThumbH(p,idx){
   const u=AU[p.userId]||{};
   const dur=p.videoDur?Math.round(p.videoDur)+'s':'';
   return`<div style="position:relative;aspect-ratio:9/16;background:#111;border-radius:8px;overflow:hidden;cursor:pointer" onclick="openTKAt(${idx})">
-    <video src="${p.mediaUrl}" preload="none" muted playsinline
-      style="width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .3s"
-      onloadeddata="extractPoster(this)">
+    <video muted playsinline preload="metadata"
+      src="${p.mediaUrl}"
+      style="width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s"
+      onloadedmetadata="this.currentTime=0.5"
+      ontimeupdate="if(this.currentTime>=0.5){this.style.opacity=1;this.pause();this.ontimeupdate=null}">
     </video>
     <div style="position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,.7))"></div>
     <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px">${dur}</div>
@@ -963,6 +956,7 @@ function openTKAt(idx){
   // filter videos from allPosts
   const vids=Object.entries(allPosts).filter(([k,v])=>v.mediaUrl&&v.mediaType==='video').map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
   tkVideos=vids;tkIdx=idx;
+  NAV.push('tk',closeTK);
   document.getElementById('tk').classList.add('on');
   buildTK();
   setTimeout(()=>{const v=document.getElementById('tkv-'+idx);if(v)v.play().catch(()=>{});},120);
@@ -982,10 +976,11 @@ function postH(p,ml){
   } else if(p.mediaUrl&&p.mediaType==='video'){
     // Feed: thumbnail → tap = TikTok full-screen (fast, no inline lag)
     media=`<div style="position:relative;background:#111;cursor:pointer" onclick="openVideoFromFeed('${p.id}')">
-      <video src="${p.mediaUrl}" preload="none" muted playsinline
-        style="width:100%;max-height:360px;object-fit:cover;display:block;opacity:0;transition:opacity .3s"
-        data-src="${p.mediaUrl}"
-        onloadeddata="extractPoster(this)">
+      <video muted playsinline preload="metadata"
+        src="${p.mediaUrl}"
+        style="width:100%;max-height:360px;object-fit:cover;display:block;opacity:0;transition:opacity .25s"
+        onloadedmetadata="this.currentTime=0.5"
+        ontimeupdate="if(this.currentTime>=0.5){this.style.opacity=1;this.pause();this.ontimeupdate=null}">
       </video>
       <div style="position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,.45));display:flex;align-items:center;justify-content:center;pointer-events:none">
         <div style="width:60px;height:60px;background:rgba(0,0,0,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,.25)">
@@ -1273,7 +1268,7 @@ async function submitPost(){
   if(ref?.key)allPosts[ref.key]={...post,id:ref.key};
   closePostSheet();
   btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';
-  renderFeed(allPosts);renderReels(allPosts);requestAnimationFrame(observeLazyVideos);
+  renderFeed(allPosts);renderReels(allPosts);
   toast('✅ Post ផ្ញើ!','ok');
 }
 
@@ -1300,11 +1295,11 @@ function renderReels(data){
     return`<div class="reel-item ${seen?'reel-seen':''}" onclick="openReelAt(${i},'${r.id}')">
       <div class="reel-ring ${seen?'reel-seen':''}">
         <div class="reel-ring-inner">
-          <!-- Video thumbnail - fast poster extraction -->
-          <video src="${r.mediaUrl}" preload="none" muted playsinline
-            style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s;position:absolute;top:0;left:0"
-            onloadeddata="extractPoster(this)"
-            data-src="${r.mediaUrl}">
+          <video muted playsinline preload="metadata"
+            src="${r.mediaUrl}"
+            style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;opacity:0;transition:opacity .25s"
+            onloadedmetadata="this.currentTime=0.5"
+            ontimeupdate="if(this.currentTime>=0.5){this.style.opacity=1;this.pause();this.ontimeupdate=null}">
           </video>
           <!-- Avatar fallback while video loads -->
           <div style="width:100%;height:100%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:22px">${avHTML(u,62)}</div>
@@ -1322,8 +1317,7 @@ function openReelAt(idx,rid){
   const items=document.querySelectorAll('.reel-item');
   if(items[idx])items[idx].classList.add('reel-seen');
   tkIdx=idx;
-  history.pushState({overlay:'tk'},'');
-  try{window.Telegram?.WebApp?.BackButton?.show();}catch(e){}
+
   document.getElementById('tk').classList.add('on');
   buildTK();
   setTimeout(()=>{const v=document.getElementById('tkv-'+idx);if(v)v.play().catch(()=>{});startTKProgress();},100);
@@ -1345,16 +1339,14 @@ function openVideoFromFeed(pid){
 
 function openTK(idx){
   tkIdx=idx;
-  history.pushState({overlay:'tk'},'');
-  try{window.Telegram?.WebApp?.BackButton?.show();}catch(e){}
+
   document.getElementById('tk').classList.add('on');
   buildTK();
   setTimeout(()=>{const v=document.getElementById('tkv-'+tkIdx);if(v)v.play().catch(()=>{});startTKProgress();},100);
 }
 function closeTK(){
   document.getElementById('tk').classList.remove('on');
-  document.querySelectorAll('#tk-pages video').forEach(v=>{try{v.pause();v.src='';}catch(e){}});
-  try{window.Telegram?.WebApp?.BackButton?.hide();}catch(e){}
+  document.querySelectorAll('#tk-pages video').forEach(v=>{try{v.pause();v.removeAttribute('src');v.load();}catch(e){}});
 }
 function buildTK(){
   const con=document.getElementById('tk-pages');
@@ -1448,7 +1440,7 @@ function tkOpenProf(uid){closeTK();setTimeout(()=>viewProf(uid),300);}
 // ══════════════════════════════════════════════
 let cmtReplyId=null;
 function openCmt(pid){
-  curTip=pid;openSheet('cmt-ov');
+  curTip=pid;openSheet('cmt-ov');NAV.push('cmt',closeCmt);
   const el=document.getElementById('cmt-body');el.innerHTML='<div style="text-align:center;padding:20px"><span class="spin"></span></div>';
   db.ref('comments/'+pid).on('value',snap=>{
     const data=snap.val();
@@ -1604,6 +1596,7 @@ function openCW(uid,name,color){
   document.getElementById('cw-n').innerHTML=nameH({...u,id:uid});
   const a=document.getElementById('cw-av');a.style.background=(u.color||color)+'22';a.style.color=u.color||color;a.innerHTML=avHTML(u,38);
   document.getElementById('cw').classList.add('op');
+  NAV.push('cw',closeCW);
   const key=[U.id,uid].sort().join('_');
   db.ref('chats/'+key+'/msgs').on('value',snap=>{renderMsgs(snap.val(),key);});
 }
@@ -1763,8 +1756,8 @@ async function viewProf(uid){
     openSheet('menu-ov');
   };
   po.classList.add('op');
-  history.pushState({overlay:'po'},'');
-  try{window.Telegram?.WebApp?.BackButton?.show();}catch(e){}
+  NAV.push('po',closePO);
+
   const scroll=document.getElementById('po-scroll');
   scroll.innerHTML='<div style="text-align:center;padding:40px"><span class="spin"></span></div>';
   const snap=await db.ref('posts').orderByChild('userId').equalTo(uid).once('value');
@@ -1773,10 +1766,7 @@ async function viewProf(uid){
   const wr=settled>0?Math.round((won/settled)*100):null;
   scroll.innerHTML=profH({...u,id:uid},posts,false,wr,won,settled);
 }
-function closePO(){
-  document.getElementById('po').classList.remove('op');
-  try{window.Telegram?.WebApp?.BackButton?.hide();}catch(e){}
-}
+function closePO(){document.getElementById('po').classList.remove('op');}
 
 function profH(u,posts,isMe,wr,won,settled){
   const isFol=(U.followingList||{})[u.id];const ver=isVer(u);
@@ -1820,18 +1810,17 @@ function profH(u,posts,isMe,wr,won,settled){
   </div>`).join('')}</div>`:'<div class="empty" style="padding:20px"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន</div></div>'}`;
 }
 async function openPostFull(pid){
-  history.pushState({overlay:'post'},'');
-  try{window.Telegram?.WebApp?.BackButton?.show();}catch(e){}
+
   const p=allPosts[pid]||await FG('posts/'+pid);if(!p)return;
   const u=AU[p.userId]||{};const lk=(U.likedPosts||{})[pid];
-  const ov=document.createElement('div');ov.id='pf-ov';ov.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .22s ease';
+  const ov=document.createElement('div');ov.id='pf-ov';NAV.push('post',()=>ov.remove());ov.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .22s ease';
   ov.innerHTML=`<div style="position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--b);padding:10px 12px;display:flex;align-items:center;gap:10px;z-index:1">
-    <div style="font-size:22px;cursor:pointer;padding:4px 8px" onclick="history.back()">←</div>
+    <div style="font-size:22px;cursor:pointer;padding:4px 8px" onclick="NAV.pop()">←</div>
     <div style="flex:1;font-size:14px;font-weight:700">Post</div>
     <div style="cursor:pointer;font-size:20px;color:var(--t3)" onclick="showPostMenu('${pid}','${p.userId}')">···</div>
   </div>
   <div style="padding:12px;display:flex;align-items:center;gap:10px">
-    <div class="av" style="width:42px;height:42px;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};cursor:pointer" onclick="history.back();setTimeout(()=>viewProf('${p.userId}')">${avHTML(u,42)}</div>
+    <div class="av" style="width:42px;height:42px;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};cursor:pointer" onclick="NAV.pop();setTimeout(()=>viewProf('${p.userId}')">${avHTML(u,42)}</div>
     <div><div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px">${nameH(u)}</div><div style="font-size:12px;color:var(--t2)">${ta(p.createdAt)}</div></div>
   </div>
   ${p.mediaUrl&&p.mediaType==='image'?`<img src="${p.mediaUrl}" style="width:100%;object-fit:contain;background:#000;display:block">`:p.mediaUrl&&p.mediaType==='video'?`<video src="${p.mediaUrl}" controls autoplay playsinline style="width:100%;background:#000;display:block;max-height:65vh;object-fit:contain"></video>`:''}
@@ -2010,7 +1999,7 @@ function showWallet(){
 // ══════════════════════════════════════════════
 // SEARCH
 // ══════════════════════════════════════════════
-function openSearch(){document.getElementById('sov').style.display='flex';setTimeout(()=>document.getElementById('sinp').focus(),100);}
+function openSearch(){document.getElementById('sov').style.display='flex';NAV.push('search',closeSearch);setTimeout(()=>document.getElementById('sinp').focus(),100);}
 function closeSearch(){document.getElementById('sov').style.display='none';}
 function doSearch(q){
   if(!q.trim()){document.getElementById('sres').innerHTML='<div class="empty"><div class="empty-ic">🔍</div><div class="empty-h">ស្វែងរក Users</div></div>';return;}
