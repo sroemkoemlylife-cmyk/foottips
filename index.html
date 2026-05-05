@@ -524,6 +524,45 @@ firebase.initializeApp({
 });
 const db=firebase.database();
 const FG=p=>db.ref(p).once('value').then(s=>s.val());
+
+// ── Cloudinary (free, unsigned upload, 25GB/month) ──
+// អ្នកត្រូវ: 1) ចុះឈ្មោះ cloudinary.com (free)
+//           2) ប្ដូរ CLOUD_NAME + UPLOAD_PRESET ខាងក្រោម
+const CLOUD_NAME='dqgbzzj5n'; // ← ប្ដូរ cloudinary.com dashboard
+const UPLOAD_PRESET='foottips_unsigned'; // ← Settings→Upload→Add preset (unsigned)
+
+async function uploadToCloudinary(file,onProgress){
+  const fd=new FormData();fd.append('file',file);fd.append('upload_preset',UPLOAD_PRESET);
+  const isVideo=file.type.startsWith('video/');
+  const url=`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${isVideo?'video':'image'}/upload`;
+  return new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('POST',url);
+    xhr.upload.onprogress=e=>{if(e.lengthComputable&&onProgress)onProgress(Math.round(e.loaded/e.total*100));};
+    xhr.onload=()=>{
+      if(xhr.status===200){const r=JSON.parse(xhr.responseText);resolve(r.secure_url);}
+      else reject(new Error('Upload failed: '+xhr.status+' '+xhr.responseText));
+    };
+    xhr.onerror=()=>reject(new Error('Network error'));
+    xhr.send(fd);
+  });
+}
+
+// ── Image compress before upload ──
+async function compressImage(file,maxW=1200,quality=0.82){
+  return new Promise(resolve=>{
+    const img=new Image();const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      const ratio=Math.min(1,maxW/img.width,maxW/img.height);
+      const w=Math.round(img.width*ratio),h=Math.round(img.height*ratio);
+      const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(b=>resolve(b),'image/jpeg',quality);
+    };
+    img.src=url;
+  });
+}
 const FS=(p,d)=>db.ref(p).set(d);
 const FP=(p,d)=>db.ref(p).push(d);
 const FU=(p,d)=>db.ref(p).update(d);
@@ -963,46 +1002,89 @@ function clearMedia(){
 }
 function onMedia(inp){
   const f=inp.files[0];if(!f)return;
+  const mb=f.size/1024/1024;
   if(f.type.startsWith('video/')){
+    if(mb>500){toast('⚠️ Video ធំពេក','err');inp.value='';return;}
     const v=document.createElement('video');v.preload='metadata';
     const objUrl=URL.createObjectURL(f);
     v.onloadedmetadata=()=>{
-      URL.revokeObjectURL(objUrl);
-      if(v.duration>1800){toast('⚠️ Video ≤ 30 នាទី','err');inp.value='';clearMedia();return;}
+      if(v.duration>1800){toast('⚠️ Video ≤ 30 នាទី','err');inp.value='';URL.revokeObjectURL(objUrl);clearMedia();return;}
       mediaFile=f;
-      // Show preview
       const prev=document.getElementById('media-preview');
-      if(prev){prev.style.display='block';prev.innerHTML=`<video src="${URL.createObjectURL(f)}" controls playsinline style="width:100%;max-height:200px;object-fit:contain;background:#000;border-radius:10px"></video>`;}
-      const st=document.getElementById('media-status');if(st){st.textContent='✅ Video: '+f.name+' ('+Math.round(f.size/1024/1024*10)/10+'MB · '+Math.round(v.duration)+'s)';st.style.display='block';}
+      if(prev){prev.style.display='block';prev.innerHTML=`<video src="${objUrl}" controls playsinline style="width:100%;max-height:220px;object-fit:contain;background:#000;border-radius:12px;display:block"></video>`;}
+      const st=document.getElementById('media-status');
+      if(st){
+        const mbStr=mb.toFixed(1);const durStr=Math.round(v.duration)+'s';
+        const needCloud=mb>3;
+        st.style.display='block';
+        st.innerHTML=`<span style="color:var(--g)">✅ Video: ${f.name}</span><br><span style="font-size:11px;color:var(--t2)">${mbStr}MB · ${durStr}${needCloud?' · 📤 Upload Cloudinary':''}`;
+      }
       const cl=document.getElementById('media-clear');if(cl)cl.style.display='flex';
     };
-    v.onerror=()=>toast('⚠️ Video Error','err');
+    v.onerror=()=>{toast('⚠️ Video Error','err');URL.revokeObjectURL(objUrl);};
     v.src=objUrl;
   }else{
     mediaFile=f;
-    // Show image preview
-    const reader=new FileReader();
-    reader.onload=e=>{
-      const prev=document.getElementById('media-preview');
-      if(prev){prev.style.display='block';prev.innerHTML=`<img src="${e.target.result}" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px">`;}
-      const st=document.getElementById('media-status');if(st){st.textContent='✅ Photo: '+f.name;st.style.display='block';}
-      const cl=document.getElementById('media-clear');if(cl)cl.style.display='flex';
-    };reader.readAsDataURL(f);
+    const url=URL.createObjectURL(f);
+    const prev=document.getElementById('media-preview');
+    if(prev){prev.style.display='block';prev.innerHTML=`<img src="${url}" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;display:block" onload="URL.revokeObjectURL(this.src)">`;}
+    const st=document.getElementById('media-status');
+    if(st){st.style.display='block';st.innerHTML=`<span style="color:var(--g)">✅ Photo: ${f.name}</span><span style="font-size:11px;color:var(--t2)"> · ${mb.toFixed(1)}MB</span>`;}
+    const cl=document.getElementById('media-clear');if(cl)cl.style.display='flex';
   }
 }
 async function submitPost(){
   const cap=document.getElementById('ti-cap').value.trim();
   const pred=document.getElementById('ti-p').value.trim();
   if(!cap&&!pred&&!mediaFile){toast('⚠️ ត្រូវតែមាន Caption ឬ Tip ឬ Media','err');return;}
-  const btn=document.getElementById('post-btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> កំពុង Upload...';
+  const btn=document.getElementById('post-btn');btn.disabled=true;
+  const st=document.getElementById('media-status');
+
   let mUrl='',mType='';
   if(mediaFile){
-    const maxMB=mediaFile.type.startsWith('video/')?80:10;
-    if(mediaFile.size>maxMB*1024*1024){toast('⚠️ File ធំពេក (max '+maxMB+'MB)','err');btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;}
-    try{mUrl=await toB64(mediaFile);mType=mediaFile.type.startsWith('video/')?'video':'image';}
-    catch(e){toast('⚠️ Upload Error','err');btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;}
+    const isVid=mediaFile.type.startsWith('video/');
+    mType=isVid?'video':'image';
+    if(isVid){
+      // Video → Cloudinary (free CDN, no Firebase size limit)
+      btn.innerHTML='<span class="spin"></span> Upload Video...';
+      if(st)st.innerHTML='<span style="color:var(--gold)">📤 កំពុង Upload Video...</span>';
+      try{
+        mUrl=await uploadToCloudinary(mediaFile,(pct)=>{
+          btn.innerHTML=`<span class="spin"></span> ${pct}% Upload...`;
+          if(st)st.innerHTML=`<span style="color:var(--gold)">📤 ${pct}% · សូមរង់ចាំ...</span>`;
+        });
+        if(st)st.innerHTML='<span style="color:var(--g)">✅ Upload ស្រេច!</span>';
+      }catch(e){
+        console.error('Cloudinary error:',e);
+        // Fallback: if video small enough, try base64
+        if(mediaFile.size<4*1024*1024){
+          btn.innerHTML='<span class="spin"></span> Processing...';
+          try{mUrl=await toB64(mediaFile);}
+          catch(e2){toast('❌ Upload ខុស — Video ធំពេក សូម Upload Cloudinary','err');btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;}
+        }else{
+          toast('❌ Upload ខុស — សូម Setup Cloudinary ឬ Video < 4MB','err');
+          if(st)st.innerHTML='<span style="color:var(--red)">❌ Setup Cloudinary: cloudinary.com (free)</span>';
+          btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;
+        }
+      }
+    }else{
+      // Image → compress → base64
+      btn.innerHTML='<span class="spin"></span> Processing...';
+      try{
+        const compressed=await compressImage(mediaFile);
+        if(compressed.size>3*1024*1024){
+          // Still too big → Cloudinary
+          mUrl=await uploadToCloudinary(compressed,(pct)=>{btn.innerHTML=`<span class="spin"></span> ${pct}%...`;});
+        }else{
+          mUrl=await toB64(compressed);
+        }
+      }catch(e){toast('❌ Photo Error','err');btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;}
+    }
   }
-  const tipSection=document.getElementById('tip-section');const hasTip=tipSection&&tipSection.style.display!=='none';
+
+  btn.innerHTML='<span class="spin"></span> Saving...';
+  const tipSection=document.getElementById('tip-section');
+  const hasTip=tipSection&&tipSection.style.display!=='none';
   const post={
     userId:U.id,caption:cap,
     prediction:hasTip?pred:'',
