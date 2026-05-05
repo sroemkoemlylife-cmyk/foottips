@@ -532,22 +532,55 @@ const CLOUD_NAME='dqgbzzj5n'; // ← ប្ដូរ cloudinary.com dashboard
 const UPLOAD_PRESET='foottips_unsigned'; // ← Settings→Upload→Add preset (unsigned)
 
 async function uploadToCloudinary(file,onProgress){
-  const fd=new FormData();fd.append('file',file);fd.append('upload_preset',UPLOAD_PRESET);
   const isVideo=file.type.startsWith('video/');
+  const fd=new FormData();
+  fd.append('file',file);
+  fd.append('upload_preset',UPLOAD_PRESET);
+  if(isVideo)fd.append('resource_type','video');
   const url=`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${isVideo?'video':'image'}/upload`;
   return new Promise((resolve,reject)=>{
     const xhr=new XMLHttpRequest();
-    xhr.open('POST',url);
-    xhr.upload.onprogress=e=>{if(e.lengthComputable&&onProgress)onProgress(Math.round(e.loaded/e.total*100));};
-    xhr.onload=()=>{
-      if(xhr.status===200){const r=JSON.parse(xhr.responseText);resolve(r.secure_url);}
-      else reject(new Error('Upload failed: '+xhr.status+' '+xhr.responseText));
+    xhr.open('POST',url,true);
+    xhr.upload.onprogress=e=>{
+      if(e.lengthComputable&&onProgress)onProgress(Math.round(e.loaded/e.total*100));
     };
-    xhr.onerror=()=>reject(new Error('Network error'));
+    xhr.onload=()=>{
+      if(xhr.status===200){
+        try{const r=JSON.parse(xhr.responseText);resolve(r.secure_url);}
+        catch(e){reject(new Error('Parse error'));}
+      }else{
+        let msg='Upload error '+xhr.status;
+        try{const r=JSON.parse(xhr.responseText);msg=r.error?.message||msg;}catch(e){}
+        reject(new Error(msg));
+      }
+    };
+    xhr.onerror=()=>reject(new Error('Network error — check internet'));
+    xhr.ontimeout=()=>reject(new Error('Timeout'));
+    xhr.timeout=300000;// 5 min
     xhr.send(fd);
   });
 }
 
+// ── Upload progress overlay ──
+function showUploadProgress(title,sub){
+  const ov=document.getElementById('upload-ov');
+  if(!ov)return;
+  ov.style.display='flex';
+  document.getElementById('up-title').textContent=title||'កំពុង Upload...';
+  document.getElementById('up-sub').textContent=sub||'';
+  setUploadPct(0);
+}
+function setUploadPct(pct,label){
+  const bar=document.getElementById('up-bar');
+  const pctEl=document.getElementById('up-pct');
+  const subEl=document.getElementById('up-sub');
+  if(bar)bar.style.width=pct+'%';
+  if(pctEl)pctEl.textContent=pct+'%';
+  if(label&&subEl)subEl.textContent=label;
+}
+function hideUploadProgress(){
+  const ov=document.getElementById('upload-ov');if(ov)ov.style.display='none';
+}
 // ── Image compress before upload ──
 async function compressImage(file,maxW=1200,quality=0.82){
   return new Promise(resolve=>{
@@ -1044,27 +1077,32 @@ async function submitPost(){
   if(mediaFile){
     const isVid=mediaFile.type.startsWith('video/');
     mType=isVid?'video':'image';
+    const fileMB=(mediaFile.size/1024/1024).toFixed(1);
     if(isVid){
-      // Video → Cloudinary (free CDN, no Firebase size limit)
-      btn.innerHTML='<span class="spin"></span> Upload Video...';
-      if(st)st.innerHTML='<span style="color:var(--gold)">📤 កំពុង Upload Video...</span>';
+      // Show Facebook-style progress overlay
+      showUploadProgress('📤 Upload Video...',''+fileMB+'MB → Cloudinary CDN');
+      btn.innerHTML='📤 Uploading...';
       try{
         mUrl=await uploadToCloudinary(mediaFile,(pct)=>{
-          btn.innerHTML=`<span class="spin"></span> ${pct}% Upload...`;
-          if(st)st.innerHTML=`<span style="color:var(--gold)">📤 ${pct}% · សូមរង់ចាំ...</span>`;
+          setUploadPct(pct,'📡 '+pct+'% · '+fileMB+'MB · សូមរង់ចាំ...');
         });
-        if(st)st.innerHTML='<span style="color:var(--g)">✅ Upload ស្រេច!</span>';
+        setUploadPct(100,'✅ Upload ស្រេច!');
+        await new Promise(r=>setTimeout(r,600));
+        hideUploadProgress();
+        if(st)st.innerHTML='<span style="color:var(--g)">✅ Video ready!</span>';
       }catch(e){
-        console.error('Cloudinary error:',e);
-        // Fallback: if video small enough, try base64
-        if(mediaFile.size<4*1024*1024){
-          btn.innerHTML='<span class="spin"></span> Processing...';
+        hideUploadProgress();
+        console.error('Cloudinary:',e);
+        btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';
+        // Try base64 fallback for small videos
+        if(mediaFile.size<5*1024*1024){
+          toast('🔄 Trying direct upload...','inf');
           try{mUrl=await toB64(mediaFile);}
-          catch(e2){toast('❌ Upload ខុស — Video ធំពេក សូម Upload Cloudinary','err');btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;}
+          catch(e2){toast('❌ '+e.message,'err');return;}
         }else{
-          toast('❌ Upload ខុស — សូម Setup Cloudinary ឬ Video < 4MB','err');
-          if(st)st.innerHTML='<span style="color:var(--red)">❌ Setup Cloudinary: cloudinary.com (free)</span>';
-          btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;
+          toast('❌ '+e.message,'err');
+          if(st)st.innerHTML=`<span style="color:var(--red)">❌ Error: ${e.message}</span>`;
+          return;
         }
       }
     }else{
@@ -1073,12 +1111,17 @@ async function submitPost(){
       try{
         const compressed=await compressImage(mediaFile);
         if(compressed.size>3*1024*1024){
-          // Still too big → Cloudinary
-          mUrl=await uploadToCloudinary(compressed,(pct)=>{btn.innerHTML=`<span class="spin"></span> ${pct}%...`;});
+          showUploadProgress('📤 Upload Photo...',''+fileMB+'MB');
+          mUrl=await uploadToCloudinary(compressed,(pct)=>setUploadPct(pct,''+pct+'%'));
+          hideUploadProgress();
         }else{
           mUrl=await toB64(compressed);
         }
-      }catch(e){toast('❌ Photo Error','err');btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;}
+      }catch(e){
+        hideUploadProgress();
+        toast('❌ Photo Error: '+e.message,'err');
+        btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;
+      }
     }
   }
 
@@ -1789,5 +1832,20 @@ function doSearch(q){
   </div>`).join(''):'<div class="empty"><div class="empty-ic">🔍</div><div class="empty-h">រកមិនឃើញ</div></div>';
 }
 </script>
+
+<!-- UPLOAD PROGRESS OVERLAY — Facebook style -->
+<div id="upload-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:400;align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border-radius:20px;padding:28px 32px;width:88%;max-width:320px;text-align:center">
+    <div style="font-size:36px;margin-bottom:12px">📤</div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:6px" id="up-title">កំពុង Upload...</div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:16px" id="up-sub">Video → Cloudinary CDN</div>
+    <!-- Progress bar -->
+    <div style="background:var(--bg3);border-radius:20px;height:10px;overflow:hidden;margin-bottom:10px">
+      <div id="up-bar" style="height:100%;background:linear-gradient(90deg,var(--g),#00CFFF);border-radius:20px;width:0%;transition:width .3s ease"></div>
+    </div>
+    <div style="font-size:20px;font-weight:700;color:var(--g)" id="up-pct">0%</div>
+    <div style="font-size:11px;color:var(--t3);margin-top:6px" id="up-size"></div>
+  </div>
+</div>
 </body>
 </html>
