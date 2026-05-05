@@ -284,6 +284,7 @@ body{display:flex;flex-direction:column;}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;}
 @keyframes sp{to{transform:rotate(360deg)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(20px)}}
 
 
 .set-s{margin:12px;}
@@ -1469,7 +1470,11 @@ function openCmt(pid){
     }).join('');el.scrollTop=el.scrollHeight;
   });
 }
-function closeCmt(){closeSheet('cmt-ov');if(curTip)db.ref('comments/'+curTip).off();cmtReplyId=null;}
+function closeCmt(){
+  closeSheet('cmt-ov');
+  if(curTip){db.ref('comments/'+curTip).off();}
+  cmtReplyId=null;
+}
 function setCmtReply(cid,name){cmtReplyId=cid;document.getElementById('cmt-inp').placeholder='Reply to '+name+'...';document.getElementById('cmt-inp').focus();}
 async function submitCmt(){
   const text=document.getElementById('cmt-inp').value.trim();if(!text||!curTip)return;
@@ -1809,33 +1814,49 @@ function profH(u,posts,isMe,wr,won,settled){
     <div style="position:absolute;bottom:4px;right:4px;font-size:10px;color:#fff;background:rgba(0,0,0,.5);padding:1px 5px;border-radius:8px">❤️${p.likes||0}</div>
   </div>`).join('')}</div>`:'<div class="empty" style="padding:20px"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន</div></div>'}`;
 }
-async function openPostFull(pid){
+function closePostFull(){
+  const el=document.getElementById('pf-ov');
+  if(!el)return;
+  el.style.animation='slideDown .2s ease forwards';
+  setTimeout(()=>el.remove(),200);
+}
 
+async function openPostFull(pid){
   const p=allPosts[pid]||await FG('posts/'+pid);if(!p)return;
   const u=AU[p.userId]||{};const lk=(U.likedPosts||{})[pid];
-  const ov=document.createElement('div');ov.id='pf-ov';NAV.push('post',()=>ov.remove());ov.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .22s ease';
-  ov.innerHTML=`<div style="position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--b);padding:10px 12px;display:flex;align-items:center;gap:10px;z-index:1">
-    <div style="font-size:22px;cursor:pointer;padding:4px 8px" onclick="NAV.pop()">←</div>
-    <div style="flex:1;font-size:14px;font-weight:700">Post</div>
-    <div style="cursor:pointer;font-size:20px;color:var(--t3)" onclick="showPostMenu('${pid}','${p.userId}')">···</div>
+  // Remove existing if any
+  document.getElementById('pf-ov')?.remove();
+  const ov=document.createElement('div');
+  ov.id='pf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .22s ease';
+  // Register with NAV — use closePostFull (not ov.remove) to avoid closure bug
+  NAV.push('post', closePostFull);
+  ov.innerHTML=`
+  <div style="position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--b);padding:10px 12px;display:flex;align-items:center;gap:10px;z-index:1">
+    <div style="font-size:24px;cursor:pointer;padding:4px 10px;margin-left:-6px;color:var(--g);font-weight:700" onclick="closePostFull()">←</div>
+    <div style="flex:1;font-size:15px;font-weight:700">Post</div>
+    <div style="cursor:pointer;font-size:22px;color:var(--t3);padding:4px 8px" onclick="showPostMenu('${pid}','${p.userId}')">···</div>
   </div>
-  <div style="padding:12px;display:flex;align-items:center;gap:10px">
-    <div class="av" style="width:42px;height:42px;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};cursor:pointer" onclick="NAV.pop();setTimeout(()=>viewProf('${p.userId}')">${avHTML(u,42)}</div>
-    <div><div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px">${nameH(u)}</div><div style="font-size:12px;color:var(--t2)">${ta(p.createdAt)}</div></div>
+  <div style="padding:12px 14px;display:flex;align-items:center;gap:10px">
+    <div class="av" style="width:44px;height:44px;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};cursor:pointer;box-shadow:0 0 0 2px ${u.color||'#00C37A'}33" onclick="closePostFull();setTimeout(()=>viewProf('${p.userId}'),220)">${avHTML(u,44)}</div>
+    <div style="flex:1"><div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px">${nameH(u)}</div><div style="font-size:12px;color:var(--t2)">${ta(p.createdAt)}${p.league?' · '+p.league:''}</div></div>
   </div>
-  ${p.mediaUrl&&p.mediaType==='image'?`<img src="${p.mediaUrl}" style="width:100%;object-fit:contain;background:#000;display:block">`:p.mediaUrl&&p.mediaType==='video'?`<video src="${p.mediaUrl}" controls autoplay playsinline style="width:100%;background:#000;display:block;max-height:65vh;object-fit:contain"></video>`:''}
-  <div style="padding:12px">
+  ${p.mediaUrl&&p.mediaType==='image'?`<img src="${p.mediaUrl}" style="width:100%;object-fit:contain;background:#000;display:block;max-height:70vh">`:
+    p.mediaUrl&&p.mediaType==='video'?`<video src="${p.mediaUrl}" controls playsinline style="width:100%;background:#000;display:block;max-height:65vh;object-fit:contain"></video>`:''}
+  <div style="padding:14px">
     ${p.caption?`<div style="font-size:15px;line-height:1.7;margin-bottom:10px">${p.caption}</div>`:''}
-    ${p.prediction?`<div style="margin-bottom:10px"><span class="t-pred">🎯 ${p.prediction}</span></div>`:''}
-    <div style="display:flex;gap:16px;padding:10px 0;border-top:1px solid var(--b);border-bottom:1px solid var(--b);margin-bottom:12px">
+    ${p.prediction?`<div style="margin-bottom:12px"><span class="t-pred">🎯 ${p.prediction}${p.odds>1?' · '+p.odds:''}</span></div>`:''}
+    <div style="display:flex;gap:18px;padding:10px 0;border-top:1px solid var(--b);border-bottom:1px solid var(--b);margin-bottom:12px">
       <span style="font-size:13px;font-weight:600">❤️ ${p.likes||0}</span>
       <span style="font-size:13px;color:var(--t2)">💬 ${p.comments||0}</span>
       <span style="font-size:13px;color:var(--t2)">👁 ${Object.keys(p.views||{}).length}</span>
     </div>
-    <div style="display:flex;gap:0;border-bottom:1px solid var(--b);margin-bottom:12px">
-      <button class="pab ${lk?'lk':''}" id="lkb-${pid}" onclick="togLike('${pid}','${p.userId}',this)"><span>${lk?'❤️':'🤍'}</span><span> Like</span></button>
-      <button class="pab" onclick="openCmt('${pid}')"><span>💬</span><span> Comment</span></button>
-      <button class="pab" onclick="doShare('${pid}','')"><span>↗️</span><span> Share</span></button>
+    <div style="display:flex;gap:0;border:1px solid var(--b);border-radius:12px;overflow:hidden">
+      <button class="pab ${lk?'lk':''}" id="lkb-${pid}" onclick="togLike('${pid}','${p.userId}',this)" style="flex:1;padding:10px"><span>${lk?'❤️':'🤍'}</span><span style="margin-left:4px">Like</span></button>
+      <div style="width:1px;background:var(--b)"></div>
+      <button class="pab" onclick="openCmt('${pid}')" style="flex:1;padding:10px"><span>💬</span><span style="margin-left:4px">Comment</span></button>
+      <div style="width:1px;background:var(--b)"></div>
+      <button class="pab" onclick="doShare('${pid}','')" style="flex:1;padding:10px"><span>↗️</span><span style="margin-left:4px">Share</span></button>
     </div>
   </div>`;
   document.body.appendChild(ov);
