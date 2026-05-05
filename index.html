@@ -74,17 +74,17 @@ body{display:flex;flex-direction:column;}
 .ftabs{display:flex;padding:0 12px;border-bottom:1px solid var(--b);gap:0;overflow-x:auto;}
 .ftab{padding:9px 14px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;flex-shrink:0;transition:all .15s;}
 .ftab.act{color:var(--g);border-bottom-color:var(--g);font-weight:600;}
-.reels-bar{display:flex;gap:0;padding:0;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--bg);}
+
 .reels-bar::-webkit-scrollbar{display:none;}
-.reel-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 8px;cursor:pointer;position:relative;}
+
 .reel-item:first-child{padding-left:12px;}
 .reel-item:last-child{padding-right:12px;}
-.reel-ring{width:66px;height:66px;border-radius:50%;position:relative;flex-shrink:0;}
-.reel-ring::before{content:'';position:absolute;inset:-2.5px;border-radius:50%;background:linear-gradient(135deg,#FF6B6B,#FFB347,#00C37A,#4B8BFF);z-index:0;}
-.reel-ring-inner{position:absolute;inset:2px;border-radius:50%;background:var(--bg);z-index:1;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-.reel-seen::before{background:var(--b2)!important;}
-.reel-name{font-size:10px;color:var(--t2);max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
-.reel-play-ic{position:absolute;bottom:0;right:0;width:22px;height:22px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--bg);z-index:2;color:#000;font-weight:700;}
+
+
+
+
+
+
 
 /* ── POST CARD ── */
 .pc{background:var(--card);border-radius:16px;margin:10px 12px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.3);}
@@ -125,24 +125,24 @@ body{display:flex;flex-direction:column;}
 .p-gray{background:var(--bg3);color:var(--t2);border:1px solid var(--b);}
 
 /* ── TIKTOK VIEWER ── */
-#tk{position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column;touch-action:none;}
+
 #tk.on{display:flex;}
 #tk-pages{flex:1;overflow:hidden;position:relative;}
-.tk-slide{position:absolute;inset:0;transition:transform .28s cubic-bezier(.4,0,.2,1);}
+
 .tk-slide video{width:100%;height:100%;object-fit:cover;display:block;}
-.tk-overlay{position:absolute;inset:0;pointer-events:none;}
-.tk-top{position:absolute;top:0;left:0;right:0;padding:max(14px,env(safe-area-inset-top)) 14px 20px;display:flex;align-items:center;gap:10px;background:linear-gradient(rgba(0,0,0,.55),transparent);pointer-events:auto;}
-.tk-right{position:absolute;right:10px;bottom:140px;display:flex;flex-direction:column;gap:20px;align-items:center;pointer-events:auto;}
-.tk-action{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
-.tk-action-ic{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-size:22px;}
-.tk-action-lb{font-size:11px;color:#fff;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.6);}
-.tk-av{width:46px;height:46px;border-radius:50%;border:2px solid #fff;overflow:hidden;background:var(--card);display:flex;align-items:center;justify-content:center;}
-.tk-plus{width:20px;height:20px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;margin-top:-12px;border:2px solid #fff;}
-.tk-bottom{position:absolute;bottom:0;left:0;right:68px;padding:0 14px calc(20px + var(--sb)) 14px;pointer-events:auto;}
-.tk-uname{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px;text-shadow:0 1px 4px rgba(0,0,0,.5);}
-.tk-cap{font-size:13px;color:rgba(255,255,255,.9);line-height:1.5;margin-bottom:10px;text-shadow:0 1px 3px rgba(0,0,0,.4);}
-.tk-prog{height:2px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden;}
-.tk-prog-fill{height:100%;background:#fff;border-radius:2px;width:0%;transition:width .4s linear;}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ── PROFILE OVERLAY ── */
 #po{position:fixed;inset:0;background:var(--bg);z-index:80;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
@@ -284,7 +284,6 @@ body{display:flex;flex-direction:column;}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;}
 @keyframes sp{to{transform:rotate(360deg)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(20px)}}
 
 
 .set-s{margin:12px;}
@@ -335,12 +334,11 @@ body{display:flex;flex-direction:column;}
     <!-- HOME -->
     <div class="pg act" id="pg-home">
       <div id="ptr-bar"><div id="ptr-inner"><div id="ptr-ic" style="font-size:18px;transition:transform .2s">↓</div><span id="ptr-tx" style="font-size:12px;font-weight:600">ទាញចុះ Refresh</span></div></div>
-      <div class="reels-bar" id="reels-bar"><div style="padding:14px 12px;font-size:12px;color:var(--t3)">...Loading Reels...</div></div>
+
       <div class="ftabs">
         <div class="ftab act" onclick="switchTab(this,'all')">ទំព័រដើម</div>
         <div class="ftab" onclick="switchTab(this,'following')">កំពុងតាមដាន</div>
         <div class="ftab" onclick="switchTab(this,'hot')">🔥 ក្ដៅ</div>
-        <div class="ftab" onclick="switchTab(this,'videos')">🎬 Video</div>
       </div>
       <div id="feed" style="padding-bottom:14px"></div>
     </div>
@@ -392,8 +390,7 @@ body{display:flex;flex-direction:column;}
 <div id="toast-c"></div>
 <div id="fab" onclick="openPost()">＋</div>
 
-<!-- TIKTOK VIEWER -->
-<div id="tk"><div id="tk-pages"></div></div>
+
 
 <!-- PROFILE OVERLAY — Facebook style -->
 <div id="po">
@@ -497,7 +494,7 @@ body{display:flex;flex-direction:column;}
     <div style="display:flex;gap:8px;margin-bottom:14px">
       <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:var(--bg3);border:1.5px dashed var(--b2);border-radius:12px;padding:12px;transition:all .15s" onmouseover="this.style.borderColor='var(--g)'" onmouseout="this.style.borderColor='var(--b2)'">
         <span style="font-size:20px">📷</span><span style="font-size:13px;color:var(--t2);font-weight:500">Photo / Video</span>
-        <input type="file" id="ti-media" accept="image/*,video/*" style="display:none" onchange="onMedia(this)">
+        <input type="file" id="ti-media" accept="image/*" style="display:none" onchange="onMedia(this)">
       </label>
       <div id="media-clear" style="display:none;width:44px;height:44px;background:var(--red);border-radius:12px;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:18px" onclick="clearMedia()">✕</div>
     </div>
@@ -538,77 +535,12 @@ firebase.initializeApp({
 const db=firebase.database();
 const FG=p=>db.ref(p).once('value').then(s=>s.val());
 
-// ── Cloudinary (free, unsigned upload, 25GB/month) ──
-// អ្នកត្រូវ: 1) ចុះឈ្មោះ cloudinary.com (free)
-//           2) ប្ដូរ CLOUD_NAME + UPLOAD_PRESET ខាងក្រោម
-const CLOUD_NAME='dqgbzzj5n'; // ← ប្ដូរ cloudinary.com dashboard
-const UPLOAD_PRESET='foottips_unsigned'; // ← Settings→Upload→Add preset (unsigned)
-
-async function uploadToCloudinary(file,onProgress){
-  const isVideo=file.type.startsWith('video/');
-  const fd=new FormData();
-  fd.append('file',file);
-  fd.append('upload_preset',UPLOAD_PRESET);
-  if(isVideo)fd.append('resource_type','video');
-  const url=`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${isVideo?'video':'image'}/upload`;
-  return new Promise((resolve,reject)=>{
-    const xhr=new XMLHttpRequest();
-    xhr.open('POST',url,true);
-    xhr.upload.onprogress=e=>{
-      if(e.lengthComputable&&onProgress)onProgress(Math.round(e.loaded/e.total*100));
-    };
-    xhr.onload=()=>{
-      if(xhr.status===200){
-        try{const r=JSON.parse(xhr.responseText);resolve(r.secure_url);}
-        catch(e){reject(new Error('Parse error'));}
-      }else{
-        let msg='Upload error '+xhr.status;
-        try{const r=JSON.parse(xhr.responseText);msg=r.error?.message||msg;}catch(e){}
-        reject(new Error(msg));
-      }
-    };
-    xhr.onerror=()=>reject(new Error('Network error — check internet'));
-    xhr.ontimeout=()=>reject(new Error('Timeout'));
-    xhr.timeout=300000;// 5 min
-    xhr.send(fd);
-  });
-}
 
 // ── Upload progress overlay ──
-function showUploadProgress(title,sub){
-  const ov=document.getElementById('upload-ov');
-  if(!ov)return;
-  ov.style.display='flex';
-  document.getElementById('up-title').textContent=title||'កំពុង Upload...';
-  document.getElementById('up-sub').textContent=sub||'';
-  setUploadPct(0);
-}
-function setUploadPct(pct,label){
-  const bar=document.getElementById('up-bar');
-  const pctEl=document.getElementById('up-pct');
-  const subEl=document.getElementById('up-sub');
-  if(bar)bar.style.width=pct+'%';
-  if(pctEl)pctEl.textContent=pct+'%';
-  if(label&&subEl)subEl.textContent=label;
-}
-function hideUploadProgress(){
-  const ov=document.getElementById('upload-ov');if(ov)ov.style.display='none';
-}
+
+
+
 // ── Image compress before upload ──
-async function compressImage(file,maxW=1200,quality=0.82){
-  return new Promise(resolve=>{
-    const img=new Image();const url=URL.createObjectURL(file);
-    img.onload=()=>{
-      URL.revokeObjectURL(url);
-      const ratio=Math.min(1,maxW/img.width,maxW/img.height);
-      const w=Math.round(img.width*ratio),h=Math.round(img.height*ratio);
-      const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
-      canvas.getContext('2d').drawImage(img,0,0,w,h);
-      canvas.toBlob(b=>resolve(b),'image/jpeg',quality);
-    };
-    img.src=url;
-  });
-}
 const FS=(p,d)=>db.ref(p).set(d);
 const FP=(p,d)=>db.ref(p).push(d);
 const FU=(p,d)=>db.ref(p).update(d);
@@ -626,7 +558,7 @@ const ls={
   s:(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}}
 };
 let U=null,AU={},allPosts={},feedTab='all',curTip=null,curChat=null;
-let leadTab='pts',tkVideos=[],tkIdx=0,tkBusy=false;
+let leadTab='pts';
 let curStarUid=null,curStar=0,mediaFile=null;
 let isRec=false,mr=null,recChunks=[],recStart=0;
 let replyId=null,replyText=null,replyFrom=null;
@@ -659,33 +591,7 @@ const NAV={
 
 // ── Fast Video Thumbnail ──
 // Use #t=0.001 in URL — browser fetches first keyframe only, no canvas needed
-function vidThumb(src,cls,style){
-  // The browser's native thumbnail via preload=metadata + currentTime=0
-  // Much faster than canvas extraction
-  const id='vt_'+Math.random().toString(36).slice(2);
-  setTimeout(()=>{
-    const v=document.getElementById(id);
-    if(!v)return;
-    v.currentTime=0.5;
-    v.onloadeddata=()=>{v.style.opacity='1';};
-  },50);
-  return`<video id="${id}" src="${src}" preload="metadata" muted playsinline
-    class="${cls||''}" style="${style||''};opacity:0;transition:opacity .25s"
-    oncanplay="this.style.opacity=1">
-  </video>`;
-}
-
 // Simple lazy: only load videos near viewport
-function lazyVids(){
-  const vids=document.querySelectorAll('video[data-lazy]');
-  vids.forEach(v=>{
-    const r=v.getBoundingClientRect();
-    if(r.top<window.innerHeight+200&&!v.src){
-      v.src=v.dataset.lazy;v.load();
-      v.removeAttribute('data-lazy');
-    }
-  });
-}
 function avHTML(u,sz=38){
   const s=sz+'px';
   if(u?.avUrl&&u.avUrl.length>10)return`<img src="${u.avUrl}" style="width:${s};height:${s};border-radius:50%;object-fit:cover">`;
@@ -821,7 +727,7 @@ function initPTR(){
     Promise.all([db.ref('posts').limitToLast(60).once('value'),db.ref('users').once('value')])
     .then(([ps,us])=>{
       AU=us.val()||AU;const d=ps.val();if(d)allPosts=d;
-      renderFeed(allPosts);renderReels(allPosts);renderLead(AU);
+      renderFeed(allPosts);renderLead(AU);
       if(ic)ic.innerHTML='✓';if(tx)tx.textContent='Refresh ហើយ!';
       setTimeout(()=>{reset();setTimeout(()=>busy=false,250);},900);
     }).catch(()=>{reset();busy=false;});
@@ -865,7 +771,7 @@ function nav(p){
 function loadFeed(){
   db.ref('posts').limitToLast(60).once('value').then(s=>{
     const d=s.val();if(d){allPosts={...allPosts,...d};}
-    renderFeed(allPosts);renderReels(allPosts);
+    renderFeed(allPosts);
   });
 }
 
@@ -874,15 +780,7 @@ function renderFeed(data){
   if(!data||!Object.keys(data).length){el.innerHTML='<div class="empty"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន Posts</div><div class="empty-s">ចុច ＋ ចែករំលែក!</div></div>';return;}
   let posts=Object.entries(data).map(([k,v])=>({...v,id:k}));
   const now=Date.now();
-  if(feedTab==='videos'){
-    // VIDEO ONLY TAB — TikTok-style grid
-    posts=posts.filter(p=>p.mediaUrl&&p.mediaType==='video');
-    posts.sort((a,b)=>b.createdAt-a.createdAt);
-    if(!posts.length){el.innerHTML='<div class="empty"><div class="empty-ic">🎬</div><div class="empty-h">មិនទាន់មាន Videos</div><div class="empty-s">ចុច ＋ ដើម្បី Post Video!</div></div>';return;}
-    el.innerHTML=`<div style="padding:10px 12px 4px;font-size:13px;font-weight:600;color:var(--t2)">🎬 ${posts.length} Videos</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:0 3px">${posts.map((p,i)=>videoThumbH(p,i)).join('')}</div>`;
-    return;
-  } else if(feedTab==='hot'){
+  if(feedTab==='hot'){
     posts.sort((a,b)=>{
       const sA=(a.likes||0)*3+Object.keys(a.views||{}).length+(a.comments||0)*2+(a.shares||0)*2;
       const sB=(b.likes||0)*3+Object.keys(b.views||{}).length+(b.comments||0)*2+(b.shares||0)*2;
@@ -928,41 +826,8 @@ function switchTab(el,tab){
 // POST CARD HTML
 // ══════════════════════════════════════════════
 // ── Video grid thumbnail (for Video tab) ──
-function videoThumbH(p,idx){
-  const u=AU[p.userId]||{};
-  const dur=p.videoDur?Math.round(p.videoDur)+'s':'';
-  return`<div style="position:relative;aspect-ratio:9/16;background:#111;border-radius:8px;overflow:hidden;cursor:pointer" onclick="openTKAt(${idx})">
-    <video muted playsinline preload="metadata"
-      src="${p.mediaUrl}"
-      style="width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s"
-      onloadedmetadata="this.currentTime=0.5"
-      ontimeupdate="if(this.currentTime>=0.5){this.style.opacity=1;this.pause();this.ontimeupdate=null}">
-    </video>
-    <div style="position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,.7))"></div>
-    <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px">${dur}</div>
-    <div style="position:absolute;bottom:8px;left:8px;right:8px">
-      <div style="font-size:11px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.caption||''}</div>
-      <div style="display:flex;align-items:center;gap:5px;margin-top:3px">
-        <div style="width:18px;height:18px;border-radius:50%;overflow:hidden;background:${u.color||'#00C37A'}22">${avHTML(u,18)}</div>
-        <span style="font-size:10px;color:rgba(255,255,255,.8)">${u.displayName||'User'}</span>
-        <span style="font-size:10px;color:rgba(255,255,255,.6);margin-left:auto">❤️${p.likes||0}</span>
-      </div>
-    </div>
-    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;backdrop-filter:blur(4px)">▶</div>
-  </div>`;
-}
 
 // Open TK from video tab at specific index of video posts
-function openTKAt(idx){
-  // filter videos from allPosts
-  const vids=Object.entries(allPosts).filter(([k,v])=>v.mediaUrl&&v.mediaType==='video').map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
-  tkVideos=vids;tkIdx=idx;
-  NAV.push('tk',closeTK);
-  document.getElementById('tk').classList.add('on');
-  buildTK();
-  setTimeout(()=>{const v=document.getElementById('tkv-'+idx);if(v)v.play().catch(()=>{});},120);
-  startTKProgress();
-}
 
 function postH(p,ml){
   const u=AU[p.userId]||{displayName:'User',avatar:'⚽',color:'#00C37A'};
@@ -1161,99 +1026,48 @@ function clearMedia(){
 }
 function onMedia(inp){
   const f=inp.files[0];if(!f)return;
-  const mb=f.size/1024/1024;
-  if(f.type.startsWith('video/')){
-    if(mb>500){toast('⚠️ Video ធំពេក','err');inp.value='';return;}
-    const v=document.createElement('video');v.preload='metadata';
-    const objUrl=URL.createObjectURL(f);
-    v.onloadedmetadata=()=>{
-      if(v.duration>1800){toast('⚠️ Video ≤ 30 នាទី','err');inp.value='';URL.revokeObjectURL(objUrl);clearMedia();return;}
-      mediaFile=f;
-      const prev=document.getElementById('media-preview');
-      if(prev){prev.style.display='block';prev.innerHTML=`<video src="${objUrl}" controls playsinline style="width:100%;max-height:220px;object-fit:contain;background:#000;border-radius:12px;display:block"></video>`;}
-      const st=document.getElementById('media-status');
-      if(st){
-        const mbStr=mb.toFixed(1);const durStr=Math.round(v.duration)+'s';
-        const needCloud=mb>3;
-        st.style.display='block';
-        st.innerHTML=`<span style="color:var(--g)">✅ Video: ${f.name}</span><br><span style="font-size:11px;color:var(--t2)">${mbStr}MB · ${durStr}${needCloud?' · 📤 Upload Cloudinary':''}`;
-      }
-      const cl=document.getElementById('media-clear');if(cl)cl.style.display='flex';
-    };
-    v.onerror=()=>{toast('⚠️ Video Error','err');URL.revokeObjectURL(objUrl);};
-    v.src=objUrl;
-  }else{
-    mediaFile=f;
-    const url=URL.createObjectURL(f);
-    const prev=document.getElementById('media-preview');
-    if(prev){prev.style.display='block';prev.innerHTML=`<img src="${url}" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;display:block" onload="URL.revokeObjectURL(this.src)">`;}
-    const st=document.getElementById('media-status');
-    if(st){st.style.display='block';st.innerHTML=`<span style="color:var(--g)">✅ Photo: ${f.name}</span><span style="font-size:11px;color:var(--t2)"> · ${mb.toFixed(1)}MB</span>`;}
-    const cl=document.getElementById('media-clear');if(cl)cl.style.display='flex';
-  }
+  const mb=(f.size/1024/1024).toFixed(1);
+  if(f.type.startsWith('video/')){toast('⚠️ Photo តែប៉ុណ្ណោះ','err');inp.value='';return;}
+  mediaFile=f;
+  const url=URL.createObjectURL(f);
+  const prev=document.getElementById('media-preview');
+  if(prev){prev.style.display='block';prev.innerHTML=`<img src="${url}" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;display:block">`;}
+  const st=document.getElementById('media-status');
+  if(st){st.style.display='block';st.innerHTML=`<span style="color:var(--g)">✅ Photo: ${f.name}</span><span style="font-size:11px;color:var(--t2)"> · ${mb}MB</span>`;}
+  const cl=document.getElementById('media-clear');if(cl)cl.style.display='flex';
 }
+
+
+
+
+
+async 
+async 
+
+// ══════════════════════════════════════════════
+// COMMENTS
+// ══════════════════════════════════════════════
+let cmtReplyId=null;
+
 async function submitPost(){
   const cap=document.getElementById('ti-cap').value.trim();
   const pred=document.getElementById('ti-p').value.trim();
-  if(!cap&&!pred&&!mediaFile){toast('⚠️ ត្រូវតែមាន Caption ឬ Tip ឬ Media','err');return;}
-  const btn=document.getElementById('post-btn');btn.disabled=true;
-  const st=document.getElementById('media-status');
-
+  if(!cap&&!pred&&!mediaFile){toast('⚠️ ត្រូវតែមាន Caption ឬ Tip ឬ Photo','err');return;}
+  const btn=document.getElementById('post-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving...';
   let mUrl='',mType='';
   if(mediaFile){
-    const isVid=mediaFile.type.startsWith('video/');
-    mType=isVid?'video':'image';
-    const fileMB=(mediaFile.size/1024/1024).toFixed(1);
-    if(isVid){
-      // Show Facebook-style progress overlay
-      showUploadProgress('📤 Upload Video...',''+fileMB+'MB → Cloudinary CDN');
-      btn.innerHTML='📤 Uploading...';
-      try{
-        mUrl=await uploadToCloudinary(mediaFile,(pct)=>{
-          setUploadPct(pct,'📡 '+pct+'% · '+fileMB+'MB · សូមរង់ចាំ...');
-        });
-        setUploadPct(100,'✅ Upload ស្រេច!');
-        await new Promise(r=>setTimeout(r,600));
-        hideUploadProgress();
-        if(st)st.innerHTML='<span style="color:var(--g)">✅ Video ready!</span>';
-      }catch(e){
-        hideUploadProgress();
-        console.error('Cloudinary:',e);
-        btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';
-        // Try base64 fallback for small videos
-        if(mediaFile.size<5*1024*1024){
-          toast('🔄 Trying direct upload...','inf');
-          try{mUrl=await toB64(mediaFile);}
-          catch(e2){toast('❌ '+e.message,'err');return;}
-        }else{
-          toast('❌ '+e.message,'err');
-          if(st)st.innerHTML=`<span style="color:var(--red)">❌ Error: ${e.message}</span>`;
-          return;
-        }
-      }
-    }else{
-      // Image → compress → base64
-      btn.innerHTML='<span class="spin"></span> Processing...';
-      try{
-        const compressed=await compressImage(mediaFile);
-        if(compressed.size>3*1024*1024){
-          showUploadProgress('📤 Upload Photo...',''+fileMB+'MB');
-          mUrl=await uploadToCloudinary(compressed,(pct)=>setUploadPct(pct,''+pct+'%'));
-          hideUploadProgress();
-        }else{
-          mUrl=await toB64(compressed);
-        }
-      }catch(e){
-        hideUploadProgress();
-        toast('❌ Photo Error: '+e.message,'err');
-        btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;
-      }
+    try{
+      const compressed=await compressImage(mediaFile);
+      mUrl=await toB64(compressed);
+      mType='image';
+    }catch(e){
+      toast('❌ Photo Error','err');
+      btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;
     }
   }
-
-  btn.innerHTML='<span class="spin"></span> Saving...';
   const tipSection=document.getElementById('tip-section');
-  const hasTip=tipSection&&tipSection.style.display!=='none';
+  const hasTip=tipSection&&tipSection.style.display!=='none'&&pred;
   const post={
     userId:U.id,caption:cap,
     prediction:hasTip?pred:'',
@@ -1269,177 +1083,11 @@ async function submitPost(){
   if(ref?.key)allPosts[ref.key]={...post,id:ref.key};
   closePostSheet();
   btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';
-  renderFeed(allPosts);renderReels(allPosts);
+  renderFeed(allPosts);
   toast('✅ Post ផ្ញើ!','ok');
 }
 
-// ══════════════════════════════════════════════
-// REELS BAR + TIKTOK VIEWER
-// ══════════════════════════════════════════════
-function renderReels(data){
-  const el=document.getElementById('reels-bar');if(!el)return;
-  if(!data){el.innerHTML='';return;}
-  const entries=typeof data==='object'&&!Array.isArray(data)?Object.entries(data):[];
-  const reels=entries
-    .filter(([k,v])=>v&&v.mediaUrl&&v.mediaType==='video')
-    .map(([k,v])=>({...v,id:k}))
-    .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  // Update tkVideos for TikTok viewer
-  tkVideos=reels;
-  if(!reels.length){
-    el.innerHTML='<div style="padding:12px 14px;font-size:12px;color:var(--t3);display:flex;align-items:center;gap:6px"><span>🎬</span><span>Post Video ដើម្បីឃើញ Reels</span></div>';
-    return;
-  }
-  el.innerHTML=reels.map((r,i)=>{
-    const u=AU[r.userId]||{displayName:'User',color:'#00C37A'};
-    const seenKey='seen_'+r.id;const seen=sessionStorage.getItem(seenKey);
-    return`<div class="reel-item ${seen?'reel-seen':''}" onclick="openReelAt(${i},'${r.id}')">
-      <div class="reel-ring ${seen?'reel-seen':''}">
-        <div class="reel-ring-inner">
-          <video muted playsinline preload="metadata"
-            src="${r.mediaUrl}"
-            style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;opacity:0;transition:opacity .25s"
-            onloadedmetadata="this.currentTime=0.5"
-            ontimeupdate="if(this.currentTime>=0.5){this.style.opacity=1;this.pause();this.ontimeupdate=null}">
-          </video>
-          <!-- Avatar fallback while video loads -->
-          <div style="width:100%;height:100%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:22px">${avHTML(u,62)}</div>
-        </div>
-        <!-- ▶ play icon badge -->
-        <div class="reel-play-ic">▶</div>
-      </div>
-      <div class="reel-name">${u.displayName||'User'}</div>
-    </div>`;
-  }).join('');
-}
 
-function openReelAt(idx,rid){
-  sessionStorage.setItem('seen_'+rid,'1');
-  const items=document.querySelectorAll('.reel-item');
-  if(items[idx])items[idx].classList.add('reel-seen');
-  tkIdx=idx;
-
-  document.getElementById('tk').classList.add('on');
-  buildTK();
-  setTimeout(()=>{const v=document.getElementById('tkv-'+idx);if(v)v.play().catch(()=>{});startTKProgress();},100);
-}
-
-function openVideoFromFeed(pid){
-  // Build TK list from all video posts, start at this video
-  const vids=Object.entries(allPosts)
-    .filter(([k,v])=>v.mediaUrl&&v.mediaType==='video')
-    .map(([k,v])=>({...v,id:k}))
-    .sort((a,b)=>b.createdAt-a.createdAt);
-  tkVideos=vids;
-  tkIdx=Math.max(0,vids.findIndex(v=>v.id===pid));
-  document.getElementById('tk').classList.add('on');
-  buildTK();
-  setTimeout(()=>{const v=document.getElementById('tkv-'+tkIdx);if(v)v.play().catch(()=>{});},120);
-  startTKProgress();
-}
-
-function openTK(idx){
-  tkIdx=idx;
-
-  document.getElementById('tk').classList.add('on');
-  buildTK();
-  setTimeout(()=>{const v=document.getElementById('tkv-'+tkIdx);if(v)v.play().catch(()=>{});startTKProgress();},100);
-}
-function closeTK(){
-  document.getElementById('tk').classList.remove('on');
-  document.querySelectorAll('#tk-pages video').forEach(v=>{try{v.pause();v.removeAttribute('src');v.load();}catch(e){}});
-}
-function buildTK(){
-  const con=document.getElementById('tk-pages');
-  con.innerHTML=tkVideos.map((v,i)=>{
-    const u=AU[v.userId]||{};const lk=(U.likedPosts||{})[v.id];
-    return`<div class="tk-slide" id="tks-${i}" style="transform:translateY(${(i-tkIdx)*100}%)">
-      <video id="tkv-${i}" src="${v.mediaUrl}" loop playsinline preload="auto"
-        style="width:100%;height:100%;object-fit:cover;display:block"
-        onclick="tkToggle(${i})"
-        onwaiting="showTKBuf(${i})"
-        onplaying="hideTKBuf(${i})">
-      </video>
-      <div id="tkbuf-${i}" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">
-        <div class="ptr-spin" style="width:36px;height:36px;border-width:3px"></div>
-      </div>
-      <!-- top bar -->
-      <div class="tk-top">
-        <div style="font-size:22px;cursor:pointer;color:#fff" onclick="closeTK()">←</div>
-        <div style="flex:1;text-align:center;font-size:14px;font-weight:700;color:#fff">Videos</div>
-        <div style="width:36px"></div>
-      </div>
-      <!-- right actions -->
-      <div class="tk-right">
-        <div class="tk-action" onclick="tkOpenProf('${v.userId}')">
-          <div class="tk-av" style="background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'}">${avHTML(u,42)}</div>
-          <div class="tk-plus" id="tkfol-${v.userId}" onclick="event.stopPropagation();tkFollow('${v.userId}')">+</div>
-        </div>
-        <div class="tk-action" onclick="tkLike('${v.id}','${v.userId}')">
-          <div class="tk-action-ic" id="tklk-${v.id}">${lk?'❤️':'🤍'}</div>
-          <div class="tk-action-lb" id="tklkc-${v.id}">${v.likes||0}</div>
-        </div>
-        <div class="tk-action" onclick="openCmt('${v.id}')">
-          <div class="tk-action-ic">💬</div><div class="tk-action-lb">${v.comments||0}</div>
-        </div>
-        <div class="tk-action" onclick="doShare('${v.id}','${(v.caption||'').replace(/'/g,"\\'")}')">
-          <div class="tk-action-ic">↗️</div><div class="tk-action-lb">${v.shares||0}</div>
-        </div>
-      </div>
-      <!-- bottom info -->
-      <div class="tk-bottom">
-        <div class="tk-uname">@${u.displayName||'User'}</div>
-        <div class="tk-cap">${v.caption||''}</div>
-        <div class="tk-prog"><div class="tk-prog-fill" id="tkpb-${i}"></div></div>
-      </div>
-    </div>`;
-  }).join('');
-  // Swipe up/down
-  let sy=0,dragging=false;
-  con.addEventListener('touchstart',e=>{sy=e.touches[0].clientY;dragging=true;},{passive:true});
-  con.addEventListener('touchmove',e=>{if(!dragging)return;const dy=sy-e.touches[0].clientY;if(Math.abs(dy)>40){dragging=false;slideTK(dy>0?1:-1);}},{passive:true});
-  con.addEventListener('touchend',()=>dragging=false,{passive:true});
-}
-function showTKBuf(i){const el=document.getElementById('tkbuf-'+i);if(el)el.style.display='flex';}
-function hideTKBuf(i){const el=document.getElementById('tkbuf-'+i);if(el)el.style.display='none';}
-function slideTK(dir){
-  const next=tkIdx+dir;
-  if(next<0||next>=tkVideos.length)return;
-  document.querySelectorAll('#tk-pages video').forEach(v=>{try{v.pause();}catch(e){}});
-  tkIdx=next;
-  document.querySelectorAll('.tk-slide').forEach((s,i)=>s.style.transform=`translateY(${(i-tkIdx)*100}%)`);
-  setTimeout(()=>{const v=document.getElementById('tkv-'+tkIdx);if(v)v.play().catch(()=>{});},50);
-  startTKProgress();
-}
-function tkToggle(i){const v=document.getElementById('tkv-'+i);if(!v)return;if(v.paused)v.play();else v.pause();}
-function startTKProgress(){
-  const v=document.getElementById('tkv-'+tkIdx);const pb=document.getElementById('tkpb-'+tkIdx);
-  if(!v||!pb)return;
-  v.ontimeupdate=()=>{if(v.duration)pb.style.width=(v.currentTime/v.duration*100)+'%';};
-}
-async function tkLike(pid,oid){
-  const ic=document.getElementById('tklk-'+pid);const cnt=document.getElementById('tklkc-'+pid);
-  const lk=(U.likedPosts||{})[pid];const liked=!lk;
-  if(!U.likedPosts)U.likedPosts={};if(liked)U.likedPosts[pid]=true;else delete U.likedPosts[pid];
-  if(ic){ic.textContent=liked?'❤️':'🤍';ic.style.transform='scale(1.3)';setTimeout(()=>ic.style.transform='',140);}
-  if(cnt){const c=parseInt(cnt.textContent)||0;cnt.textContent=Math.max(0,liked?c+1:c-1);}
-  FU('users/'+U.id,{['likedPosts/'+pid]:liked||null});
-  const cur=(await FG('posts/'+pid+'/likes'))||0;FS('posts/'+pid+'/likes',Math.max(0,liked?cur+1:cur-1));
-}
-async function tkFollow(uid){
-  if((U.followingList||{})[uid]){toast('Following ហើយ','inf');return;}
-  if(!U.followingList)U.followingList={};U.followingList[uid]=true;
-  FU('users/'+U.id,{['followingList/'+uid]:true,following:(U.following||0)+1});
-  FU('users/'+uid,{followers:(AU[uid]?.followers||0)+1});
-  const btn=document.getElementById('tkfol-'+uid);if(btn){btn.textContent='✓';btn.style.background='var(--g)';}
-  toast('✅ Follow!','ok');
-}
-function tkOpenProf(uid){closeTK();setTimeout(()=>viewProf(uid),300);}
-
-// ══════════════════════════════════════════════
-// COMMENTS
-// ══════════════════════════════════════════════
-let cmtReplyId=null;
 function openCmt(pid){
   curTip=pid;openSheet('cmt-ov');NAV.push('cmt',closeCmt);
   const el=document.getElementById('cmt-body');el.innerHTML='<div style="text-align:center;padding:20px"><span class="spin"></span></div>';
@@ -1843,8 +1491,7 @@ async function openPostFull(pid){
     <div class="av" style="width:44px;height:44px;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};cursor:pointer;box-shadow:0 0 0 2px ${u.color||'#00C37A'}33" onclick="closePostFull();setTimeout(()=>viewProf('${p.userId}'),220)">${avHTML(u,44)}</div>
     <div style="flex:1"><div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px">${nameH(u)}</div><div style="font-size:12px;color:var(--t2)">${ta(p.createdAt)}${p.league?' · '+p.league:''}</div></div>
   </div>
-  ${p.mediaUrl&&p.mediaType==='image'?`<img src="${p.mediaUrl}" style="width:100%;object-fit:contain;background:#000;display:block;max-height:70vh">`:
-    p.mediaUrl&&p.mediaType==='video'?`<video src="${p.mediaUrl}" controls playsinline style="width:100%;background:#000;display:block;max-height:65vh;object-fit:contain"></video>`:''}
+  ${p.mediaUrl&&p.mediaType==='image'?`<img src="${p.mediaUrl}" style="width:100%;object-fit:contain;display:block;max-height:72vh">`:''}
   <div style="padding:14px">
     ${p.caption?`<div style="font-size:15px;line-height:1.7;margin-bottom:10px">${p.caption}</div>`:''}
     ${p.prediction?`<div style="margin-bottom:12px"><span class="t-pred">🎯 ${p.prediction}${p.odds>1?' · '+p.odds:''}</span></div>`:''}
@@ -2035,19 +1682,6 @@ function doSearch(q){
 }
 </script>
 
-<!-- UPLOAD PROGRESS OVERLAY — Facebook style -->
-<div id="upload-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:400;align-items:center;justify-content:center;">
-  <div style="background:var(--bg2);border-radius:20px;padding:28px 32px;width:88%;max-width:320px;text-align:center">
-    <div style="font-size:36px;margin-bottom:12px">📤</div>
-    <div style="font-size:15px;font-weight:700;margin-bottom:6px" id="up-title">កំពុង Upload...</div>
-    <div style="font-size:12px;color:var(--t2);margin-bottom:16px" id="up-sub">Video → Cloudinary CDN</div>
-    <!-- Progress bar -->
-    <div style="background:var(--bg3);border-radius:20px;height:10px;overflow:hidden;margin-bottom:10px">
-      <div id="up-bar" style="height:100%;background:linear-gradient(90deg,var(--g),#00CFFF);border-radius:20px;width:0%;transition:width .3s ease"></div>
-    </div>
-    <div style="font-size:20px;font-weight:700;color:var(--g)" id="up-pct">0%</div>
-    <div style="font-size:11px;color:var(--t3);margin-top:6px" id="up-size"></div>
-  </div>
-</div>
+
 </body>
 </html>
