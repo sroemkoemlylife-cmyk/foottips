@@ -74,7 +74,17 @@ body{display:flex;flex-direction:column;}
 .ftabs{display:flex;padding:0 12px;border-bottom:1px solid var(--b);gap:0;overflow-x:auto;}
 .ftab{padding:9px 14px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;flex-shrink:0;transition:all .15s;}
 .ftab.act{color:var(--g);border-bottom-color:var(--g);font-weight:600;}
-.reels-bar{display:flex;gap:10px;padding:10px 12px;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0;}
+.reels-bar{display:flex;gap:0;padding:0;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--bg);}
+.reels-bar::-webkit-scrollbar{display:none;}
+.reel-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 8px;cursor:pointer;position:relative;}
+.reel-item:first-child{padding-left:12px;}
+.reel-item:last-child{padding-right:12px;}
+.reel-ring{width:66px;height:66px;border-radius:50%;position:relative;flex-shrink:0;}
+.reel-ring::before{content:'';position:absolute;inset:-2.5px;border-radius:50%;background:linear-gradient(135deg,#FF6B6B,#FFB347,#00C37A,#4B8BFF);z-index:0;}
+.reel-ring-inner{position:absolute;inset:2px;border-radius:50%;background:var(--bg);z-index:1;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.reel-seen::before{background:var(--b2)!important;}
+.reel-name{font-size:10px;color:var(--t2);max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
+.reel-play-ic{position:absolute;bottom:0;right:0;width:22px;height:22px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--bg);z-index:2;color:#000;font-weight:700;}
 
 /* ── POST CARD ── */
 .pc{background:var(--card);border-radius:16px;margin:10px 12px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.3);}
@@ -323,7 +333,7 @@ body{display:flex;flex-direction:column;}
     <!-- HOME -->
     <div class="pg act" id="pg-home">
       <div id="ptr-bar"><div id="ptr-inner"><div id="ptr-ic" style="font-size:18px;transition:transform .2s">↓</div><span id="ptr-tx" style="font-size:12px;font-weight:600">ទាញចុះ Refresh</span></div></div>
-      <div class="reels-bar" id="reels-bar" style="display:none"></div>
+      <div class="reels-bar" id="reels-bar"><div style="padding:14px 12px;font-size:12px;color:var(--t3)">...Loading Reels...</div></div>
       <div class="ftabs">
         <div class="ftab act" onclick="switchTab(this,'all')">ទំព័រដើម</div>
         <div class="ftab" onclick="switchTab(this,'following')">កំពុងតាមដាន</div>
@@ -1209,28 +1219,51 @@ async function submitPost(){
 // REELS BAR + TIKTOK VIEWER
 // ══════════════════════════════════════════════
 function renderReels(data){
-  if(!data)return;
-  // Get all video posts
+  const el=document.getElementById('reels-bar');if(!el)return;
+  if(!data){el.innerHTML='';return;}
   const entries=typeof data==='object'&&!Array.isArray(data)?Object.entries(data):[];
-  const reels=entries.filter(([k,v])=>v&&v.mediaUrl&&v.mediaType==='video').map(([k,v])=>({...v,id:k}));
+  const reels=entries
+    .filter(([k,v])=>v&&v.mediaUrl&&v.mediaType==='video')
+    .map(([k,v])=>({...v,id:k}))
+    .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  // Update tkVideos for TikTok viewer
   tkVideos=reels;
-  const el=document.getElementById('reels-bar');
-  if(!el)return;
-  if(!reels.length){el.style.display='none';return;}
-  el.style.display='flex';
+  if(!reels.length){
+    el.innerHTML='<div style="padding:12px 14px;font-size:12px;color:var(--t3);display:flex;align-items:center;gap:6px"><span>🎬</span><span>Post Video ដើម្បីឃើញ Reels</span></div>';
+    return;
+  }
   el.innerHTML=reels.map((r,i)=>{
     const u=AU[r.userId]||{displayName:'User',color:'#00C37A'};
-    return`<div style="flex-shrink:0;text-align:center;cursor:pointer;padding:2px" onclick="openTK(${i})">
-      <div style="width:62px;height:62px;border-radius:50%;border:2.5px solid var(--g);overflow:hidden;position:relative;background:var(--card);display:flex;align-items:center;justify-content:center">
-        <video src="${r.mediaUrl}#t=0.5" preload="metadata" muted playsinline
-          style="width:58px;height:58px;border-radius:50%;object-fit:cover;display:block;opacity:0;transition:opacity .3s;position:absolute"
-          onloadeddata="this.style.opacity=1"></video>
-        <div style="width:58px;height:58px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:${u.color}22;color:${u.color}">${avHTML(u,58)}</div>
-        <div style="position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:20px;color:#fff">▶</div>
+    const seenKey='seen_'+r.id;const seen=sessionStorage.getItem(seenKey);
+    return`<div class="reel-item ${seen?'reel-seen':''}" onclick="openReelAt(${i},'${r.id}')">
+      <div class="reel-ring ${seen?'reel-seen':''}">
+        <div class="reel-ring-inner">
+          <!-- Video thumbnail -->
+          <video src="${r.mediaUrl}#t=1" preload="metadata" muted playsinline
+            style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;position:absolute;top:0;left:0"
+            onloadeddata="this.style.opacity=1">
+          </video>
+          <!-- Avatar fallback while video loads -->
+          <div style="width:100%;height:100%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:22px">${avHTML(u,62)}</div>
+        </div>
+        <!-- ▶ play icon badge -->
+        <div class="reel-play-ic">▶</div>
       </div>
-      <div style="font-size:10px;color:var(--t2);margin-top:5px;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.displayName||'User'}</div>
+      <div class="reel-name">${u.displayName||'User'}</div>
     </div>`;
   }).join('');
+}
+
+function openReelAt(idx,rid){
+  // Mark as seen
+  sessionStorage.setItem('seen_'+rid,'1');
+  // Update ring style
+  const items=document.querySelectorAll('.reel-item');
+  if(items[idx])items[idx].classList.add('reel-seen');
+  tkIdx=idx;
+  document.getElementById('tk').classList.add('on');
+  buildTK();
+  setTimeout(()=>{const v=document.getElementById('tkv-'+idx);if(v)v.play().catch(()=>{});startTKProgress();},100);
 }
 
 function openVideoFromFeed(pid){
@@ -1251,8 +1284,7 @@ function openTK(idx){
   tkIdx=idx;
   document.getElementById('tk').classList.add('on');
   buildTK();
-  setTimeout(()=>{const v=document.getElementById('tkv-'+tkIdx);if(v)v.play().catch(()=>{});},120);
-  startTKProgress();
+  setTimeout(()=>{const v=document.getElementById('tkv-'+tkIdx);if(v)v.play().catch(()=>{});startTKProgress();},100);
 }
 function closeTK(){
   document.getElementById('tk').classList.remove('on');
