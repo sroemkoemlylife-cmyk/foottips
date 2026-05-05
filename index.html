@@ -77,26 +77,36 @@ body{display:flex;flex-direction:column;}
 .reels-bar{display:flex;gap:10px;padding:10px 12px;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0;}
 
 /* ── POST CARD ── */
-.pc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);margin:10px 12px 0;overflow:hidden;}
-.pc-h{padding:11px 12px 8px;display:flex;align-items:center;gap:9px;}
+.pc{background:var(--card);border-radius:16px;margin:10px 12px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.3);}
+.pc-h{padding:12px 14px 10px;display:flex;align-items:center;gap:10px;}
 .av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;overflow:hidden;flex-shrink:0;}
 .av img{width:100%;height:100%;object-fit:cover;}
 .pc-info{flex:1;min-width:0;}
-.pc-name{font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.pc-name{font-size:13px;font-weight:700;display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
 .btick{color:#1DA1F2;font-size:12px;}
-.ceo-lbl{font-size:9px;color:rgba(29,161,242,.38);letter-spacing:.5px;font-weight:600;display:block;}
-.pc-time{font-size:11px;color:var(--t2);margin-top:1px;}
-.fol-btn{font-size:11px;color:var(--g);font-weight:600;cursor:pointer;padding:4px 10px;border:1px solid var(--g);border-radius:20px;white-space:nowrap;flex-shrink:0;transition:all .15s;}
-.fol-btn.ing{color:var(--t2);border-color:var(--b2);}
-.more-btn{font-size:20px;color:var(--t3);cursor:pointer;padding:3px 6px;flex-shrink:0;}
-.pc-img{width:100%;max-height:480px;object-fit:contain;display:block;background:#000;}
-.pc-vid{width:100%;max-height:400px;object-fit:contain;display:block;background:#000;}
-.pc-b{padding:9px 12px 10px;}
-.pc-cap{font-size:14px;line-height:1.6;margin-bottom:7px;}
-.t-pred{display:inline-flex;align-items:center;gap:5px;background:var(--gg);color:var(--g);padding:4px 11px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid rgba(0,195,122,.25);}
-.pc-acts{display:flex;padding-top:7px;border-top:1px solid var(--b);}
-.pab{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 2px;cursor:pointer;font-size:12px;color:var(--t2);font-family:var(--font);background:none;border:none;transition:color .15s;}
-.pab:active{transform:scale(.88);}
+.ceo-lbl{font-size:9px;color:rgba(29,161,242,.4);letter-spacing:.5px;font-weight:600;display:block;}
+.pc-time{font-size:11px;color:var(--t3);margin-top:2px;}
+.fol-btn{font-size:11px;color:var(--g);font-weight:700;cursor:pointer;padding:5px 12px;border:1.5px solid var(--g);border-radius:20px;white-space:nowrap;flex-shrink:0;transition:all .15s;background:var(--gg);}
+.fol-btn.ing{color:var(--t3);border-color:var(--b2);background:transparent;}
+.more-btn{font-size:22px;color:var(--t3);cursor:pointer;padding:2px 6px;flex-shrink:0;}
+.pc-img{width:100%;max-height:500px;object-fit:cover;display:block;}
+.pc-vid{width:100%;max-height:420px;object-fit:contain;display:block;background:#000;}
+.pc-b{padding:10px 14px 12px;}
+.pc-cap{font-size:14px;line-height:1.65;margin-bottom:9px;color:var(--t);}
+/* TIP CARD — beautiful */
+.tip-card{background:linear-gradient(135deg,rgba(0,195,122,.08),rgba(0,195,122,.03));border:1px solid rgba(0,195,122,.2);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+.tip-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.tip-badge{background:var(--g);color:#000;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;letter-spacing:.5px;}
+.tip-league{font-size:11px;color:var(--t2);font-weight:500;}
+.tip-pred{font-size:15px;font-weight:700;color:var(--t);margin-bottom:6px;}
+.tip-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.tip-odds{display:inline-flex;align-items:center;gap:4px;background:rgba(75,139,255,.12);color:var(--blue);border:1px solid rgba(75,139,255,.25);padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;}
+.tip-status-won{display:inline-flex;align-items:center;gap:4px;background:rgba(0,195,122,.12);color:var(--g);border:1px solid rgba(0,195,122,.3);padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;}
+.tip-status-lost{display:inline-flex;align-items:center;gap:4px;background:rgba(255,75,110,.1);color:var(--red);border:1px solid rgba(255,75,110,.25);padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;}
+.tip-status-pend{display:inline-flex;align-items:center;gap:4px;background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.25);padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;}
+.pc-acts{display:flex;padding-top:8px;border-top:1px solid var(--b);margin-top:2px;}
+.pab{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 2px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:var(--font);background:none;border:none;border-radius:10px;transition:all .15s;}
+.pab:active{transform:scale(.85);background:var(--bg3);}
 .pab.lk{color:var(--red);}
 .pill{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;}
 .p-g{background:rgba(0,195,122,.1);color:var(--g);border:1px solid rgba(0,195,122,.2);}
@@ -263,8 +273,8 @@ body{display:flex;flex-direction:column;}
 .toast.err{border-color:rgba(255,75,110,.3);color:var(--red);}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;}
 @keyframes sp{to{transform:rotate(360deg)}}
-.stars-row{display:flex;gap:8px;justify-content:center;margin:14px 0;}
-.star-ic{font-size:36px;cursor:pointer;}
+
+
 .set-s{margin:12px;}
 .set-title{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
 .set-card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);overflow:hidden;}
@@ -319,7 +329,7 @@ body{display:flex;flex-direction:column;}
         <div class="ftab" onclick="switchTab(this,'following')">កំពុងតាមដាន</div>
         <div class="ftab" onclick="switchTab(this,'hot')">🔥 ក្ដៅ</div>
       </div>
-      <div id="feed" style="padding-bottom:8px"></div>
+      <div id="feed" style="padding-bottom:14px"></div>
     </div>
     <!-- PREDICT -->
     <div class="pg" id="pg-pred">
@@ -446,29 +456,41 @@ body{display:flex;flex-direction:column;}
 
 <!-- POST OVERLAY -->
 <div class="ov" id="pov">
-  <div class="sheet">
+  <div class="sheet" style="max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
     <div class="hdl"></div>
-    <div style="font-size:14px;font-weight:700;margin-bottom:12px">📝 Post / Tip ថ្មី</div>
-    <div class="ig"><div class="lbl">Caption / ការប្រកួត</div><textarea class="inp" id="ti-cap" rows="3" placeholder="Share Tips ឬ Caption..."></textarea></div>
-    <div class="irow">
-      <div class="ig" style="flex:1"><div class="lbl">ការទស្សន៍ទាយ</div><input class="inp" id="ti-p" placeholder="Barcelona Win"></div>
-      <div class="ig" style="flex:1"><div class="lbl">Odds</div><input class="inp" id="ti-od" placeholder="1.85" type="number" step="0.01"></div>
-    </div>
-    <div class="irow">
-      <div class="ig" style="flex:1"><div class="lbl">លីក</div><input class="inp" id="ti-lg" placeholder="La Liga"></div>
-      <div class="ig" style="flex:1"><div class="lbl">ប្រភេទ</div>
-        <select class="inp" id="ti-ty"><option>Match Winner</option><option>Over/Under</option><option>Both Teams Score</option><option>Asian Handicap</option><option>Tips ទូទៅ</option></select>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700">✏️ Post ថ្មី</div>
+      <div style="display:flex;gap:6px">
+        <div id="post-type-btn" style="font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;background:var(--gg);color:var(--g);border:1px solid rgba(0,195,122,.3);cursor:pointer" onclick="toggleTipMode()">🎯 ដាក់ Tip</div>
       </div>
     </div>
-    <div class="ig">
-      <div class="lbl">📷 Photo / 🎥 Video (≤ 30 នាទី)</div>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--card);border:1px dashed var(--b2);border-radius:var(--rs);padding:12px">
-        <span>📎</span><span id="media-lbl" style="font-size:13px;color:var(--t2)">ជ្រើស File...</span>
+    <!-- Caption -->
+    <div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-start">
+      <div class="av" id="post-av" style="width:38px;height:38px;flex-shrink:0;background:var(--card);color:var(--g)"></div>
+      <textarea class="inp" id="ti-cap" rows="3" placeholder="Share ចំណេះដឹង Tips ឬ Caption..." style="flex:1;resize:none;border-radius:12px;font-size:14px;min-height:80px"></textarea>
+    </div>
+    <!-- Tip section (hidden by default) -->
+    <div id="tip-section" style="display:none;background:var(--bg3);border-radius:12px;padding:12px;margin-bottom:12px;border:1px solid rgba(0,195,122,.2)">
+      <div style="font-size:11px;font-weight:700;color:var(--g);margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px">🎯 Tip Details</div>
+      <div class="ig" style="margin-bottom:8px"><input class="inp" id="ti-p" placeholder="ការទស្សន៍ទាយ: Barcelona Win..." style="border-radius:10px"></div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1"><input class="inp" id="ti-od" placeholder="Odds: 1.85" type="number" step="0.01" style="border-radius:10px;width:100%"></div>
+        <div style="flex:1"><input class="inp" id="ti-lg" placeholder="La Liga..." style="border-radius:10px;width:100%"></div>
+      </div>
+      <div style="margin-top:8px"><select class="inp" id="ti-ty" style="border-radius:10px"><option>Match Winner</option><option>Over/Under</option><option>Both Teams Score</option><option>Asian Handicap</option><option>Tips ទូទៅ</option></select></div>
+    </div>
+    <!-- Media -->
+    <div id="media-preview" style="display:none;margin-bottom:10px;position:relative;border-radius:12px;overflow:hidden"></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:var(--bg3);border:1.5px dashed var(--b2);border-radius:12px;padding:12px;transition:all .15s" onmouseover="this.style.borderColor='var(--g)'" onmouseout="this.style.borderColor='var(--b2)'">
+        <span style="font-size:20px">📷</span><span style="font-size:13px;color:var(--t2);font-weight:500">Photo / Video</span>
         <input type="file" id="ti-media" accept="image/*,video/*" style="display:none" onchange="onMedia(this)">
       </label>
+      <div id="media-clear" style="display:none;width:44px;height:44px;background:var(--red);border-radius:12px;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:18px" onclick="clearMedia()">✕</div>
     </div>
-    <button class="btn" id="post-btn" onclick="submitPost()">ផ្ញើ Post</button>
-    <button class="btn-o" style="margin-top:8px" onclick="closeSheet('pov')">បោះបង់</button>
+    <div id="media-status" style="font-size:12px;color:var(--g);margin-bottom:10px;display:none"></div>
+    <button class="btn" id="post-btn" onclick="submitPost()" style="border-radius:12px;font-size:15px">📤 ផ្ញើ Post</button>
+    <button class="btn-o" style="margin-top:8px;border-radius:12px" onclick="closePostSheet()">បោះបង់</button>
   </div>
 </div>
 
@@ -490,17 +512,7 @@ body{display:flex;flex-direction:column;}
 <!-- MENU OVERLAY -->
 <div class="ov" id="menu-ov"><div class="sheet"><div class="hdl"></div><div id="menu-items"></div></div></div>
 
-<!-- STAR OVERLAY -->
-<div class="ov" id="star-ov">
-  <div class="sheet">
-    <div class="hdl"></div>
-    <div style="font-size:14px;font-weight:700;margin-bottom:4px">⭐ ផ្ដល់ Stars</div>
-    <div class="stars-row" id="stars-row"></div>
-    <div style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:14px" id="star-lbl">ជ្រើស Stars...</div>
-    <button class="btn" onclick="submitStar()">ផ្ញើ Stars</button>
-    <button class="btn-o" style="margin-top:8px" onclick="closeSheet('star-ov')">បោះបង់</button>
-  </div>
-</div>
+<!-- star removed -->
 
 <script>
 // ══════════════════════════════════════════════
@@ -802,7 +814,7 @@ function postH(p,ml){
         <button class="pab ${lk?'lk':''}" id="lkb-${p.id}" onclick="togLike('${p.id}','${p.userId}',this)"><span>${lk?'❤️':'🤍'}</span><span>${p.likes||0}</span></button>
         <button class="pab" onclick="openCmt('${p.id}')"><span>💬</span><span>${p.comments||0}</span></button>
         <button class="pab" onclick="doShare('${p.id}','${(p.caption||p.prediction||'').replace(/'/g,"\\'").slice(0,60)}')"><span>↗️</span><span>${p.shares||0}</span></button>
-        <button class="pab" onclick="openStar('${p.userId}')"><span>⭐</span></button>
+
       </div>
     </div>
   </div>`;
@@ -919,31 +931,95 @@ function insightsP(pid){const p=allPosts[pid];if(!p)return;alert(`📊 Insights\
 // ══════════════════════════════════════════════
 // POST SUBMIT
 // ══════════════════════════════════════════════
-function openPost(){openSheet('pov');}
+function openPost(){
+  openSheet('pov');
+  // Set avatar
+  const av=document.getElementById('post-av');
+  if(av){av.style.background=U.color+'22';av.style.color=U.color;av.innerHTML=avHTML(U,38);}
+}
+function toggleTipMode(){
+  const s=document.getElementById('tip-section');const b=document.getElementById('post-type-btn');
+  const showing=s.style.display!=='none';
+  s.style.display=showing?'none':'block';
+  b.textContent=showing?'🎯 ដាក់ Tip':'✕ លប់ Tip';
+  b.style.background=showing?'var(--gg)':'rgba(255,75,110,.1)';
+  b.style.color=showing?'var(--g)':'var(--red)';
+  b.style.borderColor=showing?'rgba(0,195,122,.3)':'rgba(255,75,110,.3)';
+}
+function closePostSheet(){
+  closeSheet('pov');
+  // Reset
+  document.getElementById('ti-cap').value='';
+  const s=document.getElementById('tip-section');if(s)s.style.display='none';
+  const b=document.getElementById('post-type-btn');if(b){b.textContent='🎯 ដាក់ Tip';b.style.background='var(--gg)';b.style.color='var(--g)';}
+  clearMedia();
+}
+function clearMedia(){
+  mediaFile=null;
+  document.getElementById('ti-media').value='';
+  const prev=document.getElementById('media-preview');if(prev){prev.style.display='none';prev.innerHTML='';}
+  const st=document.getElementById('media-status');if(st)st.style.display='none';
+  const cl=document.getElementById('media-clear');if(cl)cl.style.display='none';
+}
 function onMedia(inp){
   const f=inp.files[0];if(!f)return;
   if(f.type.startsWith('video/')){
     const v=document.createElement('video');v.preload='metadata';
-    v.onloadedmetadata=()=>{URL.revokeObjectURL(v.src);if(v.duration>1800){toast('⚠️ Video ≤ 30 នាទី','err');inp.value='';document.getElementById('media-lbl').textContent='ជ្រើស File...';return;}mediaFile=f;document.getElementById('media-lbl').textContent='✅ '+f.name;};
-    v.src=URL.createObjectURL(f);
-  }else{mediaFile=f;document.getElementById('media-lbl').textContent='✅ '+f.name;}
+    const objUrl=URL.createObjectURL(f);
+    v.onloadedmetadata=()=>{
+      URL.revokeObjectURL(objUrl);
+      if(v.duration>1800){toast('⚠️ Video ≤ 30 នាទី','err');inp.value='';clearMedia();return;}
+      mediaFile=f;
+      // Show preview
+      const prev=document.getElementById('media-preview');
+      if(prev){prev.style.display='block';prev.innerHTML=`<video src="${URL.createObjectURL(f)}" controls playsinline style="width:100%;max-height:200px;object-fit:contain;background:#000;border-radius:10px"></video>`;}
+      const st=document.getElementById('media-status');if(st){st.textContent='✅ Video: '+f.name+' ('+Math.round(f.size/1024/1024*10)/10+'MB · '+Math.round(v.duration)+'s)';st.style.display='block';}
+      const cl=document.getElementById('media-clear');if(cl)cl.style.display='flex';
+    };
+    v.onerror=()=>toast('⚠️ Video Error','err');
+    v.src=objUrl;
+  }else{
+    mediaFile=f;
+    // Show image preview
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const prev=document.getElementById('media-preview');
+      if(prev){prev.style.display='block';prev.innerHTML=`<img src="${e.target.result}" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px">`;}
+      const st=document.getElementById('media-status');if(st){st.textContent='✅ Photo: '+f.name;st.style.display='block';}
+      const cl=document.getElementById('media-clear');if(cl)cl.style.display='flex';
+    };reader.readAsDataURL(f);
+  }
 }
 async function submitPost(){
-  const cap=document.getElementById('ti-cap').value.trim();const pred=document.getElementById('ti-p').value.trim();
-  if(!cap&&!pred&&!mediaFile){toast('⚠️ ចាំបាច់','err');return;}
-  const btn=document.getElementById('post-btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  const cap=document.getElementById('ti-cap').value.trim();
+  const pred=document.getElementById('ti-p').value.trim();
+  if(!cap&&!pred&&!mediaFile){toast('⚠️ ត្រូវតែមាន Caption ឬ Tip ឬ Media','err');return;}
+  const btn=document.getElementById('post-btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> កំពុង Upload...';
   let mUrl='',mType='';
   if(mediaFile){
-    if(mediaFile.size>50*1024*1024){toast('⚠️ <50MB','err');btn.disabled=false;btn.textContent='ផ្ញើ Post';return;}
-    mUrl=await toB64(mediaFile);mType=mediaFile.type.startsWith('video/')?'video':'image';
+    const maxMB=mediaFile.type.startsWith('video/')?80:10;
+    if(mediaFile.size>maxMB*1024*1024){toast('⚠️ File ធំពេក (max '+maxMB+'MB)','err');btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;}
+    try{mUrl=await toB64(mediaFile);mType=mediaFile.type.startsWith('video/')?'video':'image';}
+    catch(e){toast('⚠️ Upload Error','err');btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';return;}
   }
-  const post={userId:U.id,caption:cap,prediction:pred,odds:parseFloat(document.getElementById('ti-od').value)||0,league:document.getElementById('ti-lg').value.trim(),tipType:document.getElementById('ti-ty').value,mediaUrl:mUrl,mediaType:mType,likes:0,comments:0,shares:0,status:'pending',views:{[U.id]:true},createdAt:Date.now()};
+  const tipSection=document.getElementById('tip-section');const hasTip=tipSection&&tipSection.style.display!=='none';
+  const post={
+    userId:U.id,caption:cap,
+    prediction:hasTip?pred:'',
+    odds:hasTip?parseFloat(document.getElementById('ti-od').value)||0:0,
+    league:hasTip?document.getElementById('ti-lg').value.trim():'',
+    tipType:hasTip?document.getElementById('ti-ty').value:'',
+    mediaUrl:mUrl,mediaType:mType,
+    likes:0,comments:0,shares:0,status:'pending',
+    views:{[U.id]:true},createdAt:Date.now()
+  };
   const ref=await FP('posts',post);
   await FU('users/'+U.id,{posts:(U.posts||0)+1});U.posts=(U.posts||0)+1;
   if(ref?.key)allPosts[ref.key]={...post,id:ref.key};
-  closeSheet('pov');['ti-cap','ti-p','ti-od','ti-lg'].forEach(id=>document.getElementById(id).value='');
-  mediaFile=null;document.getElementById('media-lbl').textContent='ជ្រើស File...';document.getElementById('ti-media').value='';
-  btn.disabled=false;btn.textContent='ផ្ញើ Post';renderFeed(allPosts);toast('✅ Post ផ្ញើ!','ok');
+  closePostSheet();
+  btn.disabled=false;btn.innerHTML='📤 ផ្ញើ Post';
+  renderFeed(allPosts);renderReels(allPosts);
+  toast('✅ Post ផ្ញើ!','ok');
 }
 
 // ══════════════════════════════════════════════
@@ -951,19 +1027,22 @@ async function submitPost(){
 // ══════════════════════════════════════════════
 function renderReels(data){
   if(!data)return;
-  const reels=Object.entries(data).filter(([k,v])=>v.mediaType==='video').map(([k,v])=>({...v,id:k})).slice(-12);
+  // Get all video posts
+  const entries=typeof data==='object'&&!Array.isArray(data)?Object.entries(data):[];
+  const reels=entries.filter(([k,v])=>v&&v.mediaUrl&&v.mediaType==='video').map(([k,v])=>({...v,id:k}));
   tkVideos=reels;
   const el=document.getElementById('reels-bar');
+  if(!el)return;
   if(!reels.length){el.style.display='none';return;}
   el.style.display='flex';
   el.innerHTML=reels.map((r,i)=>{
-    const u=AU[r.userId]||{};
-    return`<div style="flex-shrink:0;text-align:center;cursor:pointer" onclick="openTK(${i})">
-      <div style="width:58px;height:58px;border-radius:50%;border:2.5px solid var(--g);overflow:hidden;position:relative;background:var(--card);display:flex;align-items:center;justify-content:center">
-        ${avHTML(u,54)}
-        <div style="position:absolute;inset:0;background:rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:18px;color:#fff">▶</div>
+    const u=AU[r.userId]||{displayName:'User',color:'#00C37A'};
+    return`<div style="flex-shrink:0;text-align:center;cursor:pointer;padding:2px" onclick="openTK(${i})">
+      <div style="width:62px;height:62px;border-radius:50%;border:2.5px solid var(--g);overflow:hidden;position:relative;background:var(--card);display:flex;align-items:center;justify-content:center">
+        <div style="width:58px;height:58px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:${u.color}22;color:${u.color}">${avHTML(u,58)}</div>
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:20px;color:#fff">▶</div>
       </div>
-      <div style="font-size:10px;color:var(--t2);margin-top:4px;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.displayName||'User'}</div>
+      <div style="font-size:10px;color:var(--t2);margin-top:5px;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.displayName||'User'}</div>
     </div>`;
   }).join('');
 }
@@ -1127,7 +1206,7 @@ async function togFollow(uid,name,btn){
 // ══════════════════════════════════════════════
 // STARS
 // ══════════════════════════════════════════════
-function openStar(uid){if(uid===U.id){toast('⚠️ មិនអាច','inf');return;}curStarUid=uid;curStar=0;renderStarRow(0);openSheet('star-ov');}
+function openStar(uid){} // removed
 function renderStarRow(n){const L=['','⭐ ព្យាយាម','⭐⭐ ល្អ','⭐⭐⭐ ល្អណាស់','⭐⭐⭐⭐ អស្ចារ្យ','⭐⭐⭐⭐⭐ ឥតខ្ចោះ'];document.getElementById('stars-row').innerHTML=[1,2,3,4,5].map(i=>`<span class="star-ic" onclick="selStar(${i})">${i<=n?'⭐':'☆'}</span>`).join('');document.getElementById('star-lbl').textContent=n?L[n]:'ជ្រើស...';curStar=n;}
 function selStar(n){renderStarRow(n);}
 async function submitStar(){if(!curStar){toast('⚠️ ជ្រើស Stars','err');return;}await FS('stars/'+curStarUid+'/'+U.id,{stars:curStar,createdAt:Date.now()});const all=await FG('stars/'+curStarUid);if(all){const vals=Object.values(all).map(s=>s.stars);const avg=vals.reduce((a,b)=>a+b,0)/vals.length;await FU('users/'+curStarUid,{avgStars:avg.toFixed(1),starCount:vals.length});}closeSheet('star-ov');toast('⭐ '+curStar+' Stars!','ok');sendNotif(curStarUid,'star',U.displayName+' ផ្ដល់ '+curStar+' Stars ⭐',U.id);}
@@ -1259,12 +1338,27 @@ function voiceBubbleH(m,isMe){
     <span class="vdur">${m.dur||0}s</span>
   </div>`;
 }
-function playVMsg(url,btn){
-  const audio=new Audio(url);
-  btn.textContent='⏸';
-  audio.play().catch(()=>{toast('❌ Error','err');btn.textContent='▶';});
-  audio.onended=()=>btn.textContent='▶';
-  audio.onerror=()=>{toast('❌','err');btn.textContent='▶';};
+// Global audio player to avoid multiple playing
+let _voiceAudio=null;
+function playVMsg(b64,btn){
+  // Stop any playing
+  if(_voiceAudio){_voiceAudio.pause();_voiceAudio=null;document.querySelectorAll('.vplay').forEach(b=>b.textContent='▶');}
+  if(btn.textContent==='⏸'){btn.textContent='▶';return;}
+  // Convert base64 to blob URL for better browser support
+  try{
+    const byteStr=atob(b64.split(',')[1]||b64);
+    const mime=b64.startsWith('data:audio')?b64.split(':')[1].split(';')[0]:'audio/webm';
+    const arr=new Uint8Array(byteStr.length);
+    for(let i=0;i<byteStr.length;i++)arr[i]=byteStr.charCodeAt(i);
+    const blob=new Blob([arr],{type:mime});
+    const blobUrl=URL.createObjectURL(blob);
+    const audio=new Audio(blobUrl);
+    _voiceAudio=audio;
+    btn.textContent='⏸';
+    audio.play().catch(e=>{toast('❌ Cannot play voice','err');btn.textContent='▶';URL.revokeObjectURL(blobUrl);});
+    audio.onended=()=>{btn.textContent='▶';URL.revokeObjectURL(blobUrl);_voiceAudio=null;};
+    audio.onerror=()=>{toast('❌ Voice Error','err');btn.textContent='▶';URL.revokeObjectURL(blobUrl);_voiceAudio=null;};
+  }catch(e){toast('❌ Voice format error','err');btn.textContent='▶';}
 }
 // Reactions — Telegram long-press
 function startLongPress(e,key,mid){longPressTimer=setTimeout(()=>showReactPopup(e,key,mid),500);}
@@ -1356,7 +1450,7 @@ async function viewProf(uid){
   document.getElementById('po-t').textContent=u.displayName;
   document.getElementById('po-more').onclick=()=>{
     document.getElementById('menu-items').innerHTML=`<div class="mitem" onclick="togFollow('${uid}','${u.displayName}',{classList:{contains:()=>(U.followingList||{})[uid],toggle:()=>{},add:()=>{},remove:()=>{}}});closeSheet('menu-ov')">👥 ${(U.followingList||{})[uid]?'Unfollow':'Follow'}</div>
-    <div class="mitem" onclick="openStar('${uid}');closeSheet('menu-ov')">⭐ ផ្ដល់ Stars</div>
+
     <div class="mitem danger" onclick="toast('🚩 Report sent','ok');closeSheet('menu-ov')">🚩 Report</div>`;
     openSheet('menu-ov');
   };
@@ -1395,7 +1489,7 @@ function profH(u,posts,isMe,wr,won,settled){
       `:`
         <button class="${isFol?'btn-o':'btn'}" style="width:auto;padding:9px 22px;font-size:13px" id="fol-po-${u.id}" onclick="togFollow('${u.id}','${u.displayName}',this)">${isFol?'Following':'+ Follow'}</button>
         <button class="btn-o" style="width:auto;padding:9px 22px;font-size:13px" onclick="closePO();nav('chat');setTimeout(()=>openCW('${u.id}','${u.displayName}','${u.color||'#00C37A'}'),280)">💬 ឆាត</button>
-        <button class="btn-o" style="width:auto;padding:8px 14px;font-size:12px" onclick="openStar('${u.id}')">⭐</button>
+        
       `}
     </div>
   </div>
