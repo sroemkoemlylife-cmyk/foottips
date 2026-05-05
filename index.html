@@ -328,6 +328,7 @@ body{display:flex;flex-direction:column;}
         <div class="ftab act" onclick="switchTab(this,'all')">ទំព័រដើម</div>
         <div class="ftab" onclick="switchTab(this,'following')">កំពុងតាមដាន</div>
         <div class="ftab" onclick="switchTab(this,'hot')">🔥 ក្ដៅ</div>
+        <div class="ftab" onclick="switchTab(this,'videos')">🎬 Video</div>
       </div>
       <div id="feed" style="padding-bottom:14px"></div>
     </div>
@@ -810,7 +811,15 @@ function renderFeed(data){
   if(!data||!Object.keys(data).length){el.innerHTML='<div class="empty"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន Posts</div><div class="empty-s">ចុច ＋ ចែករំលែក!</div></div>';return;}
   let posts=Object.entries(data).map(([k,v])=>({...v,id:k}));
   const now=Date.now();
-  if(feedTab==='hot'){
+  if(feedTab==='videos'){
+    // VIDEO ONLY TAB — TikTok-style grid
+    posts=posts.filter(p=>p.mediaUrl&&p.mediaType==='video');
+    posts.sort((a,b)=>b.createdAt-a.createdAt);
+    if(!posts.length){el.innerHTML='<div class="empty"><div class="empty-ic">🎬</div><div class="empty-h">មិនទាន់មាន Videos</div><div class="empty-s">ចុច ＋ ដើម្បី Post Video!</div></div>';return;}
+    el.innerHTML=`<div style="padding:10px 12px 4px;font-size:13px;font-weight:600;color:var(--t2)">🎬 ${posts.length} Videos</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:0 3px">${posts.map((p,i)=>videoThumbH(p,i)).join('')}</div>`;
+    return;
+  } else if(feedTab==='hot'){
     posts.sort((a,b)=>{
       const sA=(a.likes||0)*3+Object.keys(a.views||{}).length+(a.comments||0)*2+(a.shares||0)*2;
       const sB=(b.likes||0)*3+Object.keys(b.views||{}).length+(b.comments||0)*2+(b.shares||0)*2;
@@ -855,6 +864,40 @@ function switchTab(el,tab){
 // ══════════════════════════════════════════════
 // POST CARD HTML
 // ══════════════════════════════════════════════
+// ── Video grid thumbnail (for Video tab) ──
+function videoThumbH(p,idx){
+  const u=AU[p.userId]||{};
+  const dur=p.videoDur?Math.round(p.videoDur)+'s':'';
+  return`<div style="position:relative;aspect-ratio:9/16;background:#111;border-radius:8px;overflow:hidden;cursor:pointer" onclick="openTKAt(${idx})">
+    <video src="${p.mediaUrl}#t=0.5" preload="metadata" playsinline muted
+      style="width:100%;height:100%;object-fit:cover;display:block"
+      onloadeddata="this.style.opacity=1" style="opacity:0;transition:opacity .3s">
+    </video>
+    <div style="position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,.7))"></div>
+    <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px">${dur}</div>
+    <div style="position:absolute;bottom:8px;left:8px;right:8px">
+      <div style="font-size:11px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.caption||''}</div>
+      <div style="display:flex;align-items:center;gap:5px;margin-top:3px">
+        <div style="width:18px;height:18px;border-radius:50%;overflow:hidden;background:${u.color||'#00C37A'}22">${avHTML(u,18)}</div>
+        <span style="font-size:10px;color:rgba(255,255,255,.8)">${u.displayName||'User'}</span>
+        <span style="font-size:10px;color:rgba(255,255,255,.6);margin-left:auto">❤️${p.likes||0}</span>
+      </div>
+    </div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;backdrop-filter:blur(4px)">▶</div>
+  </div>`;
+}
+
+// Open TK from video tab at specific index of video posts
+function openTKAt(idx){
+  // filter videos from allPosts
+  const vids=Object.entries(allPosts).filter(([k,v])=>v.mediaUrl&&v.mediaType==='video').map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+  tkVideos=vids;tkIdx=idx;
+  document.getElementById('tk').classList.add('on');
+  buildTK();
+  setTimeout(()=>{const v=document.getElementById('tkv-'+idx);if(v)v.play().catch(()=>{});},120);
+  startTKProgress();
+}
+
 function postH(p,ml){
   const u=AU[p.userId]||{displayName:'User',avatar:'⚽',color:'#00C37A'};
   const lk=ml[p.id]===true;const isOwn=p.userId===U.id;
@@ -863,8 +906,23 @@ function postH(p,ml){
   const st=p.status==='won'?'<span class="pill p-g" style="margin-left:6px">✅</span>':p.status==='lost'?'<span class="pill p-r" style="margin-left:6px">❌</span>':p.prediction?'<span class="pill p-gray" style="margin-left:6px">⏳</span>':'';
   const views=Object.keys(p.views||{}).length;
   let media='';
-  if(p.mediaUrl&&p.mediaType==='image')media=`<img class="pc-img" src="${p.mediaUrl}" loading="lazy">`;
-  else if(p.mediaUrl&&p.mediaType==='video')media=`<video class="pc-vid" src="${p.mediaUrl}" controls playsinline preload="metadata"></video>`;
+  if(p.mediaUrl&&p.mediaType==='image'){
+    media=`<img class="pc-img" src="${p.mediaUrl}" loading="lazy" style="max-height:460px;object-fit:cover">`;
+  } else if(p.mediaUrl&&p.mediaType==='video'){
+    // Feed: thumbnail → tap = TikTok full-screen (fast, no inline lag)
+    media=`<div style="position:relative;background:#111;cursor:pointer" onclick="openVideoFromFeed('${p.id}')">
+      <video src="${p.mediaUrl}#t=0.5" preload="metadata" muted playsinline
+        style="width:100%;max-height:360px;object-fit:cover;display:block;opacity:0;transition:opacity .5s"
+        onloadeddata="this.style.opacity=1">
+      </video>
+      <div style="position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,.45));display:flex;align-items:center;justify-content:center;pointer-events:none">
+        <div style="width:60px;height:60px;background:rgba(0,0,0,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,.25)">
+          <span style="font-size:26px;color:#fff;margin-left:5px">▶</span>
+        </div>
+      </div>
+      <div style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px">🎬 ចុចមើល</div>
+    </div>`;
+  }
   return`<div class="pc" id="pc-${p.id}">
     <div class="pc-h">
       <div class="av" style="width:42px;height:42px;background:${u.color}22;color:${u.color};cursor:pointer" onclick="viewProf('${p.userId}')">${avHTML(u,42)}</div>
@@ -1164,12 +1222,29 @@ function renderReels(data){
     const u=AU[r.userId]||{displayName:'User',color:'#00C37A'};
     return`<div style="flex-shrink:0;text-align:center;cursor:pointer;padding:2px" onclick="openTK(${i})">
       <div style="width:62px;height:62px;border-radius:50%;border:2.5px solid var(--g);overflow:hidden;position:relative;background:var(--card);display:flex;align-items:center;justify-content:center">
+        <video src="${r.mediaUrl}#t=0.5" preload="metadata" muted playsinline
+          style="width:58px;height:58px;border-radius:50%;object-fit:cover;display:block;opacity:0;transition:opacity .3s;position:absolute"
+          onloadeddata="this.style.opacity=1"></video>
         <div style="width:58px;height:58px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:${u.color}22;color:${u.color}">${avHTML(u,58)}</div>
         <div style="position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:20px;color:#fff">▶</div>
       </div>
       <div style="font-size:10px;color:var(--t2);margin-top:5px;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.displayName||'User'}</div>
     </div>`;
   }).join('');
+}
+
+function openVideoFromFeed(pid){
+  // Build TK list from all video posts, start at this video
+  const vids=Object.entries(allPosts)
+    .filter(([k,v])=>v.mediaUrl&&v.mediaType==='video')
+    .map(([k,v])=>({...v,id:k}))
+    .sort((a,b)=>b.createdAt-a.createdAt);
+  tkVideos=vids;
+  tkIdx=Math.max(0,vids.findIndex(v=>v.id===pid));
+  document.getElementById('tk').classList.add('on');
+  buildTK();
+  setTimeout(()=>{const v=document.getElementById('tkv-'+tkIdx);if(v)v.play().catch(()=>{});},120);
+  startTKProgress();
 }
 
 function openTK(idx){
@@ -1188,7 +1263,15 @@ function buildTK(){
   con.innerHTML=tkVideos.map((v,i)=>{
     const u=AU[v.userId]||{};const lk=(U.likedPosts||{})[v.id];
     return`<div class="tk-slide" id="tks-${i}" style="transform:translateY(${(i-tkIdx)*100}%)">
-      <video id="tkv-${i}" src="${v.mediaUrl}" loop playsinline preload="auto" style="width:100%;height:100%;object-fit:cover" onclick="tkToggle(${i})"></video>
+      <video id="tkv-${i}" src="${v.mediaUrl}" loop playsinline preload="auto"
+        style="width:100%;height:100%;object-fit:cover;display:block"
+        onclick="tkToggle(${i})"
+        onwaiting="showTKBuf(${i})"
+        onplaying="hideTKBuf(${i})">
+      </video>
+      <div id="tkbuf-${i}" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">
+        <div class="ptr-spin" style="width:36px;height:36px;border-width:3px"></div>
+      </div>
       <!-- top bar -->
       <div class="tk-top">
         <div style="font-size:22px;cursor:pointer;color:#fff" onclick="closeTK()">←</div>
@@ -1226,6 +1309,8 @@ function buildTK(){
   con.addEventListener('touchmove',e=>{if(!dragging)return;const dy=sy-e.touches[0].clientY;if(Math.abs(dy)>40){dragging=false;slideTK(dy>0?1:-1);}},{passive:true});
   con.addEventListener('touchend',()=>dragging=false,{passive:true});
 }
+function showTKBuf(i){const el=document.getElementById('tkbuf-'+i);if(el)el.style.display='flex';}
+function hideTKBuf(i){const el=document.getElementById('tkbuf-'+i);if(el)el.style.display='none';}
 function slideTK(dir){
   const next=tkIdx+dir;
   if(next<0||next>=tkVideos.length)return;
