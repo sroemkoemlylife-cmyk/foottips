@@ -10,133 +10,234 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --g:#00C37A;--gg:rgba(0,195,122,.13);--gold:#F5C842;
-  --red:#FF4B6E;--blue:#4B8BFF;
+  --g:#00C37A;--gg:rgba(0,195,122,.12);--gold:#F5C842;
+  --red:#FF4B6E;--blue:#4B8BFF;--purple:#8B5CF6;
   --bg:#0A0E1A;--bg2:#111827;--bg3:#1A2236;
   --card:#161E30;--card2:#1C2840;
   --b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
   --t:#F0F4FF;--t2:#8A95B0;--t3:#4A5470;
-  --r:14px;--rs:10px;--font:'Sora','Noto Sans Khmer',sans-serif;
+  --r:14px;--rs:10px;
   --sb:env(safe-area-inset-bottom,0px);
+  --font:'Sora','Noto Sans Khmer',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--t);}
 body{display:flex;flex-direction:column;}
-::-webkit-scrollbar{width:0;}
-#splash{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .4s,visibility .4s;}
-#splash.out{opacity:0;visibility:hidden;pointer-events:none;}
+::-webkit-scrollbar{display:none;}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .4s;}
+#splash.out{opacity:0;pointer-events:none;}
 .s-ball{font-size:72px;animation:jmp .75s ease infinite alternate;}
-@keyframes jmp{from{transform:translateY(0)}to{transform:translateY(-18px)}}
+@keyframes jmp{to{transform:translateY(-16px)}}
 .s-title{font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--g),#00CFFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.s-sub{font-size:13px;color:var(--t2);}
 .s-bar{width:200px;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
-.s-fill{height:100%;background:linear-gradient(90deg,var(--g),#00CFFF);border-radius:2px;transition:width .3s;width:0%;}
-.s-st{font-size:12px;color:var(--t3);margin-top:4px;text-align:center;min-height:18px;}
+.s-fill{height:100%;background:linear-gradient(90deg,var(--g),#00CFFF);border-radius:2px;transition:width .35s;}
+
+/* ── LOGIN ── */
 #login{position:fixed;inset:0;background:var(--bg);z-index:95;display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;}
 .lg-ic{font-size:72px;margin-bottom:14px;animation:jmp .75s ease infinite alternate;}
 .lg-h{font-size:24px;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,var(--g),#00CFFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.lg-s{font-size:13px;color:var(--t2);margin-bottom:28px;line-height:1.7;}
-.lg-form{width:100%;max-width:300px;display:flex;flex-direction:column;gap:10px;}
-.lg-inp{width:100%;padding:15px 16px;background:var(--card);border:1.5px solid var(--b2);border-radius:var(--r);font-family:var(--font);font-size:16px;color:var(--t);outline:none;text-align:center;transition:border .2s;}
-.lg-inp:focus{border-color:var(--g);}
-.lg-inp::placeholder{color:var(--t3);}
-.lg-btn{width:100%;padding:15px;background:var(--g);color:#000;font-family:var(--font);font-size:15px;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
-.lg-btn:active{transform:scale(.97);}
-.lg-btn:disabled{opacity:.6;pointer-events:none;}
+.lg-s{font-size:13px;color:var(--t2);margin-bottom:24px;line-height:1.7;}
+.inp0{width:100%;max-width:300px;padding:14px 16px;background:var(--card);border:1.5px solid var(--b2);border-radius:var(--r);font-family:var(--font);font-size:16px;color:var(--t);outline:none;text-align:center;display:block;}
+.inp0:focus{border-color:var(--g);}
+
+/* ── APP SHELL ── */
 #app{display:none;flex-direction:column;height:100%;}
-.topbar{padding:10px 14px 8px;background:var(--bg);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.topbar{padding:9px 13px 7px;background:var(--bg);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .tlogo{font-size:17px;font-weight:700;display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .tlogo-tx{background:linear-gradient(135deg,var(--g),#00CFFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .tsearch{flex:1;background:var(--card);border:1px solid var(--b2);border-radius:20px;padding:7px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;}
-.tsearch span{font-size:14px;color:var(--t3);}
-.tsearch-txt{font-size:12px;color:var(--t3);}
-.topbar-r{display:flex;align-items:center;gap:7px;flex-shrink:0;}
-.tnotif{width:32px;height:32px;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;border:1px solid var(--b2);position:relative;}
+.tnotif{width:32px;height:32px;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;border:1px solid var(--b2);position:relative;flex-shrink:0;}
 .ndot{position:absolute;top:0;right:0;width:9px;height:9px;background:var(--red);border-radius:50%;border:2px solid var(--bg);display:none;}
 .ndot.on{display:block;}
-.tpts{display:flex;align-items:center;gap:4px;background:var(--card);padding:5px 10px;border-radius:20px;border:1px solid var(--b2);cursor:pointer;}
+.tpts{display:flex;align-items:center;gap:4px;background:var(--card);padding:5px 9px;border-radius:20px;border:1px solid var(--b2);cursor:pointer;flex-shrink:0;}
 .tpts-n{font-size:12px;font-weight:700;color:var(--gold);}
 .pages{flex:1;overflow:hidden;position:relative;}
-.pg{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;opacity:0;pointer-events:none;transform:translateX(20px);transition:opacity .2s,transform .2s;padding-bottom:calc(76px + var(--sb));}
+.pg{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;opacity:0;pointer-events:none;transform:translateX(20px);transition:opacity .2s,transform .2s;padding-bottom:calc(72px + var(--sb));}
 .pg.act{opacity:1;pointer-events:auto;transform:translateX(0);}
-.bnav{display:flex;background:var(--bg2);border-top:1px solid var(--b);padding:5px 0;padding-bottom:max(5px,var(--sb));flex-shrink:0;}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer;position:relative;}
+.bnav{display:flex;background:var(--bg2);border-top:1px solid var(--b);padding:4px 0;padding-bottom:max(4px,var(--sb));flex-shrink:0;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;cursor:pointer;position:relative;}
 .ni-ic{font-size:20px;transition:transform .15s;}
 .ni-lb{font-size:10px;color:var(--t3);font-weight:500;transition:color .15s;}
 .ni.act .ni-lb{color:var(--g);}
-.ni.act .ni-ic{transform:scale(1.1);}
-.nbadge{position:absolute;top:2px;right:calc(50% - 16px);background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 3px;}
+.ni.act .ni-ic{transform:scale(1.12);}
+.nbadge{position:absolute;top:1px;right:calc(50% - 18px);background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 3px;}
 .nbadge.on{display:flex;}
-/* REELS */
+
+/* ── PTR ── */
+#ptr-bar{position:sticky;top:0;left:0;right:0;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:10;flex-shrink:0;}
+#ptr-inner{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g);font-weight:600;opacity:0;transition:opacity .15s;}
+.ptr-spin{width:18px;height:18px;border:2px solid rgba(0,195,122,.25);border-top-color:var(--g);border-radius:50%;animation:sp .65s linear infinite;display:inline-block;}
+
+/* ── FEED ── */
+.ftabs{display:flex;padding:0 12px;border-bottom:1px solid var(--b);gap:0;overflow-x:auto;}
+.ftab{padding:9px 14px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;flex-shrink:0;transition:all .15s;}
+.ftab.act{color:var(--g);border-bottom-color:var(--g);font-weight:600;}
 .reels-bar{display:flex;gap:10px;padding:10px 12px;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0;}
-.reels-bar::-webkit-scrollbar{height:0;}
-.ri{flex-shrink:0;text-align:center;cursor:pointer;}
-.ri-av{width:58px;height:58px;border-radius:50%;border:2.5px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;position:relative;background:var(--card);}
-.ri-av img{width:100%;height:100%;object-fit:cover;}
-.ri-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);font-size:18px;}
-.ri-name{font-size:10px;color:var(--t2);margin-top:4px;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-/* TABS */
-.ftabs{display:flex;padding:0 12px 3px;}
-.ftab{padding:7px 14px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;}
-.ftab.act{color:var(--g);border-bottom-color:var(--g);}
-.empty{text-align:center;padding:48px 18px;}
-.empty-ic{font-size:48px;margin-bottom:12px;opacity:.5;}
-.empty-h{font-size:14px;font-weight:600;margin-bottom:6px;}
-.empty-s{font-size:12px;color:var(--t2);line-height:1.6;}
-/* POST CARD */
-.pc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);margin:0 12px 10px;}
+
+/* ── POST CARD ── */
+.pc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);margin:10px 12px 0;overflow:hidden;}
 .pc-h{padding:11px 12px 8px;display:flex;align-items:center;gap:9px;}
-.uav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;overflow:hidden;cursor:pointer;}
-.uav img{width:100%;height:100%;object-fit:cover;}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;overflow:hidden;flex-shrink:0;}
+.av img{width:100%;height:100%;object-fit:cover;}
 .pc-info{flex:1;min-width:0;}
-.pc-name{font-size:13px;font-weight:600;display:flex;align-items:center;gap:3px;flex-wrap:wrap;}
+.pc-name{font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
 .btick{color:#1DA1F2;font-size:12px;}
 .ceo-lbl{font-size:9px;color:rgba(29,161,242,.38);letter-spacing:.5px;font-weight:600;display:block;}
-.pc-time{font-size:11px;color:var(--t2);}
-.follow-btn{font-size:11px;color:var(--g);font-weight:600;cursor:pointer;padding:4px 10px;border:1px solid var(--g);border-radius:20px;white-space:nowrap;flex-shrink:0;}
-.follow-btn.ing{color:var(--t2);border-color:var(--b2);}
-.more-btn{font-size:20px;color:var(--t3);cursor:pointer;padding:3px 6px;}
-.pc-img{width:100%;max-height:420px;object-fit:contain;display:block;background:#000;}
-.pc-vid{width:100%;max-height:400px;display:block;background:#000;object-fit:contain;}
-.pc-b{padding:9px 12px 12px;}
-.pc-cap{font-size:14px;line-height:1.6;margin-bottom:8px;}
-.t-pred{display:inline-flex;align-items:center;gap:5px;background:var(--gg);color:var(--g);padding:4px 11px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid rgba(0,195,122,.25);margin-bottom:8px;}
-.pc-views{font-size:11px;color:var(--t3);margin-bottom:6px;}
-.pc-acts{display:flex;padding-top:8px;border-top:1px solid var(--b);}
-.pab{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:7px 2px;cursor:pointer;font-size:12px;color:var(--t2);font-family:var(--font);background:none;border:none;transition:color .15s,transform .1s;}
-.pab:active{transform:scale(.93);}
+.pc-time{font-size:11px;color:var(--t2);margin-top:1px;}
+.fol-btn{font-size:11px;color:var(--g);font-weight:600;cursor:pointer;padding:4px 10px;border:1px solid var(--g);border-radius:20px;white-space:nowrap;flex-shrink:0;transition:all .15s;}
+.fol-btn.ing{color:var(--t2);border-color:var(--b2);}
+.more-btn{font-size:20px;color:var(--t3);cursor:pointer;padding:3px 6px;flex-shrink:0;}
+.pc-img{width:100%;max-height:480px;object-fit:contain;display:block;background:#000;}
+.pc-vid{width:100%;max-height:400px;object-fit:contain;display:block;background:#000;}
+.pc-b{padding:9px 12px 10px;}
+.pc-cap{font-size:14px;line-height:1.6;margin-bottom:7px;}
+.t-pred{display:inline-flex;align-items:center;gap:5px;background:var(--gg);color:var(--g);padding:4px 11px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid rgba(0,195,122,.25);}
+.pc-acts{display:flex;padding-top:7px;border-top:1px solid var(--b);}
+.pab{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 2px;cursor:pointer;font-size:12px;color:var(--t2);font-family:var(--font);background:none;border:none;transition:color .15s;}
+.pab:active{transform:scale(.88);}
 .pab.lk{color:var(--red);}
 .pill{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;}
 .p-g{background:rgba(0,195,122,.1);color:var(--g);border:1px solid rgba(0,195,122,.2);}
 .p-r{background:rgba(255,75,110,.09);color:var(--red);border:1px solid rgba(255,75,110,.2);}
 .p-gold{background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.25);}
-/* COMMENTS */
-.cmt-item{display:flex;gap:8px;margin-bottom:12px;}
-.cav{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;overflow:hidden;cursor:pointer;}
+.p-gray{background:var(--bg3);color:var(--t2);border:1px solid var(--b);}
+
+/* ── TIKTOK VIEWER ── */
+#tk{position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column;touch-action:none;}
+#tk.on{display:flex;}
+#tk-pages{flex:1;overflow:hidden;position:relative;}
+.tk-slide{position:absolute;inset:0;transition:transform .28s cubic-bezier(.4,0,.2,1);}
+.tk-slide video{width:100%;height:100%;object-fit:cover;display:block;}
+.tk-overlay{position:absolute;inset:0;pointer-events:none;}
+.tk-top{position:absolute;top:0;left:0;right:0;padding:max(14px,env(safe-area-inset-top)) 14px 20px;display:flex;align-items:center;gap:10px;background:linear-gradient(rgba(0,0,0,.55),transparent);pointer-events:auto;}
+.tk-right{position:absolute;right:10px;bottom:140px;display:flex;flex-direction:column;gap:20px;align-items:center;pointer-events:auto;}
+.tk-action{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.tk-action-ic{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.tk-action-lb{font-size:11px;color:#fff;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.6);}
+.tk-av{width:46px;height:46px;border-radius:50%;border:2px solid #fff;overflow:hidden;background:var(--card);display:flex;align-items:center;justify-content:center;}
+.tk-plus{width:20px;height:20px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;margin-top:-12px;border:2px solid #fff;}
+.tk-bottom{position:absolute;bottom:0;left:0;right:68px;padding:0 14px calc(20px + var(--sb)) 14px;pointer-events:auto;}
+.tk-uname{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px;text-shadow:0 1px 4px rgba(0,0,0,.5);}
+.tk-cap{font-size:13px;color:rgba(255,255,255,.9);line-height:1.5;margin-bottom:10px;text-shadow:0 1px 3px rgba(0,0,0,.4);}
+.tk-prog{height:2px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden;}
+.tk-prog-fill{height:100%;background:#fff;border-radius:2px;width:0%;transition:width .4s linear;}
+
+/* ── PROFILE OVERLAY ── */
+#po{position:fixed;inset:0;background:var(--bg);z-index:80;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+#po.op{transform:translateX(0);}
+#po-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px;}
+.phero{padding:20px 12px 12px;text-align:center;}
+.pav-wrap{position:relative;width:84px;margin:0 auto 12px;cursor:pointer;}
+.pav{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;border:3px solid var(--g);overflow:hidden;background:var(--card);}
+.pav img{width:100%;height:100%;object-fit:cover;}
+.pav-ed{position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--bg);}
+.pname{font-size:20px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.pst{display:flex;background:var(--card);border:1px solid var(--b);border-radius:var(--r);margin:0 12px 12px;overflow:hidden;}
+.ps{flex:1;padding:12px 6px;text-align:center;border-right:1px solid var(--b);}
+.ps:last-child{border-right:none;}
+.psn{font-size:17px;font-weight:700;}
+.psl{font-size:10px;color:var(--t2);margin-top:2px;}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:0 12px 12px;}
+.pg-cell{aspect-ratio:1;border-radius:6px;overflow:hidden;background:var(--card2);cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;}
+
+/* ── CROP ── */
+#crop-ov{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:300;display:none;flex-direction:column;}
+#crop-ov.on{display:flex;}
+.crop-head{padding:14px 16px;font-size:15px;font-weight:700;text-align:center;border-bottom:1px solid var(--b);flex-shrink:0;}
+.crop-area{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;touch-action:none;}
+#crop-img{max-width:100%;max-height:100%;display:block;transform-origin:center;pointer-events:none;user-select:none;}
+.crop-mask{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:220px;height:220px;border-radius:50%;border:2.5px solid rgba(255,255,255,.85);box-shadow:0 0 0 9999px rgba(0,0,0,.65);pointer-events:none;}
+.crop-btns{padding:14px;display:flex;gap:10px;flex-shrink:0;border-top:1px solid var(--b);}
+
+/* ── CHAT WINDOW — Telegram style ── */
+#cw{position:fixed;inset:0;background:var(--bg);z-index:80;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+#cw.op{transform:translateX(0);}
+.cwtb{padding:8px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--bg2);}
+.bk{font-size:22px;cursor:pointer;padding:4px 6px;color:var(--t2);}
+.msgs-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 10px 6px;display:flex;flex-direction:column;gap:3px;background:var(--bg);}
+/* Telegram bubbles */
+.mwrap{display:flex;flex-direction:column;margin-bottom:2px;}
+.mwrap.me{align-items:flex-end;}
+.mwrap.th{align-items:flex-start;}
+.bubble{max-width:72%;padding:7px 11px;font-size:14px;line-height:1.5;word-break:break-word;position:relative;cursor:default;}
+.me .bubble{background:#2B5278;color:#fff;border-radius:16px 16px 3px 16px;}
+.th .bubble{background:var(--card2);color:var(--t);border-radius:16px 16px 16px 3px;border:1px solid var(--b);}
+.btime{font-size:10px;opacity:.5;float:right;margin-left:8px;margin-top:4px;}
+.msg-img{max-width:220px;border-radius:12px;display:block;cursor:pointer;}
+/* Voice bubble — Telegram */
+.vbubble{display:flex;align-items:center;gap:9px;padding:6px 10px;min-width:190px;max-width:250px;}
+.vplay{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;border:none;flex-shrink:0;transition:transform .1s;}
+.vplay:active{transform:scale(.9);}
+.me .vplay{background:rgba(255,255,255,.18);color:#fff;}
+.th .vplay{background:var(--g);color:#000;}
+.vwave{flex:1;display:flex;align-items:center;gap:2px;height:28px;}
+.vbar{width:3px;border-radius:2px;}
+.me .vbar{background:rgba(255,255,255,.6);}
+.th .vbar{background:var(--g);}
+.vdur{font-size:11px;opacity:.55;flex-shrink:0;}
+/* Reactions */
+.react-popup{position:absolute;bottom:calc(100% + 8px);left:0;background:var(--bg2);border:1px solid var(--b2);border-radius:28px;padding:6px 10px;display:flex;gap:8px;box-shadow:0 6px 24px rgba(0,0,0,.5);z-index:10;white-space:nowrap;animation:rPop .15s ease;}
+@keyframes rPop{from{opacity:0;transform:scale(.75) translateY(8px)}}
+.react-em{font-size:26px;cursor:pointer;transition:transform .12s;}
+.react-em:active{transform:scale(1.35);}
+.react-row{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}
+.rbadge{display:inline-flex;align-items:center;gap:3px;background:var(--bg3);border:1px solid var(--b2);border-radius:12px;padding:2px 8px;font-size:12px;cursor:pointer;transition:all .12s;}
+.rbadge.mine{background:rgba(0,195,122,.12);border-color:rgba(0,195,122,.3);}
+/* Chat input — Telegram style */
+.reply-bar{padding:6px 10px;background:var(--bg2);border-top:1px solid rgba(0,195,122,.2);display:none;align-items:center;gap:8px;}
+.reply-bar.show{display:flex;}
+.reply-line{width:3px;height:36px;background:var(--g);border-radius:2px;flex-shrink:0;}
+.reply-content{flex:1;min-width:0;}
+.reply-name{font-size:11px;color:var(--g);font-weight:600;}
+.reply-text{font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cib{padding:6px 8px;border-top:1px solid var(--b);display:flex;align-items:flex-end;gap:6px;flex-shrink:0;padding-bottom:max(6px,var(--sb));background:var(--bg2);}
+.ci-wrap{flex:1;display:flex;align-items:flex-end;background:var(--card);border:1px solid var(--b2);border-radius:22px;padding:4px 6px 4px 14px;min-height:44px;gap:4px;}
+.ci{flex:1;background:none;border:none;outline:none;font-family:var(--font);font-size:14px;color:var(--t);resize:none;max-height:100px;line-height:1.5;padding:6px 0;align-self:flex-end;}
+.ci::placeholder{color:var(--t3);}
+.ci-ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;background:none;border:none;color:var(--t2);flex-shrink:0;}
+.send-btn{width:42px;height:42px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:none;background:var(--g);color:#000;transition:transform .1s;}
+.send-btn:active{transform:scale(.88);}
+.rec-btn{background:var(--red)!important;color:#fff!important;}
+
+/* ── COMMON ── */
+.sh{padding:13px 12px 7px;display:flex;align-items:center;justify-content:space-between;}
+.sh-t{font-size:15px;font-weight:700;}
+.empty{text-align:center;padding:48px 18px;}
+.empty-ic{font-size:48px;margin-bottom:12px;opacity:.5;}
+.empty-h{font-size:14px;font-weight:600;margin-bottom:4px;}
+.empty-s{font-size:12px;color:var(--t2);line-height:1.6;}
+.btn{width:100%;padding:13px;background:var(--g);color:#000;font-family:var(--font);font-size:14px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;}
+.btn:active{transform:scale(.97);}
+.btn-o{width:100%;padding:11px;background:transparent;border:1.5px solid var(--g);color:var(--g);font-family:var(--font);font-size:13px;font-weight:600;border-radius:var(--rs);cursor:pointer;}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red);}
+.inp{width:100%;padding:10px 12px;background:var(--card);border:1px solid var(--b2);border-radius:var(--rs);font-family:var(--font);font-size:14px;color:var(--t);outline:none;}
+.inp:focus{border-color:var(--g);}
+.inp::placeholder{color:var(--t3);}
+.lbl{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:4px;}
+.ig{display:flex;flex-direction:column;margin-bottom:10px;}
+.irow{display:flex;gap:8px;}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:60;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s;}
+.ov.op{opacity:1;pointer-events:auto;}
+.sheet{background:var(--bg2);width:100%;border-radius:var(--r) var(--r) 0 0;padding:14px 13px;padding-bottom:max(14px,var(--sb));transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);}
+.ov.op .sheet{transform:translateY(0);}
+.cmt-sheet{background:var(--bg2);width:100%;height:72vh;border-radius:var(--r) var(--r) 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);}
+.ov.op .cmt-sheet{transform:translateY(0);}
+.cmt-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;}
+.hdl{width:32px;height:4px;background:var(--b2);border-radius:2px;margin:0 auto 12px;}
+.mitem{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--b);cursor:pointer;font-size:14px;}
+.mitem:last-child{border-bottom:none;}
+.mitem:active{background:var(--card2);}
+.mitem.danger{color:var(--red);}
+.cmt-item{display:flex;gap:8px;margin-bottom:10px;}
+.cav{border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;overflow:hidden;cursor:pointer;}
 .cav img{width:100%;height:100%;object-fit:cover;}
 .cbody{flex:1;}
-.cname{font-size:12px;font-weight:600;color:var(--g);margin-bottom:3px;cursor:pointer;}
+.cname{font-size:12px;font-weight:600;color:var(--g);margin-bottom:2px;cursor:pointer;}
 .ctext{font-size:13px;line-height:1.5;background:var(--bg3);padding:7px 10px;border-radius:var(--rs);}
 .cacts{display:flex;gap:10px;margin-top:4px;}
 .cact{font-size:11px;color:var(--t3);cursor:pointer;}
-.cact.lk{color:var(--red);}
-.reply-wrap{margin-left:38px;margin-top:8px;}
-/* MATCH */
-.mc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);margin:0 12px 10px;}
-.mct{padding:9px 12px;background:var(--bg3);display:flex;align-items:center;justify-content:space-between;border-radius:var(--r) var(--r) 0 0;}
-.mteams{padding:12px;display:flex;align-items:center;}
-.team{flex:1;text-align:center;}
-.tn{font-size:12px;font-weight:600;}
-.tic{font-size:24px;display:block;margin-bottom:3px;}
-.vs{padding:0 10px;font-size:11px;color:var(--t3);font-weight:700;}
-.popts{display:flex;gap:6px;padding:0 12px 12px;}
-.pb{flex:1;padding:9px 3px;border-radius:var(--rs);border:1.5px solid var(--b2);background:var(--card2);color:var(--t);font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;}
-.pb.sel{background:var(--g);color:#000;border-color:var(--g);}
-.pb.dis{opacity:.3;pointer-events:none;}
-.ldots{display:flex;gap:4px;}
-.ld{width:9px;height:9px;border-radius:50%;background:var(--b2);}
-.ld.u{background:var(--g);}
-/* LEADERBOARD */
 .lc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);margin:0 12px 8px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;}
 .lc:active{transform:scale(.985);}
 .ln{font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;}
@@ -145,182 +246,112 @@ body{display:flex;flex-direction:column;}
 .bg-g{background:rgba(245,200,66,.12);color:var(--gold);}
 .bg-s{background:rgba(180,180,200,.12);color:#B0B8CC;}
 .bg-b{background:rgba(200,140,80,.12);color:#C8A060;}
-/* CHAT */
 .cli{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--b);cursor:pointer;}
 .cli:active{background:var(--card2);}
-#cw{position:fixed;inset:0;background:var(--bg);z-index:80;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);}
-#cw.op{transform:translateX(0);}
-.cwtb{padding:10px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--b);flex-shrink:0;}
-.bk{font-size:20px;cursor:pointer;padding:4px;}
-.msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
-.msg{max-width:78%;display:flex;flex-direction:column;gap:2px;}
-.msg.me{align-self:flex-end;align-items:flex-end;}
-.msg.th{align-self:flex-start;align-items:flex-start;}
-.mb{padding:8px 12px;border-radius:16px;font-size:14px;line-height:1.5;word-break:break-word;}
-.msg.me .mb{background:var(--g);color:#000;border-bottom-right-radius:3px;}
-.msg.th .mb{background:var(--card);border:1px solid var(--b);border-bottom-left-radius:3px;}
-.msg-img{max-width:200px;border-radius:12px;cursor:pointer;display:block;}
-.msg-voice{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--b);padding:8px 12px;border-radius:var(--rs);}
-.vplay{width:30px;height:30px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;flex-shrink:0;}
-.vwave{flex:1;height:24px;display:flex;align-items:center;gap:2px;}
-.vbar{width:3px;border-radius:2px;background:var(--g);}
-.mt{font-size:10px;color:var(--t3);padding:0 3px;}
-.cib{padding:8px 10px;border-top:1px solid var(--b);display:flex;align-items:flex-end;gap:6px;flex-shrink:0;padding-bottom:max(8px,var(--sb));}
-.ci{flex:1;background:var(--card);border:1px solid var(--b2);border-radius:20px;padding:9px 12px;font-family:var(--font);font-size:14px;color:var(--t);resize:none;max-height:80px;outline:none;}
-.ci::placeholder{color:var(--t3);}
-.cib-btn{width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--card);border:1px solid var(--b2);}
-.send-btn{background:var(--g);border:none;}
-/* PROFILE */
-.phero{padding:18px 12px 14px;text-align:center;}
-.pav-wrap{position:relative;width:80px;margin:0 auto 10px;cursor:pointer;}
-.pav{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;border:3px solid var(--g);overflow:hidden;}
-.pav img{width:100%;height:100%;object-fit:cover;}
-.pav-ed{position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--bg);}
-.pn{font-size:20px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;justify-content:center;gap:5px;}
-.ph{font-size:12px;color:var(--t2);margin-bottom:4px;}
-.pbio{font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.5;}
-.pst{display:flex;background:var(--card);border:1px solid var(--b);border-radius:var(--r);margin:0 12px 12px;overflow:hidden;}
-.ps{flex:1;padding:12px 6px;text-align:center;border-right:1px solid var(--b);}
-.ps:last-child{border-right:none;}
-.psn{font-size:16px;font-weight:700;}
-.psl{font-size:10px;color:var(--t2);margin-top:2px;}
-.rc{margin:0 12px 12px;background:var(--card);border:1px solid var(--b2);border-radius:var(--r);padding:14px;}
-.rl{font-size:11px;color:var(--g);background:var(--bg);padding:8px 10px;border-radius:var(--rs);border:1px solid var(--b);font-family:monospace;word-break:break-all;margin:6px 0 8px;}
-/* NOTIFICATIONS */
-.ni-item{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--b);cursor:pointer;}
-.ni-item.unrd{background:rgba(0,195,122,.04);}
-.ni-ic-wrap{width:40px;height:40px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-/* OVERLAYS */
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:60;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
-.ov.op{opacity:1;pointer-events:auto;}
-.sheet{background:var(--bg2);width:100%;border-radius:var(--r) var(--r) 0 0;padding:16px 13px;padding-bottom:max(16px,var(--sb));transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);}
-.ov.op .sheet{transform:translateY(0);}
-.cmt-sh{background:var(--bg2);width:100%;height:70vh;border-radius:var(--r) var(--r) 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s;}
-.ov.op .cmt-sh{transform:translateY(0);}
-.cmt-list{flex:1;overflow-y:auto;padding:12px;}
-.hdl{width:32px;height:4px;background:var(--b2);border-radius:2px;margin:0 auto 12px;}
-.sl-t{font-size:14px;font-weight:700;margin-bottom:11px;}
-.irow{display:flex;gap:8px;}
-.ig{display:flex;flex-direction:column;margin-bottom:9px;}
-.lbl{font-size:10px;font-weight:600;color:var(--t2);margin-bottom:3px;}
-.inp{width:100%;padding:11px 12px;background:var(--card);border:1px solid var(--b2);border-radius:var(--rs);font-family:var(--font);font-size:14px;color:var(--t);outline:none;}
-.inp:focus{border-color:var(--g);}
-.inp::placeholder{color:var(--t3);}
-#po{position:fixed;inset:0;background:var(--bg);z-index:75;transform:translateX(100%);transition:transform .25s;overflow-y:auto;}
-#po.op{transform:translateX(0);}
-#set-dr{position:fixed;inset:0;background:var(--bg);z-index:80;transform:translateX(100%);transition:transform .25s;overflow-y:auto;}
+.mc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);margin:0 12px 10px;}
+.mct{padding:9px 12px;background:var(--bg3);border-radius:var(--r) var(--r) 0 0;display:flex;align-items:center;justify-content:space-between;}
+.pb{flex:1;padding:9px 3px;border-radius:var(--rs);border:1.5px solid var(--b2);background:var(--card2);color:var(--t);font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;}
+.pb.sel{background:var(--g);color:#000;border-color:var(--g);}
+.pb.dis{opacity:.3;pointer-events:none;}
+#fab{position:fixed;bottom:calc(80px + var(--sb));right:14px;width:50px;height:50px;background:var(--g);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:26px;cursor:pointer;box-shadow:0 4px 18px rgba(0,195,122,.4);z-index:40;}
+#fab:active{transform:scale(.9);}
+#toast-c{position:fixed;top:62px;left:50%;transform:translateX(-50%);z-index:500;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;}
+.toast{background:var(--bg3);border:1px solid var(--b2);padding:9px 16px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap;animation:tIn .22s ease,tOut .22s ease 2.2s forwards;}
+@keyframes tIn{from{opacity:0;transform:translateY(-6px)}}
+@keyframes tOut{to{opacity:0;transform:translateY(-6px)}}
+.toast.ok{border-color:rgba(0,195,122,.3);color:var(--g);}
+.toast.err{border-color:rgba(255,75,110,.3);color:var(--red);}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.stars-row{display:flex;gap:8px;justify-content:center;margin:14px 0;}
+.star-ic{font-size:36px;cursor:pointer;}
 .set-s{margin:12px;}
 .set-title{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
 .set-card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);overflow:hidden;}
-.sr{display:flex;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid var(--b);cursor:pointer;}
+.sr{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--b);cursor:pointer;}
 .sr:last-child{border-bottom:none;}
 .sr:active{background:var(--card2);}
 .si{font-size:18px;width:28px;text-align:center;}
 .sl{flex:1;font-size:13px;font-weight:500;}
 .sv{font-size:12px;color:var(--t2);}
-/* REEL VIEWER */
-#rv{position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column;}
-#rv.on{display:flex;}
-#rv video{width:100%;flex:1;object-fit:cover;}
-.rv-top{position:absolute;top:0;left:0;right:0;padding:10px 12px;display:flex;align-items:center;gap:10px;background:linear-gradient(rgba(0,0,0,.5),transparent);z-index:1;}
-.rv-bot{position:absolute;bottom:0;left:0;right:0;padding:20px 16px;background:linear-gradient(transparent,rgba(0,0,0,.7));z-index:1;}
-/* SEARCH */
 #sov{position:fixed;inset:0;background:var(--bg);z-index:90;display:none;flex-direction:column;}
-#sov.on{display:flex;}
-.sbar{padding:12px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--b);}
-.sinp{flex:1;background:var(--card);border:1px solid var(--b2);border-radius:var(--rs);padding:10px 14px;font-family:var(--font);font-size:14px;color:var(--t);outline:none;}
-.sinp::placeholder{color:var(--t3);}
-#sres{flex:1;overflow-y:auto;}
-/* MENU */
-.mitem{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--b);cursor:pointer;font-size:14px;}
-.mitem:last-child{border-bottom:none;}
-.mitem:active{background:var(--card2);}
-.mitem.danger{color:var(--red);}
-/* FAB / MISC */
-#fab{position:fixed;bottom:calc(84px + var(--sb));right:14px;width:50px;height:50px;background:var(--g);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(0,195,122,.4);z-index:40;}
-#fab:active{transform:scale(.91);}
-.sh{padding:14px 12px 8px;display:flex;align-items:center;justify-content:space-between;}
-.sh-t{font-size:14px;font-weight:700;}
-.btn{width:100%;padding:13px;background:var(--g);color:#000;font-family:var(--font);font-size:14px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;}
-.btn:active{transform:scale(.97);}
-.btn-o{width:100%;padding:10px;background:transparent;border:1.5px solid var(--g);color:var(--g);font-family:var(--font);font-size:13px;font-weight:600;border-radius:var(--rs);cursor:pointer;}
-.stars-row{display:flex;gap:6px;justify-content:center;margin:14px 0;}
-.star-ic{font-size:34px;cursor:pointer;transition:transform .1s;}
-.star-ic:active{transform:scale(1.2);}
-#toast-c{position:fixed;top:65px;left:50%;transform:translateX(-50%);z-index:500;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;}
-.toast{background:var(--bg3);border:1px solid var(--b2);padding:9px 16px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap;animation:ti .25s ease,to .25s ease 2.2s forwards;}
-@keyframes ti{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-@keyframes to{to{opacity:0;transform:translateY(-6px)}}
-.toast.ok{border-color:rgba(0,195,122,.3);color:var(--g);}
-.toast.err{border-color:rgba(255,75,110,.3);color:var(--red);}
-.toast.inf{border-color:rgba(75,139,255,.3);color:var(--blue);}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;}
-#ptr-bar{user-select:none;}
-.ptr-spin{width:18px;height:18px;border:2px solid rgba(0,195,122,.25);border-top-color:var(--g);border-radius:50%;animation:sp .65s linear infinite;display:inline-block;vertical-align:middle;}
-@keyframes sp{to{transform:rotate(360deg)}}
+.rc{margin:0 12px 12px;background:var(--card);border:1px solid var(--b2);border-radius:var(--r);padding:14px;}
+.rl{font-size:12px;color:var(--g);background:var(--bg);padding:8px 10px;border-radius:var(--rs);border:1px solid var(--b);word-break:break-all;margin:6px 0 8px;}
 </style>
 </head>
 <body>
+
+<!-- SPLASH -->
 <div id="splash">
   <div class="s-ball">⚽</div>
   <div class="s-title">FootTips</div>
-  <div class="s-sub">ទស្សន៍ទាយ · ឈ្នះ · ប្រមូលពិន្ទុ</div>
+  <div style="font-size:13px;color:var(--t2)">ទស្សន៍ទាយ · ឈ្នះ · ប្រមូលពិន្ទុ</div>
   <div class="s-bar"><div class="s-fill" id="sf"></div></div>
-  <div class="s-st" id="ss">កំពុងចូល...</div>
+  <div style="font-size:12px;color:var(--t3);margin-top:2px;min-height:18px" id="ss">Loading...</div>
 </div>
+
+<!-- LOGIN -->
 <div id="login">
   <div class="lg-ic">⚽</div>
   <div class="lg-h">FootTips</div>
-  <div class="lg-s">ដាក់ឈ្មោះ → ចូលភ្លាម!<br><span style="font-size:11px;color:var(--t3)">ចូលម្ដងទៀត → ដាក់ Name ដដែល</span></div>
-  <div class="lg-form">
-    <input id="lg-inp" class="lg-inp" placeholder="ឈ្មោះ ឬ Username..." autocapitalize="words" autocomplete="off" onkeydown="if(event.key==='Enter')go()">
-    <button id="lg-btn" class="lg-btn" onclick="go()">⚡ ចូល / ចុះឈ្មោះ</button>
+  <div class="lg-s">ដាក់ Username → ចូលភ្លាម!<br><span style="font-size:11px;color:var(--t3)">ចូលម្ដងទៀត → ដាក់ Username ដដែល</span></div>
+  <div style="width:100%;max-width:300px;display:flex;flex-direction:column;gap:10px">
+    <input id="lg-inp" class="inp0" placeholder="Username / ឈ្មោះ..." autocapitalize="words" autocomplete="off" onkeydown="if(event.key==='Enter')go()">
+    <button class="btn" onclick="go()">⚡ ចូល / ចុះឈ្មោះ</button>
   </div>
 </div>
+
+<!-- APP -->
 <div id="app">
   <div class="topbar">
-    <div class="tlogo"><span style="font-size:19px">⚽</span><span class="tlogo-tx">FootTips</span></div>
-    <div class="tsearch" onclick="openSearch()"><span>🔍</span><span class="tsearch-txt">ស្វែងរក...</span></div>
-    <div class="topbar-r">
-      <div class="tnotif" onclick="nav('notif')">🔔<div class="ndot" id="ndot"></div></div>
-      <div class="tpts" onclick="showWallet()"><span class="tpts-n" id="tp-n">0</span><span style="font-size:11px;color:var(--t2)">pts</span></div>
-    </div>
+    <div class="tlogo"><span style="font-size:20px">⚽</span><span class="tlogo-tx">FootTips</span></div>
+    <div class="tsearch" onclick="openSearch()"><span style="font-size:14px;color:var(--t3)">🔍</span><span style="font-size:12px;color:var(--t3)">ស្វែងរក...</span></div>
+    <div class="tnotif" onclick="nav('notif')">🔔<div class="ndot" id="ndot"></div></div>
+    <div class="tpts" onclick="showWallet()"><span class="tpts-n" id="tp-n">0</span><span style="font-size:11px;color:var(--t2)">pts</span></div>
   </div>
   <div class="pages">
+    <!-- HOME -->
     <div class="pg act" id="pg-home">
+      <div id="ptr-bar"><div id="ptr-inner"><div id="ptr-ic" style="font-size:18px;transition:transform .2s">↓</div><span id="ptr-tx" style="font-size:12px;font-weight:600">ទាញចុះ Refresh</span></div></div>
       <div class="reels-bar" id="reels-bar" style="display:none"></div>
       <div class="ftabs">
         <div class="ftab act" onclick="switchTab(this,'all')">ទំព័រដើម</div>
-        <div class="ftab" onclick="switchTab(this,'following')">កំពុងតាម</div>
+        <div class="ftab" onclick="switchTab(this,'following')">កំពុងតាមដាន</div>
         <div class="ftab" onclick="switchTab(this,'hot')">🔥 ក្ដៅ</div>
       </div>
-      <div id="feed"></div>
+      <div id="feed" style="padding-bottom:8px"></div>
     </div>
+    <!-- PREDICT -->
     <div class="pg" id="pg-pred">
       <div class="sh"><div class="sh-t">⚽ ទស្សន៍ទាយ</div></div>
-      <div style="margin:0 12px 12px;background:var(--card);border:1px solid var(--b);border-radius:var(--rs);display:flex;align-items:center;gap:7px;padding:8px 12px;">
-        <div class="ldots" id="ldots"></div><div style="font-size:11px;color:var(--t2)" id="ltxt"></div>
+      <div style="margin:0 12px 12px;background:var(--card);border:1px solid var(--b);border-radius:var(--rs);padding:8px 12px;display:flex;align-items:center;gap:7px">
+        <div style="display:flex;gap:4px" id="ldots"></div>
+        <div style="font-size:11px;color:var(--t2)" id="ltxt">0/3</div>
       </div>
       <div id="matches"></div>
     </div>
+    <!-- LEADERBOARD -->
     <div class="pg" id="pg-lead">
       <div class="sh"><div class="sh-t">🏆 Leaderboard</div><div class="pill p-gold" id="wt"></div></div>
-      <div style="display:flex;padding:0 12px 0;border-bottom:1px solid var(--b);margin-bottom:8px;">
-        <div id="lt-pts" style="padding:8px 14px;font-size:12px;font-weight:600;color:var(--g);border-bottom:2px solid var(--g);cursor:pointer" onclick="switchLeadTab('pts')">💰 Points</div>
-        <div id="lt-wr" style="padding:8px 14px;font-size:12px;font-weight:500;color:var(--t2);border-bottom:2px solid transparent;cursor:pointer" onclick="switchLeadTab('wr')">🎯 Win Rate</div>
-        <div id="lt-tips" style="padding:8px 14px;font-size:12px;font-weight:500;color:var(--t2);border-bottom:2px solid transparent;cursor:pointer" onclick="switchLeadTab('tips')">📝 Most Tips</div>
+      <div style="display:flex;padding:0 12px;border-bottom:1px solid var(--b);margin-bottom:8px;gap:0">
+        <div id="lt-pts" class="ftab act" style="border-bottom:2.5px solid var(--g)" onclick="switchLeadTab('pts')">💰 Points</div>
+        <div id="lt-wr" class="ftab" onclick="switchLeadTab('wr')">🎯 Win Rate</div>
+        <div id="lt-tips" class="ftab" onclick="switchLeadTab('tips')">📝 Tips</div>
       </div>
-      <div style="margin:0 12px 12px;background:var(--card);border:1px solid var(--b);border-radius:var(--rs);padding:10px;display:flex;gap:12px" id="wib"></div>
-      <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase" id="lead-sec1-title">🥇 TOP 3</div>
+      <div style="margin:0 12px 12px;background:var(--card);border:1px solid var(--b);border-radius:var(--rs);padding:10px;display:flex;gap:0" id="wib"></div>
+      <div style="padding:7px 12px 3px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase" id="lead-sec1">🥇 TOP 3</div>
       <div id="top3"></div>
-      <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase">📊 ទូទៅ</div>
+      <div style="padding:7px 12px 3px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase">📊 ទូទៅ</div>
       <div id="leader-all"></div>
     </div>
+    <!-- CHAT LIST -->
     <div class="pg" id="pg-chat">
       <div class="sh"><div class="sh-t">💬 Messages</div></div>
       <div id="chat-list"></div>
     </div>
+    <!-- MY PROFILE -->
     <div class="pg" id="pg-prof"><div id="prof-c"></div></div>
+    <!-- NOTIF -->
     <div class="pg" id="pg-notif">
       <div class="sh"><div class="sh-t">🔔 ការជូនដំណឹង</div><span style="font-size:12px;color:var(--g);cursor:pointer" onclick="markAllRead()">អានទាំងអស់</span></div>
       <div id="notif-list"></div>
@@ -334,106 +365,147 @@ body{display:flex;flex-direction:column;}
     <div class="ni" id="ni-prof" onclick="nav('prof')"><span class="ni-ic">👤</span><span class="ni-lb">គណនី</span></div>
   </div>
 </div>
+
 <div id="toast-c"></div>
 <div id="fab" onclick="openPost()">＋</div>
-<!-- POST SHEET -->
+
+<!-- TIKTOK VIEWER -->
+<div id="tk"><div id="tk-pages"></div></div>
+
+<!-- PROFILE OVERLAY — Facebook style -->
+<div id="po">
+  <div class="cwtb">
+    <div class="bk" onclick="closePO()">←</div>
+    <div style="flex:1;font-size:14px;font-weight:600" id="po-t">Profile</div>
+    <div style="font-size:20px;cursor:pointer;color:var(--t2)" id="po-more">···</div>
+  </div>
+  <div id="po-scroll"></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="set-dr" style="position:fixed;inset:0;background:var(--bg);z-index:82;transform:translateX(100%);transition:transform .25s;overflow-y:auto;">
+  <div class="cwtb"><div class="bk" onclick="closeSets()">←</div><div style="flex:1;font-size:14px;font-weight:600">⚙️ ការកំណត់</div></div>
+  <div id="set-c"></div>
+</div>
+
+<!-- CHAT WINDOW — Telegram style -->
+<div id="cw">
+  <div class="cwtb">
+    <div class="bk" onclick="closeCW()">←</div>
+    <div class="av" id="cw-av" style="width:38px;height:38px;font-size:15px;border:2px solid var(--g)"></div>
+    <div style="flex:1;padding-left:4px">
+      <div style="font-size:14px;font-weight:600" id="cw-n"></div>
+      <div style="font-size:11px;color:var(--g)">Online</div>
+    </div>
+    <label class="ci-ico" for="cw-photo-in">📷</label>
+    <input type="file" id="cw-photo-in" accept="image/*" style="display:none" onchange="sendCWPhoto(this)">
+  </div>
+  <!-- Reply preview bar -->
+  <div class="reply-bar" id="reply-bar">
+    <div class="reply-line"></div>
+    <div class="reply-content">
+      <div class="reply-name" id="reply-name"></div>
+      <div class="reply-text" id="reply-text"></div>
+    </div>
+    <div style="cursor:pointer;font-size:18px;color:var(--t3);padding:4px" onclick="cancelReply()">✕</div>
+  </div>
+  <div class="msgs-area" id="msgs"></div>
+  <!-- Telegram-style input bar -->
+  <div class="cib">
+    <div class="ci-wrap">
+      <button class="ci-ico" id="vbtn" onclick="toggleVoice()">🎤</button>
+      <textarea class="ci" id="ci" placeholder="សរសេរ..." rows="1" oninput="autoResize(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
+      <label class="ci-ico" for="cw-sticker-in">😊</label>
+      <input type="file" id="cw-sticker-in" accept="image/*" style="display:none">
+    </div>
+    <button class="send-btn" id="send-btn-main" onclick="sendMsg()">➤</button>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div id="sov">
+  <div style="padding:10px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--b)">
+    <div onclick="closeSearch()" style="font-size:22px;cursor:pointer">←</div>
+    <input style="flex:1;background:var(--card);border:1px solid var(--b2);border-radius:var(--rs);padding:9px 14px;font-family:var(--font);font-size:14px;color:var(--t);outline:none" id="sinp" placeholder="ស្វែងរក..." oninput="doSearch(this.value)" autocomplete="off">
+  </div>
+  <div id="sres" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch"><div class="empty"><div class="empty-ic">🔍</div><div class="empty-h">ស្វែងរក Users</div></div></div>
+</div>
+
+<!-- CROP OVERLAY — Facebook style -->
+<div id="crop-ov">
+  <div class="crop-head">✂️ កាត់ Profile Photo</div>
+  <div class="crop-area" id="crop-area">
+    <img id="crop-img" draggable="false">
+    <div class="crop-mask"></div>
+  </div>
+  <div class="crop-btns">
+    <button class="btn btn-red" style="flex:1" onclick="cancelCrop()">បោះបង់</button>
+    <button class="btn" style="flex:1" onclick="applyCrop()">✅ Save Photo</button>
+  </div>
+</div>
+
+<!-- POST OVERLAY -->
 <div class="ov" id="pov">
   <div class="sheet">
     <div class="hdl"></div>
-    <div class="sl-t">📝 Post / Tip ថ្មី</div>
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">📝 Post / Tip ថ្មី</div>
     <div class="ig"><div class="lbl">Caption / ការប្រកួត</div><textarea class="inp" id="ti-cap" rows="3" placeholder="Share Tips ឬ Caption..."></textarea></div>
     <div class="irow">
       <div class="ig" style="flex:1"><div class="lbl">ការទស្សន៍ទាយ</div><input class="inp" id="ti-p" placeholder="Barcelona Win"></div>
-      <div class="ig" style="flex:1"><div class="lbl">Odds</div><input class="inp" id="ti-od" placeholder="1.85" type="number" step="0.01" min="1"></div>
+      <div class="ig" style="flex:1"><div class="lbl">Odds</div><input class="inp" id="ti-od" placeholder="1.85" type="number" step="0.01"></div>
     </div>
     <div class="irow">
       <div class="ig" style="flex:1"><div class="lbl">លីក</div><input class="inp" id="ti-lg" placeholder="La Liga"></div>
-      <div class="ig" style="flex:1"><div class="lbl">ប្រភេទ</div><select class="inp" id="ti-ty"><option>Match Winner</option><option>Over/Under</option><option>Both Teams Score</option><option>Asian Handicap</option><option>Tips ទូទៅ</option></select></div>
+      <div class="ig" style="flex:1"><div class="lbl">ប្រភេទ</div>
+        <select class="inp" id="ti-ty"><option>Match Winner</option><option>Over/Under</option><option>Both Teams Score</option><option>Asian Handicap</option><option>Tips ទូទៅ</option></select>
+      </div>
     </div>
-    <div class="ig"><div class="lbl">📷 Photo / 🎥 Video (&lt;1min)</div>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--card);border:1px dashed var(--b2);border-radius:var(--rs);padding:12px;">
+    <div class="ig">
+      <div class="lbl">📷 Photo / 🎥 Video (≤ 30 នាទី)</div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--card);border:1px dashed var(--b2);border-radius:var(--rs);padding:12px">
         <span>📎</span><span id="media-lbl" style="font-size:13px;color:var(--t2)">ជ្រើស File...</span>
         <input type="file" id="ti-media" accept="image/*,video/*" style="display:none" onchange="onMedia(this)">
       </label>
     </div>
-    <button class="btn" onclick="submitPost()">ផ្ញើ Post</button>
+    <button class="btn" id="post-btn" onclick="submitPost()">ផ្ញើ Post</button>
     <button class="btn-o" style="margin-top:8px" onclick="closeSheet('pov')">បោះបង់</button>
   </div>
 </div>
-<!-- COMMENT SHEET -->
+
+<!-- COMMENT OVERLAY -->
 <div class="ov" id="cmt-ov">
-  <div class="cmt-sh">
-    <div style="padding:12px 13px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b)">
+  <div class="cmt-sheet">
+    <div style="padding:11px 13px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b);flex-shrink:0">
       <div style="font-size:14px;font-weight:700">💬 មតិ</div>
       <div onclick="closeCmt()" style="cursor:pointer;font-size:18px;color:var(--t2)">✕</div>
     </div>
-    <div class="cmt-list" id="cmt-list"></div>
-    <div style="padding:8px 10px;border-top:1px solid var(--b);display:flex;gap:6px;align-items:flex-end;padding-bottom:max(8px,var(--sb));">
-      <textarea class="ci" id="cmt-inp" placeholder="សរសេរមតិ..." rows="1"></textarea>
-      <button class="cib-btn send-btn" onclick="submitCmt()">➤</button>
+    <div class="cmt-body" id="cmt-body"></div>
+    <div style="padding:8px 10px;border-top:1px solid var(--b);display:flex;gap:8px;align-items:flex-end;padding-bottom:max(8px,var(--sb));flex-shrink:0">
+      <textarea class="inp" id="cmt-inp" placeholder="សរសេរមតិ..." rows="1" style="flex:1;min-height:40px;resize:none;padding:9px 12px"></textarea>
+      <button class="send-btn" onclick="submitCmt()">➤</button>
     </div>
   </div>
 </div>
-<!-- CHAT WINDOW -->
-<div id="cw">
-  <div class="cwtb">
-    <div class="bk" onclick="closeCW()">←</div>
-    <div class="uav" id="cw-av" style="width:36px;height:36px;font-size:14px;border:2px solid var(--g);flex-shrink:0;"></div>
-    <div style="flex:1"><div style="font-size:14px;font-weight:600" id="cw-n"></div><div style="font-size:11px;color:var(--g)">Online</div></div>
-    <label class="cib-btn" for="cw-img" style="cursor:pointer">📷<input type="file" id="cw-img" accept="image/*" style="display:none" onchange="sendPhoto(this)"></label>
-  </div>
-  <div class="msgs" id="msgs"></div>
-  <div class="cib">
-    <button class="cib-btn" id="vbtn" onclick="toggleVoice()">🎤</button>
-    <textarea class="ci" id="ci" placeholder="សរសេរ..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
-    <button class="cib-btn send-btn" onclick="sendMsg()">➤</button>
-  </div>
-</div>
-<!-- PROFILE OVERLAY -->
-<div id="po">
-  <div class="cwtb"><div class="bk" onclick="closePO()">←</div><div style="flex:1;font-size:14px;font-weight:600" id="po-t">Profile</div></div>
-  <div id="po-c" style="overflow-y:auto;height:calc(100% - 56px)"></div>
-</div>
-<!-- SETTINGS -->
-<div id="set-dr">
-  <div class="cwtb"><div class="bk" onclick="closeSets()">←</div><div style="flex:1;font-size:14px;font-weight:600">⚙️ ការកំណត់</div></div>
-  <div id="set-c"></div>
-</div>
-<!-- REEL VIEWER -->
-<div id="rv">
-  <div class="rv-top">
-    <div class="bk" onclick="closeReel()" style="color:#fff">←</div>
-    <div style="flex:1;font-size:14px;font-weight:600;color:#fff" id="rv-name"></div>
-  </div>
-  <video id="rv-vid" autoplay loop playsinline></video>
-  <div class="rv-bot">
-    <div style="font-size:14px;font-weight:600;color:#fff" id="rv-cap"></div>
-    <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:4px" id="rv-likes"></div>
-  </div>
-</div>
-<!-- SEARCH -->
-<div id="sov">
-  <div class="sbar">
-    <div onclick="closeSearch()" style="font-size:20px;cursor:pointer">←</div>
-    <input class="sinp" id="sinp" placeholder="ស្វែងរក Users, Tips..." oninput="doSearch(this.value)">
-  </div>
-  <div id="sres" style="flex:1;overflow-y:auto;"><div class="empty"><div class="empty-ic">🔍</div><div class="empty-h">ស្វែងរក</div></div></div>
-</div>
-<!-- MENU SHEET -->
-<div class="ov" id="menu-ov"><div class="sheet" id="menu-sh"><div class="hdl"></div><div id="menu-items"></div></div></div>
-<!-- STAR SHEET -->
+
+<!-- MENU OVERLAY -->
+<div class="ov" id="menu-ov"><div class="sheet"><div class="hdl"></div><div id="menu-items"></div></div></div>
+
+<!-- STAR OVERLAY -->
 <div class="ov" id="star-ov">
   <div class="sheet">
     <div class="hdl"></div>
-    <div class="sl-t">⭐ ផ្ដល់ Stars</div>
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px">⭐ ផ្ដល់ Stars</div>
     <div class="stars-row" id="stars-row"></div>
-    <div style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:16px" id="star-lbl">ជ្រើស...</div>
+    <div style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:14px" id="star-lbl">ជ្រើស Stars...</div>
     <button class="btn" onclick="submitStar()">ផ្ញើ Stars</button>
     <button class="btn-o" style="margin-top:8px" onclick="closeSheet('star-ov')">បោះបង់</button>
   </div>
 </div>
+
 <script>
-// ═══════════════════════════ FIREBASE ═══════════════════════════
+// ══════════════════════════════════════════════
+// FIREBASE
+// ══════════════════════════════════════════════
 firebase.initializeApp({
   apiKey:"AIzaSyPlaceholderKeyForFootTips",
   databaseURL:"https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -444,217 +516,190 @@ const FS=(p,d)=>db.ref(p).set(d);
 const FP=(p,d)=>db.ref(p).push(d);
 const FU=(p,d)=>db.ref(p).update(d);
 const FD=p=>db.ref(p).remove();
-const FK=()=>db.ref().push().key;
 
-// ═══════════════════════════ CONSTANTS ═══════════════════════════
+// ══════════════════════════════════════════════
+// GLOBALS
+// ══════════════════════════════════════════════
+const BOT='FootTips168_bot';
 const COLS=['#00C37A','#4B8BFF','#8B5CF6','#FF7D40','#F5C842','#FF6B9D','#00CFFF'];
 const AVS=['⭐','🚀','🎯','💎','🔥','⚡','🌟','🎪','🦁','🐯'];
-const BOT='FootTips168_bot';
-const ADMIN_UID=''; // set your admin Firebase UID here
-const ls={g:k=>{try{return JSON.parse(localStorage.getItem('ft_'+k));}catch(e){return null;}},s:(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}}}
+const EMOJIS=['❤️','😆','😮','😢','👍','🔥'];
+const ls={
+  g:k=>{try{return JSON.parse(localStorage.getItem('ft_'+k));}catch(e){return null;}},
+  s:(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}}
+};
+let U=null,AU={},allPosts={},feedTab='all',curTip=null,curChat=null;
+let leadTab='pts',tkVideos=[],tkIdx=0,tkBusy=false;
+let curStarUid=null,curStar=0,mediaFile=null;
+let isRec=false,mr=null,recChunks=[],recStart=0;
+let replyId=null,replyText=null,replyFrom=null;
+let cropOffX=0,cropOffY=0,cropScale=1;
+let cDrag=false,cLX=0,cLY=0,cDist0=0;
+let adCache=[],adIdx=0;
+let longPressTimer=null;
 
-let U=null,curChat=null,curTip=null,feedTab='all',AU={},curStarUid=null,curStar=0,mediaFile=null,isRec=false,mr=null,recChunks=[],replyId=null,replyName=null;
-
-// ═══════════════════════════ HELPERS ═══════════════════════════
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
 const toB64=f=>new Promise((r,j)=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.onerror=j;rd.readAsDataURL(f);});
-function avHTML(u,sz=38){const s=sz+'px',fs=Math.floor(sz*.42)+'px';if(u?.avUrl)return`<img src="${u.avUrl}" style="width:${s};height:${s};object-fit:cover;" onerror="this.style.display='none'">`;return`<span style="font-size:${fs};width:${s};height:${s};display:flex;align-items:center;justify-content:center;">${u?.avatar||'⚽'}</span>`;}
-function nameH(u){let n=u?.displayName||'User';if(u?.isAdmin)n+=`<span class="btick">✓</span>`;else if((u?.followers||0)>=500&&(u?.posts||0)>=200)n+=`<span class="btick">✓</span>`;return n;}
-function isVerified(u){return u?.isAdmin||((u?.followers||0)>=500&&(u?.posts||0)>=200);}
+function avHTML(u,sz=38){
+  const s=sz+'px';
+  if(u?.avUrl&&u.avUrl.length>10)return`<img src="${u.avUrl}" style="width:${s};height:${s};border-radius:50%;object-fit:cover">`;
+  return`<span style="font-size:${Math.floor(sz*.42)}px;line-height:${s};display:flex;align-items:center;justify-content:center;width:${s};height:${s}">${u?.avatar||'⚽'}</span>`;
+}
+function nameH(u){
+  let n=u?.displayName||'User';
+  if(isVer(u))n+=`<span class="btick">✓</span>`;
+  return n;
+}
+function isVer(u){return u?.isAdmin||((u?.followers||0)>=500&&(u?.posts||0)>=200);}
 function ta(ts){if(!ts)return'';const d=Date.now()-ts;if(d<60000)return'ឥឡូវ';if(d<3600000)return Math.floor(d/60000)+'m';if(d<86400000)return Math.floor(d/3600000)+'h';return Math.floor(d/86400000)+'d';}
-function toast(msg,type='inf'){const c=document.getElementById('toast-c'),t=document.createElement('div');t.className='toast '+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),2600);}
+function toast(msg,type='inf'){
+  const c=document.getElementById('toast-c'),t=document.createElement('div');
+  t.className='toast '+type;t.textContent=msg;c.appendChild(t);
+  setTimeout(()=>t.remove(),2600);
+}
 function openSheet(id){document.getElementById(id).classList.add('op');}
 function closeSheet(id){document.getElementById(id).classList.remove('op');}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function sendNotif(toUid,type,text,fromUid='',refId=''){
+  if(!toUid||toUid===U?.id)return;
+  FP('notifications/'+toUid,{type,text,fromUid,refId,read:false,createdAt:Date.now()});
+}
 
-// ═══════════════════════════ BOOT ═══════════════════════════
+// ══════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════
 window.addEventListener('load',()=>{
   const tg=window.Telegram?.WebApp;
-  try{if(tg){tg.ready();tg.expand();}}catch(e){}
-  const fill=document.getElementById('sf'),st=document.getElementById('ss');
-  fill.style.width='40%';
+  try{if(tg){tg.ready();tg.expand();tg.enableClosingConfirmation?.();}}catch(e){}
+  const sf=document.getElementById('sf'),ss=document.getElementById('ss');
+  sf.style.width='35%';
   setTimeout(async()=>{
-    fill.style.width='75%';
+    sf.style.width='70%';
     const tgUser=tg?.initDataUnsafe?.user;
-    if(tgUser?.id){st.textContent='Telegram Login...';U=await loginTg(tgUser);fill.style.width='100%';st.textContent='✅ '+U.displayName;setTimeout(launch,300);return;}
+    if(tgUser?.id){ss.textContent='Telegram Login...';U=await loginTg(tgUser);sf.style.width='100%';ss.textContent='✅ '+U.displayName;setTimeout(launch,300);return;}
     const uid=ls.g('uid');
-    if(uid){const u=await FG('users/'+uid);if(u){U={...u,id:uid};fill.style.width='100%';st.textContent='✅ '+U.displayName;setTimeout(launch,300);return;}}
-    fill.style.width='100%';document.getElementById('splash').classList.add('out');document.getElementById('login').style.display='flex';
+    if(uid){const u=await FG('users/'+uid);if(u){U={...u,id:uid};sf.style.width='100%';ss.textContent='✅ '+U.displayName;setTimeout(launch,300);return;}}
+    sf.style.width='100%';
+    document.getElementById('splash').classList.add('out');
+    document.getElementById('login').style.display='flex';
     setTimeout(()=>document.getElementById('lg-inp').focus(),400);
   },600);
 });
 
-// ═══════════════════════════ LOGIN ═══════════════════════════
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
 async function loginTg(tgUser){
   const tgId=String(tgUser.id);
-  const snap=await db.ref('users').orderByChild('tgId').equalTo(tgId).once('value');const data=snap.val();
+  const snap=await db.ref('users').orderByChild('tgId').equalTo(tgId).once('value');
+  const data=snap.val();
   if(data){const uid=Object.keys(data)[0];ls.s('uid',uid);return{...data[uid],id:uid};}
   const idx=parseInt(tgId.slice(-2))%COLS.length;
   const name=((tgUser.first_name||'')+(tgUser.last_name?' '+tgUser.last_name:'')).trim()||tgUser.username||'User';
   const uname=(tgUser.username||'tg'+tgId.slice(-6)).toLowerCase().replace(/[^a-z0-9_]/g,'');
   const ref=db.ref('users').push();const uid=ref.key;
-  const isAdmin=ADMIN_UID&&uid===ADMIN_UID;
-  const u={tgId,username:uname,displayName:name,avatar:AVS[idx%AVS.length],color:COLS[idx],avUrl:'',points:0,followers:0,following:0,posts:0,bio:'Telegram user 🌟',isAdmin,createdAt:Date.now()};
-  await ref.set(u);await FS('referrals/FT_'+uname,uid);ls.s('uid',uid);toast('🎉 ស្វាគមន៍ '+name+'!','ok');return{...u,id:uid};
+  const u={tgId,username:uname,displayName:name,avatar:AVS[idx%AVS.length],color:COLS[idx],avUrl:'',points:0,followers:0,following:0,posts:0,bio:'Telegram user 🌟',isAdmin:false,createdAt:Date.now()};
+  await ref.set(u);await FS('referrals/FT_'+uname,uid);ls.s('uid',uid);
+  toast('🎉 ស្វាគមន៍ '+name+'!','ok');return{...u,id:uid};
 }
 async function go(){
   const inp=document.getElementById('lg-inp');const raw=inp.value.trim();
   if(!raw){inp.style.borderColor='var(--red)';setTimeout(()=>inp.style.borderColor='',800);return;}
-  const btn=document.getElementById('lg-btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Loading...';
+  const btn=document.querySelector('#login .btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
   const uname=raw.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'').slice(0,25)||'user'+Date.now().toString().slice(-5);
-  // Check referral from URL
-  const urlParams=new URLSearchParams(window.location.search);
-  const startParam=window.Telegram?.WebApp?.initDataUnsafe?.start_param||urlParams.get('startapp')||'';
-  const refCode=startParam.startsWith('ref_')?startParam.slice(4):'';
-  const snap=await db.ref('users').orderByChild('username').equalTo(uname).once('value');const data=snap.val();
-  let uid,u,isNew=false;
+  const snap=await db.ref('users').orderByChild('username').equalTo(uname).once('value');
+  const data=snap.val();let uid,u;
   if(data){uid=Object.keys(data)[0];u={...data[uid],id:uid};}
   else{
     const idx=Math.floor(Math.random()*COLS.length);const ref=db.ref('users').push();uid=ref.key;
-    u={username:uname,displayName:raw,avatar:AVS[Math.floor(Math.random()*AVS.length)],color:COLS[idx],avUrl:'',points:0,followers:0,following:0,posts:0,bio:'FootTips user 🌟',isAdmin:false,referredBy:refCode||null,createdAt:Date.now()};
-    await ref.set(u);await FS('referrals/FT_'+uname,uid);u={...u,id:uid};isNew=true;
+    const nu={username:uname,displayName:raw,avatar:AVS[Math.floor(Math.random()*AVS.length)],color:COLS[idx],avUrl:'',points:0,followers:0,following:0,posts:0,bio:'FootTips user 🌟',isAdmin:false,createdAt:Date.now()};
+    await ref.set(nu);await FS('referrals/FT_'+uname,uid);u={...nu,id:uid};
+    // Referral
+    const sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||'';
+    if(sp.startsWith('ref_')){const rn=sp.slice(4);const rs=await db.ref('users').orderByChild('username').equalTo(rn).once('value');const rd=rs.val();if(rd){const ruid=Object.keys(rd)[0];const rp=(await FG('users/'+ruid+'/points'))||0;await FS('users/'+ruid+'/points',rp+30);sendNotif(ruid,'milestone',raw+' ចូលដោយ Link! +30pts',null,null);}}
   }
-  // Award referral points to referrer
-  if(isNew&&refCode){
-    const refSnap=await db.ref('users').orderByChild('username').equalTo(refCode).once('value');
-    const refData=refSnap.val();
-    if(refData){
-      const refUid=Object.keys(refData)[0];
-      const refUser=refData[refUid];
-      const newPts=(refUser.points||0)+30;
-      await FS('users/'+refUid+'/points',newPts);
-      sendNotif(refUid,'milestone','🎉 '+raw+' ចូលដោយ Link របស់អ្នក! +30 pts 👥',null,null);
-      toast('👥 Referral: +30pts ភ្លាម!','ok');
-    }
-  }
-  U=u;ls.s('uid',uid);document.getElementById('login').style.display='none';toast('🎉 ស្វាគមន៍ '+U.displayName+'!','ok');launch();
+  U=u;ls.s('uid',uid);document.getElementById('login').style.display='none';
+  toast('🎉 ស្វាគមន៍ '+U.displayName+'!','ok');launch();
 }
 
-// ═══════════════════════════ LAUNCH ═══════════════════════════
+// ══════════════════════════════════════════════
+// LAUNCH
+// ══════════════════════════════════════════════
 function launch(){
   document.getElementById('splash').classList.add('out');
   document.getElementById('app').style.display='flex';
   document.getElementById('fab').style.display='flex';
   document.getElementById('tp-n').textContent=Math.floor(U.points||0);
-  // once() — ចូលម្ដង មិន auto-reload (ទាញចុះ = reload)
-  loadFeedOnce();
-  db.ref('users').once('value').then(s=>{
-    AU=s.val()||{};renderLead(AU);renderChatList(AU);
-    loadFeedOnce();
-  });
+  // Load once
+  loadFeed();
+  db.ref('users').once('value').then(s=>{AU=s.val()||{};renderLead(AU);loadConvList();loadFeed();});
+  // Only notifications stay realtime
   db.ref('notifications/'+U.id).orderByChild('read').equalTo(false).on('value',s=>{
     const n=s.val()?Object.keys(s.val()).length:0;
     document.getElementById('ndot').classList.toggle('on',n>0);
   });
   loadMatches();loadNotifs();renderMyProf();updateWT();setInterval(updateWT,60000);
-  setTimeout(syncAllWinRates,3000);
+  setTimeout(()=>loadAdCache().then(()=>{}),2000);
+  setTimeout(syncWR,4000);
+  initPTR();
 }
 
-async function calcWinRate(uid){
-  const snap=await db.ref('posts').orderByChild('userId').equalTo(uid).once('value');
-  const posts=snap.val()?Object.values(snap.val()):[];
-  const won=posts.filter(p=>p.status==='won').length;
-  const settled=posts.filter(p=>p.status==='won'||p.status==='lost').length;
-  const rate=settled>0?Math.round((won/settled)*100):null;
-  if(settled>0)await FU('users/'+uid,{winRate:rate,wonTips:won,settledTips:settled});
-  return rate;
-}
-async function syncAllWinRates(){
-  const uids=Object.keys(AU||{}).slice(0,20);
-  for(const uid of uids)await calcWinRate(uid);
-}
+// ══════════════════════════════════════════════
+// PULL-TO-REFRESH — stable, no scroll lock
+// ══════════════════════════════════════════════
+function initPTR(){
+  const sc=document.getElementById('pg-home');
+  const bar=document.getElementById('ptr-bar');
+  const inner=document.getElementById('ptr-inner');
+  const ic=document.getElementById('ptr-ic');
+  const tx=document.getElementById('ptr-tx');
+  if(!sc||!bar)return;
+  const T=62;
+  let sy=0,pulling=false,busy=false;
 
-// ═══════════════════════════ NAV ═══════════════════════════
-// ═══ LOAD FEED (once, no auto reload) ═══
-let allPostsData = {};
-function loadFeedOnce(){
-  db.ref('posts').limitToLast(50).once('value').then(s=>{
-    const data=s.val();
-    if(data)allPostsData=data;
-    renderFeed(data);
-    renderReels(data);
-  });
-}
-
-// ═══ PULL TO REFRESH ═══
-// ═══ PULL TO REFRESH — Facebook Style ═══
-(function(){
-  const scroller=document.getElementById('pg-home');
-  const THRESHOLD=60;
-  let startY=0,curY=0,active=false,busy=false;
-
-  // Create fixed indicator above feed
-  const bar=document.createElement('div');
-  bar.id='ptr-bar';
-  bar.style.cssText='position:sticky;top:0;left:0;right:0;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:height .25s cubic-bezier(.4,0,.2,1);z-index:10;flex-shrink:0;';
-  bar.innerHTML='<div id="ptr-inner" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g);font-weight:600;opacity:0;transition:opacity .15s"><div id="ptr-ic" style="font-size:18px;transition:transform .2s">↓</div><span id="ptr-tx">ទាញចុះដើម្បី Refresh</span></div>';
-  scroller.insertBefore(bar,scroller.firstChild);
-
-  function setBar(h,showInner){
-    bar.style.height=h+'px';
-    document.getElementById('ptr-inner').style.opacity=showInner?'1':'0';
+  function reset(){
+    bar.style.transition='height .2s';bar.style.height='0';
+    inner.style.opacity='0';
+    if(ic){ic.innerHTML='↓';ic.style.transform='';}
+    if(tx)tx.textContent='ទាញចុះ Refresh';
+    setTimeout(()=>bar.style.transition='',220);
   }
-  function setIcon(spin,txt){
-    const ic=document.getElementById('ptr-ic');
-    const tx=document.getElementById('ptr-tx');
-    if(spin){ic.innerHTML='<div class="ptr-spin"></div>';if(tx)tx.textContent='កំពុង Refresh...';}
-    else{ic.textContent=txt||'↓';ic.style.transform='';}
+  function doRefresh(){
+    busy=true;bar.style.height='52px';inner.style.opacity='1';
+    if(ic)ic.innerHTML='<div class="ptr-spin"></div>';
+    if(tx)tx.textContent='Refreshing...';
+    Promise.all([db.ref('posts').limitToLast(60).once('value'),db.ref('users').once('value')])
+    .then(([ps,us])=>{
+      AU=us.val()||AU;const d=ps.val();if(d)allPosts=d;
+      renderFeed(allPosts);renderReels(allPosts);renderLead(AU);
+      if(ic)ic.innerHTML='✓';if(tx)tx.textContent='Refresh ហើយ!';
+      setTimeout(()=>{reset();setTimeout(()=>busy=false,250);},900);
+    }).catch(()=>{reset();busy=false;});
   }
 
-  scroller.addEventListener('touchstart',e=>{
-    if(busy||scroller.scrollTop>2)return;
-    startY=e.touches[0].clientY;
-    curY=startY;
-    active=true;
+  sc.addEventListener('touchstart',e=>{if(sc.scrollTop>2||busy)return;sy=e.touches[0].clientY;pulling=true;},{passive:true});
+  sc.addEventListener('touchmove',e=>{
+    if(!pulling||busy)return;
+    const dy=e.touches[0].clientY-sy;
+    if(dy<=0){pulling=false;reset();return;}
+    const h=Math.min(dy*0.38,76);
+    bar.style.height=h+'px';inner.style.opacity=h>16?'1':'0';
+    if(ic&&ic.innerHTML==='↓'){ic.style.transform=h>T?'rotate(180deg)':'';}
+    if(tx)tx.textContent=h>T?'ដោះ Refresh':'ទាញចុះ Refresh';
   },{passive:true});
-
-  scroller.addEventListener('touchmove',e=>{
-    if(!active||busy)return;
-    curY=e.touches[0].clientY;
-    const dy=curY-startY;
-    if(dy<=0){active=false;setBar(0,false);return;}
-    // Rubber-band: slow down pull resistance
-    const pull=Math.min(dy*0.4,80);
-    setBar(pull,pull>20);
-    const ic=document.getElementById('ptr-ic');
-    if(ic&&!ic.querySelector('.ptr-spin')){
-      ic.style.transform=pull>THRESHOLD?'rotate(180deg)':'rotate(0deg)';
-    }
-    const tx=document.getElementById('ptr-tx');
-    if(tx)tx.textContent=pull>THRESHOLD?'ដោះដើម្បី Refresh':'ទាញចុះដើម្បី Refresh';
+  sc.addEventListener('touchend',()=>{
+    if(!pulling)return;pulling=false;
+    const h=parseFloat(bar.style.height)||0;
+    if(h>T)doRefresh();else reset();
   },{passive:true});
+  sc.addEventListener('touchcancel',()=>{pulling=false;if(!busy)reset();},{passive:true});
+}
 
-  scroller.addEventListener('touchend',()=>{
-    if(!active)return;
-    active=false;
-    const pull=parseFloat(bar.style.height)||0;
-    if(pull>THRESHOLD){
-      busy=true;
-      setBar(52,true);
-      setIcon(true);
-      Promise.all([
-        db.ref('posts').limitToLast(50).once('value'),
-        db.ref('users').once('value')
-      ]).then(([ps,us])=>{
-        allPostsData=ps.val()||allPostsData;
-        AU=us.val()||AU;
-        renderFeed(allPostsData);
-        renderReels(allPostsData);
-        renderLead(AU);
-        setIcon(false,'✓');
-        document.getElementById('ptr-tx').textContent='Refresh ហើយ!';
-        setTimeout(()=>{setBar(0,false);setTimeout(()=>{busy=false;setIcon(false,'↓');},250);},800);
-      }).catch(()=>{setBar(0,false);busy=false;});
-    } else {
-      setBar(0,false);
-    }
-  },{passive:true});
-
-  // Safety: reset if touch cancelled
-  scroller.addEventListener('touchcancel',()=>{
-    active=false;
-    if(!busy)setBar(0,false);
-  },{passive:true});
-})();
-
+// ══════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════
 function nav(p){
   document.querySelectorAll('.pg').forEach(x=>x.classList.remove('act'));
   document.querySelectorAll('.ni').forEach(x=>x.classList.remove('act'));
@@ -663,661 +708,694 @@ function nav(p){
   document.getElementById('fab').style.display=p==='home'?'flex':'none';
   if(p==='prof')renderMyProf();
   if(p==='notif')loadNotifs();
+  if(p==='chat')loadConvList();
 }
 
-// ═══════════════════════════ FEED ═══════════════════════════
+// ══════════════════════════════════════════════
+// FEED — Facebook random shuffle
+// ══════════════════════════════════════════════
+function loadFeed(){
+  db.ref('posts').limitToLast(60).once('value').then(s=>{
+    const d=s.val();if(d){allPosts={...allPosts,...d};}
+    renderFeed(allPosts);renderReels(allPosts);
+  });
+}
+
 function renderFeed(data){
   const el=document.getElementById('feed');
-  if(!data){el.innerHTML='<div class="empty"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន Posts</div><div class="empty-s">ចុច ＋ ដើម្បីចែករំលែក!</div></div>';return;}
-  // Update global cache
-  if(typeof data==='object'&&!Array.isArray(data))allPostsData={...allPostsData,...data};
+  if(!data||!Object.keys(data).length){el.innerHTML='<div class="empty"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន Posts</div><div class="empty-s">ចុច ＋ ចែករំលែក!</div></div>';return;}
   let posts=Object.entries(data).map(([k,v])=>({...v,id:k}));
+  const now=Date.now();
   if(feedTab==='hot'){
-    // Hot = score based on views+likes+comments+shares in last 24h
-    const now=Date.now();
-    posts=posts.filter(p=>(now-p.createdAt)<86400000*7); // last 7 days
     posts.sort((a,b)=>{
-      const scoreA=(a.likes||0)*3+(Object.keys(a.views||{}).length)+(a.comments||0)*2+(a.shares||0)*2;
-      const scoreB=(b.likes||0)*3+(Object.keys(b.views||{}).length)+(b.comments||0)*2+(b.shares||0)*2;
-      return scoreB-scoreA;
+      const sA=(a.likes||0)*3+Object.keys(a.views||{}).length+(a.comments||0)*2+(a.shares||0)*2;
+      const sB=(b.likes||0)*3+Object.keys(b.views||{}).length+(b.comments||0)*2+(b.shares||0)*2;
+      return sB-sA;
     });
   } else if(feedTab==='following'){
     const fl=U.followingList||{};
     posts=posts.filter(p=>fl[p.userId]);
     posts.sort((a,b)=>b.createdAt-a.createdAt);
-    if(!posts.length){el.innerHTML='<div class="empty"><div class="empty-ic">👥</div><div class="empty-h">គ្មាន Posts ពី Accounts ដែលអ្នក Follow</div><div class="empty-s">Follow Users ដើម្បីឃើញ Posts របស់ពួកគេ!</div></div>';return;}
+    if(!posts.length){el.innerHTML='<div class="empty"><div class="empty-ic">👥</div><div class="empty-h">Follow Users ដើម្បីឃើញ Posts</div></div>';return;}
   } else {
-    // Home = ALL posts, newest first
-    posts.sort((a,b)=>b.createdAt-a.createdAt);
+    // Facebook-style: true random + boost signals — reshuffle every render
+    posts.forEach(p=>{
+      const age=now-(p.createdAt||0);
+      const ageBoost=age<3600000?60:age<21600000?30:age<86400000?10:0;
+      const engBoost=Math.min((p.likes||0)*0.5+(p.comments||0)*1.5,40);
+      p._s=Math.random()*100+ageBoost+engBoost+(p.boosted?80:0)+(p.isCEO?40:0);
+    });
+    posts.sort((a,b)=>b._s-a._s);
   }
-  if(!posts.length){el.innerHTML='<div class="empty"><div class="empty-ic">📝</div><div class="empty-h">គ្មាន Posts</div></div>';return;}
   const ml=U.likedPosts||{};
-  el.innerHTML=posts.map(p=>postH(p,ml)).join('');
-  posts.forEach(p=>{if(!(p.views||{})[U.id])FU('posts/'+p.id+'/views',{[U.id]:true});});
-  // Inject ads every 3 posts
-  loadAndInjectAds();
+  let html='';
+  posts.forEach((p,i)=>{
+    html+=postH(p,ml);
+    if((i+1)%4===0){const a=getAd();if(a)html+=adH(a);}
+    // Track view
+    if(!(p.views||{})[U.id])FU('posts/'+p.id+'/views',{[U.id]:true});
+  });
+  el.innerHTML=html;
 }
 
-async function loadAndInjectAds(){
-  const ads=await FG('ads');if(!ads)return;
-  const activeAds=Object.entries(ads).filter(([k,v])=>v.active).map(([k,v])=>({...v,id:k}));
-  if(!activeAds.length)return;
-  const feed=document.getElementById('feed');const posts=feed.querySelectorAll('.pc');
-  if(!posts.length)return;
-  // Insert ad after EVERY post (1 ad per post)
-  posts.forEach((p,i)=>{
-    const ad=activeAds[i%activeAds.length];
-    const adEl=document.createElement('div');
-    adEl.innerHTML=adHTML(ad);
-    p.after(adEl.firstChild);
-  });
-}
-function postH(p,ml){
-  const u=AU[p.userId]||{displayName:'User',avatar:'⚽',color:'#00C37A'};
-  const lk=ml[p.id]===true;const isOwner=p.userId===U.id;
-  const isFol=(U.followingList||{})[p.userId];
-  const st=p.status==='won'?'<span class="pill p-g">✅</span>':p.status==='lost'?'<span class="pill p-r">❌</span>':p.prediction?'<span class="pill" style="background:var(--bg3);color:var(--t2);border:1px solid var(--b)">⏳</span>':'';
-  const views=Object.keys(p.views||{}).length;
-  return`<div class="pc" id="pc-${p.id}">
-    <div class="pc-h">
-      <div class="uav" style="background:${u.color}22;color:${u.color}" onclick="viewProf('${p.userId}')">${avHTML(u,38)}</div>
-      <div class="pc-info">
-        <div class="pc-name">${nameH(u)}${u.winRate!=null?`<span style="font-size:10px;font-weight:500;color:${u.winRate>=70?'#1D9E75':u.winRate>=50?'#BA7517':'#D85A30'};margin-left:4px">${u.winRate}%</span>`:''}</div>
-        ${u.isAdmin?'<span class="ceo-lbl">CEO FootTips</span>':''}
-        <div class="pc-time">${ta(p.createdAt)}</div>
-      </div>
-      ${!isOwner?`<div class="follow-btn ${isFol?'ing':''}" onclick="togFollow('${p.userId}','${u.displayName}',this)">${isFol?'Following':'+ Follow'}</div>`:''}
-      <div class="more-btn" onclick="showPostMenu('${p.id}','${p.userId}')">···</div>
-    </div>
-    ${p.mediaUrl&&p.mediaType==='image'?`<img class="pc-img" src="${p.mediaUrl}" loading="lazy" style="image-rendering:high-quality">`:p.mediaUrl&&p.mediaType==='video'?`<video class="pc-vid" src="${p.mediaUrl}" controls playsinline preload="metadata" style="background:#000"></video>`:''}
-    <div class="pc-b">
-      ${p.isRepost?`<div style="font-size:11px;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:4px"><span>🔁 Repost ពី</span><span style="color:var(--g);font-weight:600">${(AU[p.origUserId]||{}).displayName||'User'}</span></div>`:''}
-      ${p.caption?`<div class="pc-cap">${p.caption}</div>`:''}
-      ${p.prediction?`<div class="t-pred">🎯 ${p.prediction}${p.odds>1?' · Odds '+p.odds:''}</div> ${st}`:''}
-      ${isOwner?`<div class="pc-views">👁 ${views} នាក់ឃើញ</div>`:''}
-      <div class="pc-acts">
-        <button class="pab ${lk?'lk':''}" id="lkb-${p.id}" onclick="togLike('${p.id}','${p.userId}',this)"><span>${lk?'❤️':'🤍'}</span><span>${p.likes||0}</span></button>
-        <button class="pab" onclick="openCmt('${p.id}')"><span>💬</span><span>${p.comments||0}</span></button>
-        <button class="pab" onclick="sharePost('${p.id}','${(p.caption||p.prediction||'').replace(/'/g,"\\'")}')"><span>↗️</span><span>${p.shares||0}</span></button>
-        <button class="pab" onclick="openStar('${p.userId}')"><span>⭐</span></button>
-      </div>
-    </div>
-  </div>`;
-}
 function switchTab(el,tab){
   if(feedTab===tab)return;
   document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('act'));
   el.classList.add('act');feedTab=tab;
   const feed=document.getElementById('feed');
-  feed.style.transition='opacity .2s,transform .2s';
+  feed.style.transition='opacity .18s,transform .18s';
   feed.style.opacity='0';feed.style.transform='translateY(10px)';
-  setTimeout(()=>{
-    renderFeed(allPostsData); // cached — no Firebase call
-    feed.style.opacity='1';feed.style.transform='translateY(0)';
-    setTimeout(()=>feed.style.transition='',250);
-  },100);
+  setTimeout(()=>{renderFeed(allPosts);feed.style.opacity='1';feed.style.transform='translateY(0)';setTimeout(()=>feed.style.transition='',220);},150);
 }
 
-// ═══════════════════════════ REELS ═══════════════════════════
-function renderReels(data){
-  if(!data)return;
-  const reels=Object.entries(data).filter(([k,v])=>v.mediaType==='video').map(([k,v])=>({...v,id:k})).slice(-8);
-  const el=document.getElementById('reels-bar');
-  if(!reels.length){el.style.display='none';return;}
-  el.style.display='flex';
-  el.innerHTML=reels.map(r=>{const u=AU[r.userId]||{};return`<div class="ri" onclick="playReel('${r.mediaUrl}','${(r.caption||'').replace(/'/g,"\\'")}','${(u.displayName||'').replace(/'/g,"\\'")}',${r.likes||0})">
-    <div class="ri-av" style="background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'}">${avHTML(u,54)}<div class="ri-ic">▶</div></div>
-    <div class="ri-name">${u.displayName||'User'}</div></div>`;}).join('');
-}
-function playReel(url,cap,name,likes){document.getElementById('rv-vid').src=url;document.getElementById('rv-cap').textContent=cap;document.getElementById('rv-name').textContent=name;document.getElementById('rv-likes').textContent='❤️ '+likes;document.getElementById('rv').classList.add('on');}
-function closeReel(){document.getElementById('rv').classList.remove('on');document.getElementById('rv-vid').pause();}
-
-// ═══════════════════════════ POST ═══════════════════════════
-function adHTML(ad){
-  const myClicks=(U.adClicks||{});const clicked=myClicks[ad.id]===true;
-  return`<div style="background:var(--card2);border:1.5px solid rgba(75,139,255,.3);border-radius:var(--r);margin:0 12px 10px;overflow:hidden;position:relative">
-    <div style="position:absolute;top:8px;left:8px;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">📢 Sponsored</div>
-    ${ad.imgUrl?`<img src="${ad.imgUrl}" style="width:100%;max-height:140px;object-fit:cover;display:block" onerror="this.style.display='none'">`:'' }
-    <div style="padding:12px">
-      <div style="font-size:14px;font-weight:700;margin-bottom:4px">${ad.title}</div>
-      <div style="font-size:12px;color:var(--t2);margin-bottom:10px">${ad.desc||''}</div>
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:12px;color:var(--gold)">💰 +${ad.ptsPerClick||3} pts ${clicked?'(claimed)':''}</span>
-        <a href="${ad.url}" target="_blank" onclick="clickAd('${ad.id}','${ad.ptsPerClick||3}',this)" style="background:var(--blue);color:#fff;font-size:12px;font-weight:600;padding:7px 16px;border-radius:var(--rs);text-decoration:none;display:inline-block;${clicked?'opacity:.5;pointer-events:none;':''}">${clicked?'✅ ចុចហើយ':'ចុចមើល →'}</a>
+// ══════════════════════════════════════════════
+// POST CARD HTML
+// ══════════════════════════════════════════════
+function postH(p,ml){
+  const u=AU[p.userId]||{displayName:'User',avatar:'⚽',color:'#00C37A'};
+  const lk=ml[p.id]===true;const isOwn=p.userId===U.id;
+  const isFol=(U.followingList||{})[p.userId];
+  const wr=u.winRate!=null?`<span style="font-size:10px;font-weight:500;color:${u.winRate>=70?'#1D9E75':u.winRate>=50?'#BA7517':'#D85A30'};margin-left:3px">${u.winRate}%</span>`:'';
+  const st=p.status==='won'?'<span class="pill p-g" style="margin-left:6px">✅</span>':p.status==='lost'?'<span class="pill p-r" style="margin-left:6px">❌</span>':p.prediction?'<span class="pill p-gray" style="margin-left:6px">⏳</span>':'';
+  const views=Object.keys(p.views||{}).length;
+  let media='';
+  if(p.mediaUrl&&p.mediaType==='image')media=`<img class="pc-img" src="${p.mediaUrl}" loading="lazy">`;
+  else if(p.mediaUrl&&p.mediaType==='video')media=`<video class="pc-vid" src="${p.mediaUrl}" controls playsinline preload="metadata"></video>`;
+  return`<div class="pc" id="pc-${p.id}">
+    <div class="pc-h">
+      <div class="av" style="width:42px;height:42px;background:${u.color}22;color:${u.color};cursor:pointer" onclick="viewProf('${p.userId}')">${avHTML(u,42)}</div>
+      <div class="pc-info">
+        <div class="pc-name">${nameH(u)}${wr}</div>
+        ${u.isAdmin?'<span class="ceo-lbl">CEO FootTips</span>':''}
+        <div class="pc-time">${ta(p.createdAt)}${p.league?' · '+p.league:''}</div>
+      </div>
+      ${!isOwn?`<div class="fol-btn ${isFol?'ing':''}" onclick="togFollow('${p.userId}','${u.displayName}',this)">${isFol?'Following':'+ Follow'}</div>`:''}
+      <div class="more-btn" onclick="showPostMenu('${p.id}','${p.userId}')">···</div>
+    </div>
+    ${media?`<div>${media}</div>`:''}
+    <div class="pc-b">
+      ${p.isRepost?`<div style="font-size:11px;color:var(--t2);margin-bottom:5px">🔁 Repost ពី <span style="color:var(--g)">${(AU[p.origUserId]||{}).displayName||'User'}</span></div>`:''}
+      ${p.caption?`<div class="pc-cap">${p.caption}</div>`:''}
+      ${p.prediction?`<div style="margin-bottom:8px"><span class="t-pred">🎯 ${p.prediction}${p.odds>1?' · '+p.odds:''}</span>${st}</div>`:''}
+      ${isOwn?`<div style="font-size:11px;color:var(--t3);margin-bottom:5px">👁 ${views}</div>`:''}
+      <div class="pc-acts">
+        <button class="pab ${lk?'lk':''}" id="lkb-${p.id}" onclick="togLike('${p.id}','${p.userId}',this)"><span>${lk?'❤️':'🤍'}</span><span>${p.likes||0}</span></button>
+        <button class="pab" onclick="openCmt('${p.id}')"><span>💬</span><span>${p.comments||0}</span></button>
+        <button class="pab" onclick="doShare('${p.id}','${(p.caption||p.prediction||'').replace(/'/g,"\\'").slice(0,60)}')"><span>↗️</span><span>${p.shares||0}</span></button>
+        <button class="pab" onclick="openStar('${p.userId}')"><span>⭐</span></button>
       </div>
     </div>
   </div>`;
 }
 
-async function clickAd(adId,pts,linkEl){
-  // Check if already clicked this ad
-  const myClicks=await FG('users/'+U.id+'/adClicks')||{};
-  if(myClicks[adId]){toast('⚠️ ចុចហើយ','inf');return;}
-  // Award points
-  const curPts=(await FG('users/'+U.id+'/points'))||0;
-  await FS('users/'+U.id+'/points',curPts+parseInt(pts));
-  await FS('users/'+U.id+'/adClicks/'+adId,true);
+// ══════════════════════════════════════════════
+// ADS
+// ══════════════════════════════════════════════
+async function loadAdCache(){const d=await FG('ads');if(d)adCache=Object.entries(d).filter(([k,v])=>v.active).map(([k,v])=>({...v,id:k}));}
+function getAd(){if(!adCache.length)return null;const a=adCache[adIdx%adCache.length];adIdx++;return a;}
+function adH(ad){
+  const done=(U.adClicks||{})[ad.id];
+  return`<div style="background:var(--card2);border:1.5px solid rgba(75,139,255,.3);border-radius:var(--r);margin:10px 12px 0;overflow:hidden;position:relative">
+    <div style="position:absolute;top:8px;left:8px;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">📢 Sponsored</div>
+    ${ad.imgUrl?`<img src="${ad.imgUrl}" style="width:100%;max-height:140px;object-fit:cover;display:block" onerror="this.style.display='none'">`:'' }
+    <div style="padding:11px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:3px">${ad.title}</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:9px">${ad.desc||''}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:12px;color:var(--gold)">💰 +${ad.ptsPerClick||3} pts</span>
+        <a href="${ad.url}" target="_blank" onclick="clickAd('${ad.id}',${ad.ptsPerClick||3})" style="background:var(--blue);color:#fff;font-size:12px;font-weight:600;padding:7px 16px;border-radius:var(--rs);text-decoration:none;${done?'opacity:.5;pointer-events:none;':''}">${done?'✅ ចុចហើយ':'ចុចមើល →'}</a>
+      </div>
+    </div>
+  </div>`;
+}
+async function clickAd(adId,pts){
+  if((U.adClicks||{})[adId])return;
   if(!U.adClicks)U.adClicks={};U.adClicks[adId]=true;
-  U.points=curPts+parseInt(pts);
-  document.getElementById('tp-n').textContent=Math.floor(U.points);
-  // Record click on ad
-  await FU('ads/'+adId+'/clicks',{[U.id]:Date.now()});
-  toast('💰 +'+pts+' pts! អរគុណ!','ok');
-  if(linkEl){linkEl.textContent='✅ ចុចហើយ';linkEl.style.opacity='.5';linkEl.style.pointerEvents='none';}
+  const cur=(await FG('users/'+U.id+'/points'))||0;
+  await FS('users/'+U.id+'/points',cur+pts);
+  await FU('users/'+U.id,{['adClicks/'+adId]:true});
+  U.points=cur+pts;document.getElementById('tp-n').textContent=Math.floor(U.points);
+  toast('💰 +'+pts+' pts!','ok');
 }
 
-function openPost(){openSheet('pov');}
-function onMedia(input){
-  const f=input.files[0];if(!f)return;
-  if(f.type.startsWith('video/')){const v=document.createElement('video');v.preload='metadata';v.onloadedmetadata=()=>{URL.revokeObjectURL(v.src);if(v.duration>60){toast('⚠️ Video ≤ 1 នាទី','err');input.value='';document.getElementById('media-lbl').textContent='ជ្រើស File...';return;}mediaFile=f;document.getElementById('media-lbl').textContent=f.name;};v.src=URL.createObjectURL(f);}
-  else{mediaFile=f;document.getElementById('media-lbl').textContent=f.name;}
-}
-async function submitPost(){
-  const cap=document.getElementById('ti-cap').value.trim();const pred=document.getElementById('ti-p').value.trim();
-  if(!cap&&!pred&&!mediaFile){toast('⚠️ ចាំបាច់','err');return;}
-  const btn=document.querySelector('#pov .btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
-  let mediaUrl='',mediaType='';
-  if(mediaFile){if(mediaFile.size>5*1024*1024){toast('⚠️ File <5MB','err');btn.disabled=false;btn.textContent='ផ្ញើ Post';return;}mediaUrl=await toB64(mediaFile);mediaType=mediaFile.type.startsWith('video/')?'video':'image';}
-  const post={userId:U.id,caption:cap,prediction:pred,odds:parseFloat(document.getElementById('ti-od').value)||0,league:document.getElementById('ti-lg').value.trim(),tipType:document.getElementById('ti-ty').value,mediaUrl,mediaType,likes:0,comments:0,shares:0,status:'pending',views:{[U.id]:true},createdAt:Date.now()};
-  const newRef=await FP('posts',post);
-  await FU('users/'+U.id,{posts:(U.posts||0)+1});U.posts=(U.posts||0)+1;
-  // Add to local cache immediately — shows in feed without reload
-  if(newRef?.key)allPostsData[newRef.key]={...post,id:newRef.key};
-  closeSheet('pov');['ti-cap','ti-p','ti-od','ti-lg'].forEach(id=>document.getElementById(id).value='');
-  mediaFile=null;document.getElementById('media-lbl').textContent='ជ្រើស File...';document.getElementById('ti-media').value='';
-  btn.disabled=false;btn.textContent='ផ្ញើ Post';
-  // Smoothly prepend new post to feed
-  renderFeed(allPostsData);
-  toast('✅ Post ផ្ញើ!','ok');
-}
-
-// ═══════════════════════════ POST MENU ═══════════════════════════
-function showPostMenu(postId,ownerId){
-  const isOwner=ownerId===U.id;
-  let items;
-  if(isOwner){items=[
-    {ic:'🗑️',label:'លុប Post',cls:'danger',fn:`delPost('${postId}')`},
-    {ic:'✏️',label:'កែប្រែ Caption',fn:`editCaption('${postId}')`},
-    {ic:'🔖',label:'រក្សារទុកមើលពេលក្រោយ',fn:`savePost('${postId}')`},
-    {ic:'📊',label:'មើល Insights',fn:`viewPostInsights('${postId}')`},
-  ];}else{items=[
-    {ic:'🔖',label:'រក្សារទុកមើលពេលក្រោយ',fn:`savePost('${postId}')`},
-    {ic:'❤️',label:'ចូលចិត្តខ្លាំង',fn:`superLike('${postId}','${ownerId}')`},
-    {ic:'🔕',label:'លាក់ Post នេះ',fn:`hidePost('${postId}')`},
-    {ic:'🚫',label:'Unfollow User',fn:`unfollowFromPost('${ownerId}')`},
-    {ic:'🚩',label:'រាយការណ៍',cls:'danger',fn:`reportPost('${postId}')`},
-  ];}
-  document.getElementById('menu-items').innerHTML=`<div style="padding:8px 14px 4px;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px">Actions</div>`+
-    items.map(i=>`<div class="mitem ${i.cls||''}" onclick="${i.fn};closeSheet('menu-ov')">${i.ic} ${i.label}</div>`).join('');
-  openSheet('menu-ov');
-}
-async function editCaption(pid){
-  const p=allPostsData[pid];if(!p)return;
-  const n=prompt('Caption ថ្មី:',p.caption||'');if(n===null)return;
-  await FU('posts/'+pid,{caption:n});toast('✅ Caption ប្ដូរ!','ok');
-}
-async function savePost(pid){
-  await FS('saved/'+U.id+'/'+pid,{savedAt:Date.now()});
-  toast('🔖 Post រក្សារទុក!','ok');
-}
-async function superLike(pid,ownerId){
-  await togLike(pid,ownerId,document.getElementById('lkb-'+pid)||{classList:{contains:()=>false,toggle:()=>{},add:()=>{}},children:[{textContent:''},document.createElement('span')]});
-  toast('❤️ ចូលចិត្តខ្លាំង!','ok');
-}
-function hidePost(pid){document.getElementById('pc-'+pid)?.remove();toast('🔕 Post លាក់ហើយ','inf');}
-async function unfollowFromPost(uid){
-  const u=AU[uid]||{};
-  await FU('users/'+U.id,{['followingList/'+uid]:null,following:Math.max(0,(U.following||1)-1)});
-  await FU('users/'+uid,{followers:Math.max(0,(u.followers||1)-1)});
-  if(!U.followingList)U.followingList={};delete U.followingList[uid];
-  toast('Unfollow ហើយ','inf');
-}
-function reportPost(pid){toast('🚩 Report sent to Admin','ok');}
-async function viewPostInsights(pid){
-  const p=allPostsData[pid];if(!p)return;
-  const views=Object.keys(p.views||{}).length;
-  alert(`📊 Post Insights
-👁 Views: ${views}
-❤️ Likes: ${p.likes||0}
-💬 Comments: ${p.comments||0}
-↗️ Shares: ${p.shares||0}`);
-}
-async function delPost(id){
-  if(!confirm('លុប Post?'))return;
-  // Remove from UI immediately
-  const el=document.getElementById('pc-'+id);
-  if(el){el.style.transition='opacity .2s,transform .2s';el.style.opacity='0';el.style.transform='scale(.95)';setTimeout(()=>el.remove(),200);}
-  delete allPostsData[id];
-  await FD('posts/'+id);
-  await FU('users/'+U.id,{posts:Math.max(0,(U.posts||1)-1)});
-  U.posts=Math.max(0,(U.posts||1)-1);
-  toast('🗑️ Post លុបហើយ','ok');
-}
-
-// ═══════════════════════════ LIKE ═══════════════════════════
+// ══════════════════════════════════════════════
+// LIKE — local update, no reload
+// ══════════════════════════════════════════════
 async function togLike(pid,ownerId,btn){
   const lk=btn.classList.contains('lk');const liked=!lk;
-  // Update UI immediately — no reload
   if(!U.likedPosts)U.likedPosts={};
-  const cntEl=btn.children[1];
-  const cur=parseInt(cntEl.textContent)||0;
-  const newCnt=Math.max(0,liked?cur+1:cur-1);
-  btn.classList.toggle('lk',liked);
-  btn.children[0].textContent=liked?'❤️':'🤍';
-  cntEl.textContent=newCnt;
-  btn.style.transform='scale(1.2)';
-  setTimeout(()=>btn.style.transform='',150);
-  // Update local cache
+  const cnt=btn.children[1];const cur=parseInt(cnt.textContent)||0;
+  const nc=Math.max(0,liked?cur+1:cur-1);
+  btn.classList.toggle('lk',liked);btn.children[0].textContent=liked?'❤️':'🤍';cnt.textContent=nc;
+  btn.style.transform='scale(1.22)';setTimeout(()=>btn.style.transform='',130);
   if(liked)U.likedPosts[pid]=true;else delete U.likedPosts[pid];
-  if(allPostsData[pid])allPostsData[pid].likes=newCnt;
-  // Sync to Firebase in background (no await on UI thread)
-  FU('users/'+U.id,{['likedPosts/'+pid]:liked||null});
-  FS('posts/'+pid+'/likes',newCnt);
+  if(allPosts[pid])allPosts[pid].likes=nc;
+  FU('users/'+U.id,{['likedPosts/'+pid]:liked||null});FS('posts/'+pid+'/likes',nc);
   if(liked&&ownerId!==U.id){
-    const ownerPts=(AU[ownerId]?.points)||0;
-    const m=isVerified(AU[ownerId])?0.2:0.1;
-    FS('users/'+ownerId+'/points',ownerPts+m);
-    if(AU[ownerId])AU[ownerId].points=ownerPts+m;
+    const op=(AU[ownerId]?.points)||0;const m=isVer(AU[ownerId])?0.2:0.1;
+    FS('users/'+ownerId+'/points',op+m);if(AU[ownerId])AU[ownerId].points=op+m;
     sendNotif(ownerId,'like',U.displayName+' ចុច Like ❤️',U.id,pid);
   }
 }
 
-// ═══════════════════════════ SHARE ═══════════════════════════
-async function sharePost(pid,text){
-  // Show share options
-  const items=[
-    {ic:'🔁',label:'Repost ទៅ Profile ខ្លួនឯង',fn:`repost('${pid}')`},
-    {ic:'📤',label:'Share ទៅ Telegram',fn:`shareTelegram('${pid}','${text.replace(/'/g,"\\'")}')` },
-    {ic:'📋',label:'Copy Link',fn:`copyPostLink('${pid}')`},
-  ];
-  document.getElementById('menu-items').innerHTML=`<div style="padding:8px 14px 4px;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px">Share / Repost</div>`+
-    items.map(i=>`<div class="mitem" onclick="${i.fn};closeSheet('menu-ov')">${i.ic} ${i.label}</div>`).join('');
+// ══════════════════════════════════════════════
+// SHARE
+// ══════════════════════════════════════════════
+function doShare(pid,text){
+  document.getElementById('menu-items').innerHTML=`<div style="padding:6px 14px 3px;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px">ចែករំលែក</div>
+  <div class="mitem" onclick="repost('${pid}');closeSheet('menu-ov')">🔁 Repost ទៅ Profile</div>
+  <div class="mitem" onclick="shareTg('${text}');closeSheet('menu-ov')">📤 Share Telegram</div>
+  <div class="mitem" onclick="navigator.clipboard?.writeText('https://t.me/${BOT}/foottips168?startapp=p_${pid}').then(()=>toast('📋 Copy!','ok'));closeSheet('menu-ov')">📋 Copy Link</div>`;
   openSheet('menu-ov');
-  // Count share
-  // Update share count locally
-  if(allPostsData[pid]){allPostsData[pid].shares=(allPostsData[pid].shares||0)+1;const sel=document.querySelector(`#pc-${pid} .pab:nth-child(3) span:last-child`);if(sel)sel.textContent=allPostsData[pid].shares;}
-  FG('posts/'+pid+'/shares').then(cur=>FS('posts/'+pid+'/shares',(cur||0)+1));
+  FG('posts/'+pid+'/shares').then(c=>FS('posts/'+pid+'/shares',(c||0)+1));
+  const cnt=document.querySelector(`#pc-${pid} .pab:nth-child(3) span:last-child`);
+  if(cnt)cnt.textContent=(parseInt(cnt.textContent)||0)+1;
 }
 async function repost(pid){
-  const orig=allPostsData[pid];if(!orig)return;
-  const repostData={...orig,userId:U.id,isRepost:true,origUserId:orig.userId,origPostId:pid,likes:0,comments:0,shares:0,views:{[U.id]:true},createdAt:Date.now()};
-  delete repostData.id;
-  await FP('posts',repostData);
+  const orig=allPosts[pid];if(!orig)return;
+  const r={...orig,userId:U.id,isRepost:true,origUserId:orig.userId,origPostId:pid,likes:0,comments:0,shares:0,views:{[U.id]:true},createdAt:Date.now()};
+  delete r.id;const ref=await FP('posts',r);
+  if(ref?.key){allPosts[ref.key]={...r,id:ref.key};}
   await FU('users/'+U.id,{posts:(U.posts||0)+1});U.posts=(U.posts||0)+1;
-  // Notify original poster
-  sendNotif(orig.userId,'repost',U.displayName+' Repost Post របស់អ្នក 🔁',U.id,pid);
-  toast('🔁 Repost ទៅ Profile ហើយ!','ok');
+  sendNotif(orig.userId,'repost',U.displayName+' Repost Post 🔁',U.id,pid);
+  toast('🔁 Repost ហើយ!','ok');renderFeed(allPosts);
 }
-function shareTelegram(pid,text){
-  const txt='⚽ FootTips\n'+(text||'')+'\n👉 t.me/'+BOT;
-  if(navigator.share)navigator.share({title:'FootTips',text:txt});
-  else window.Telegram?.WebApp?.openTelegramLink?.('https://t.me/share/url?url=https://t.me/'+BOT+'&text='+encodeURIComponent(txt));
-}
-function copyPostLink(pid){
-  navigator.clipboard?.writeText('https://t.me/'+BOT+'/foottips168?startapp=post_'+pid).then(()=>toast('📋 Link Copy!','ok'));
+function shareTg(text){
+  const t='⚽ FootTips\n'+(text||'')+'\n👉 t.me/'+BOT;
+  window.Telegram?.WebApp?.openTelegramLink?.('https://t.me/share/url?text='+encodeURIComponent(t))||navigator.share?.({text:t});
 }
 
-// ═══════════════════════════ FOLLOW ═══════════════════════════
-async function togFollow(uid,name,btn){
-  const isFol=(U.followingList||{})[uid];
-  if(isFol){
-    await FU('users/'+U.id,{['followingList/'+uid]:null,following:Math.max(0,(U.following||1)-1)});
-    await FU('users/'+uid,{followers:Math.max(0,(AU[uid]?.followers||1)-1)});
-    if(!U.followingList)U.followingList={};delete U.followingList[uid];
-    U.following=Math.max(0,(U.following||1)-1);
-    btn.textContent='+ Follow';btn.classList.remove('ing');toast('Unfollow','inf');
-  }else{
-    await FU('users/'+U.id,{['followingList/'+uid]:true,following:(U.following||0)+1});
-    await FU('users/'+uid,{followers:(AU[uid]?.followers||0)+1});
-    if(!U.followingList)U.followingList={};U.followingList[uid]=true;
-    U.following=(U.following||0)+1;
-    btn.textContent='Following';btn.classList.add('ing');
-    toast('✅ Follow '+name,'ok');sendNotif(uid,'follow',U.displayName+' Follow អ្នក 👥',U.id);
+// ══════════════════════════════════════════════
+// POST MENU
+// ══════════════════════════════════════════════
+function showPostMenu(pid,oid){
+  const isOwn=oid===U.id;
+  const items=isOwn?[
+    {ic:'🗑️',lb:'លុប Post',cls:'danger',fn:`delPost('${pid}')`},
+    {ic:'✏️',lb:'កែ Caption',fn:`editCap('${pid}')`},
+    {ic:'🔖',lb:'រក្សារ',fn:`saveP('${pid}')`},
+    {ic:'📊',lb:'Insights',fn:`insightsP('${pid}')`},
+  ]:[
+    {ic:'🔖',lb:'រក្សារ',fn:`saveP('${pid}')`},
+    {ic:'🔕',lb:'លាក់',fn:`hideP('${pid}')`},
+    {ic:'🚩',lb:'រាយការណ៍',cls:'danger',fn:`toast('🚩 Report sent','ok')`},
+  ];
+  document.getElementById('menu-items').innerHTML=items.map(i=>`<div class="mitem ${i.cls||''}" onclick="${i.fn};closeSheet('menu-ov')">${i.ic} ${i.lb}</div>`).join('');
+  openSheet('menu-ov');
+}
+async function delPost(id){
+  if(!confirm('លុប?'))return;
+  const el=document.getElementById('pc-'+id);
+  if(el){el.style.transition='opacity .2s';el.style.opacity='0';setTimeout(()=>el.remove(),220);}
+  delete allPosts[id];await FD('posts/'+id);
+  await FU('users/'+U.id,{posts:Math.max(0,(U.posts||1)-1)});U.posts=Math.max(0,(U.posts||1)-1);
+  toast('🗑️ លុបហើយ','ok');
+}
+async function editCap(pid){const p=allPosts[pid];if(!p)return;const n=prompt('Caption ថ្មី:',p.caption||'');if(n===null)return;await FU('posts/'+pid,{caption:n});if(allPosts[pid])allPosts[pid].caption=n;renderFeed(allPosts);toast('✅ Updated','ok');}
+async function saveP(pid){await FS('saved/'+U.id+'/'+pid,{savedAt:Date.now()});toast('🔖 Saved','ok');}
+function hideP(pid){const el=document.getElementById('pc-'+pid);if(el){el.style.transition='opacity .2s';el.style.opacity='0';setTimeout(()=>el.remove(),220);}toast('🔕 Hidden','inf');}
+function insightsP(pid){const p=allPosts[pid];if(!p)return;alert(`📊 Insights\n👁 ${Object.keys(p.views||{}).length}\n❤️ ${p.likes||0}\n💬 ${p.comments||0}\n↗️ ${p.shares||0}`);}
+
+// ══════════════════════════════════════════════
+// POST SUBMIT
+// ══════════════════════════════════════════════
+function openPost(){openSheet('pov');}
+function onMedia(inp){
+  const f=inp.files[0];if(!f)return;
+  if(f.type.startsWith('video/')){
+    const v=document.createElement('video');v.preload='metadata';
+    v.onloadedmetadata=()=>{URL.revokeObjectURL(v.src);if(v.duration>1800){toast('⚠️ Video ≤ 30 នាទី','err');inp.value='';document.getElementById('media-lbl').textContent='ជ្រើស File...';return;}mediaFile=f;document.getElementById('media-lbl').textContent='✅ '+f.name;};
+    v.src=URL.createObjectURL(f);
+  }else{mediaFile=f;document.getElementById('media-lbl').textContent='✅ '+f.name;}
+}
+async function submitPost(){
+  const cap=document.getElementById('ti-cap').value.trim();const pred=document.getElementById('ti-p').value.trim();
+  if(!cap&&!pred&&!mediaFile){toast('⚠️ ចាំបាច់','err');return;}
+  const btn=document.getElementById('post-btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  let mUrl='',mType='';
+  if(mediaFile){
+    if(mediaFile.size>50*1024*1024){toast('⚠️ <50MB','err');btn.disabled=false;btn.textContent='ផ្ញើ Post';return;}
+    mUrl=await toB64(mediaFile);mType=mediaFile.type.startsWith('video/')?'video':'image';
   }
+  const post={userId:U.id,caption:cap,prediction:pred,odds:parseFloat(document.getElementById('ti-od').value)||0,league:document.getElementById('ti-lg').value.trim(),tipType:document.getElementById('ti-ty').value,mediaUrl:mUrl,mediaType:mType,likes:0,comments:0,shares:0,status:'pending',views:{[U.id]:true},createdAt:Date.now()};
+  const ref=await FP('posts',post);
+  await FU('users/'+U.id,{posts:(U.posts||0)+1});U.posts=(U.posts||0)+1;
+  if(ref?.key)allPosts[ref.key]={...post,id:ref.key};
+  closeSheet('pov');['ti-cap','ti-p','ti-od','ti-lg'].forEach(id=>document.getElementById(id).value='');
+  mediaFile=null;document.getElementById('media-lbl').textContent='ជ្រើស File...';document.getElementById('ti-media').value='';
+  btn.disabled=false;btn.textContent='ផ្ញើ Post';renderFeed(allPosts);toast('✅ Post ផ្ញើ!','ok');
 }
 
-// ═══════════════════════════ COMMENTS ═══════════════════════════
-async function openCmt(pid){
+// ══════════════════════════════════════════════
+// REELS BAR + TIKTOK VIEWER
+// ══════════════════════════════════════════════
+function renderReels(data){
+  if(!data)return;
+  const reels=Object.entries(data).filter(([k,v])=>v.mediaType==='video').map(([k,v])=>({...v,id:k})).slice(-12);
+  tkVideos=reels;
+  const el=document.getElementById('reels-bar');
+  if(!reels.length){el.style.display='none';return;}
+  el.style.display='flex';
+  el.innerHTML=reels.map((r,i)=>{
+    const u=AU[r.userId]||{};
+    return`<div style="flex-shrink:0;text-align:center;cursor:pointer" onclick="openTK(${i})">
+      <div style="width:58px;height:58px;border-radius:50%;border:2.5px solid var(--g);overflow:hidden;position:relative;background:var(--card);display:flex;align-items:center;justify-content:center">
+        ${avHTML(u,54)}
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:18px;color:#fff">▶</div>
+      </div>
+      <div style="font-size:10px;color:var(--t2);margin-top:4px;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.displayName||'User'}</div>
+    </div>`;
+  }).join('');
+}
+
+function openTK(idx){
+  tkIdx=idx;
+  document.getElementById('tk').classList.add('on');
+  buildTK();
+  setTimeout(()=>{const v=document.getElementById('tkv-'+tkIdx);if(v)v.play().catch(()=>{});},120);
+  startTKProgress();
+}
+function closeTK(){
+  document.getElementById('tk').classList.remove('on');
+  document.querySelectorAll('#tk-pages video').forEach(v=>{try{v.pause();v.src='';}catch(e){}});
+}
+function buildTK(){
+  const con=document.getElementById('tk-pages');
+  con.innerHTML=tkVideos.map((v,i)=>{
+    const u=AU[v.userId]||{};const lk=(U.likedPosts||{})[v.id];
+    return`<div class="tk-slide" id="tks-${i}" style="transform:translateY(${(i-tkIdx)*100}%)">
+      <video id="tkv-${i}" src="${v.mediaUrl}" loop playsinline preload="auto" style="width:100%;height:100%;object-fit:cover" onclick="tkToggle(${i})"></video>
+      <!-- top bar -->
+      <div class="tk-top">
+        <div style="font-size:22px;cursor:pointer;color:#fff" onclick="closeTK()">←</div>
+        <div style="flex:1;text-align:center;font-size:14px;font-weight:700;color:#fff">Videos</div>
+        <div style="width:36px"></div>
+      </div>
+      <!-- right actions -->
+      <div class="tk-right">
+        <div class="tk-action" onclick="tkOpenProf('${v.userId}')">
+          <div class="tk-av" style="background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'}">${avHTML(u,42)}</div>
+          <div class="tk-plus" id="tkfol-${v.userId}" onclick="event.stopPropagation();tkFollow('${v.userId}')">+</div>
+        </div>
+        <div class="tk-action" onclick="tkLike('${v.id}','${v.userId}')">
+          <div class="tk-action-ic" id="tklk-${v.id}">${lk?'❤️':'🤍'}</div>
+          <div class="tk-action-lb" id="tklkc-${v.id}">${v.likes||0}</div>
+        </div>
+        <div class="tk-action" onclick="openCmt('${v.id}')">
+          <div class="tk-action-ic">💬</div><div class="tk-action-lb">${v.comments||0}</div>
+        </div>
+        <div class="tk-action" onclick="doShare('${v.id}','${(v.caption||'').replace(/'/g,"\\'")}')">
+          <div class="tk-action-ic">↗️</div><div class="tk-action-lb">${v.shares||0}</div>
+        </div>
+      </div>
+      <!-- bottom info -->
+      <div class="tk-bottom">
+        <div class="tk-uname">@${u.displayName||'User'}</div>
+        <div class="tk-cap">${v.caption||''}</div>
+        <div class="tk-prog"><div class="tk-prog-fill" id="tkpb-${i}"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+  // Swipe up/down
+  let sy=0,dragging=false;
+  con.addEventListener('touchstart',e=>{sy=e.touches[0].clientY;dragging=true;},{passive:true});
+  con.addEventListener('touchmove',e=>{if(!dragging)return;const dy=sy-e.touches[0].clientY;if(Math.abs(dy)>40){dragging=false;slideTK(dy>0?1:-1);}},{passive:true});
+  con.addEventListener('touchend',()=>dragging=false,{passive:true});
+}
+function slideTK(dir){
+  const next=tkIdx+dir;
+  if(next<0||next>=tkVideos.length)return;
+  document.querySelectorAll('#tk-pages video').forEach(v=>{try{v.pause();}catch(e){}});
+  tkIdx=next;
+  document.querySelectorAll('.tk-slide').forEach((s,i)=>s.style.transform=`translateY(${(i-tkIdx)*100}%)`);
+  setTimeout(()=>{const v=document.getElementById('tkv-'+tkIdx);if(v)v.play().catch(()=>{});},50);
+  startTKProgress();
+}
+function tkToggle(i){const v=document.getElementById('tkv-'+i);if(!v)return;if(v.paused)v.play();else v.pause();}
+function startTKProgress(){
+  const v=document.getElementById('tkv-'+tkIdx);const pb=document.getElementById('tkpb-'+tkIdx);
+  if(!v||!pb)return;
+  v.ontimeupdate=()=>{if(v.duration)pb.style.width=(v.currentTime/v.duration*100)+'%';};
+}
+async function tkLike(pid,oid){
+  const ic=document.getElementById('tklk-'+pid);const cnt=document.getElementById('tklkc-'+pid);
+  const lk=(U.likedPosts||{})[pid];const liked=!lk;
+  if(!U.likedPosts)U.likedPosts={};if(liked)U.likedPosts[pid]=true;else delete U.likedPosts[pid];
+  if(ic){ic.textContent=liked?'❤️':'🤍';ic.style.transform='scale(1.3)';setTimeout(()=>ic.style.transform='',140);}
+  if(cnt){const c=parseInt(cnt.textContent)||0;cnt.textContent=Math.max(0,liked?c+1:c-1);}
+  FU('users/'+U.id,{['likedPosts/'+pid]:liked||null});
+  const cur=(await FG('posts/'+pid+'/likes'))||0;FS('posts/'+pid+'/likes',Math.max(0,liked?cur+1:cur-1));
+}
+async function tkFollow(uid){
+  if((U.followingList||{})[uid]){toast('Following ហើយ','inf');return;}
+  if(!U.followingList)U.followingList={};U.followingList[uid]=true;
+  FU('users/'+U.id,{['followingList/'+uid]:true,following:(U.following||0)+1});
+  FU('users/'+uid,{followers:(AU[uid]?.followers||0)+1});
+  const btn=document.getElementById('tkfol-'+uid);if(btn){btn.textContent='✓';btn.style.background='var(--g)';}
+  toast('✅ Follow!','ok');
+}
+function tkOpenProf(uid){closeTK();setTimeout(()=>viewProf(uid),300);}
+
+// ══════════════════════════════════════════════
+// COMMENTS
+// ══════════════════════════════════════════════
+let cmtReplyId=null;
+function openCmt(pid){
   curTip=pid;openSheet('cmt-ov');
-  const el=document.getElementById('cmt-list');el.innerHTML='<div style="text-align:center;padding:20px"><span class="spin"></span></div>';
+  const el=document.getElementById('cmt-body');el.innerHTML='<div style="text-align:center;padding:20px"><span class="spin"></span></div>';
   db.ref('comments/'+pid).on('value',snap=>{
     const data=snap.val();
-    if(!data){el.innerHTML='<div class="empty" style="padding:22px"><div class="empty-ic">💬</div><div class="empty-h">មិនទាន់មានមតិ</div></div>';return;}
+    if(!data){el.innerHTML='<div class="empty" style="padding:20px"><div class="empty-ic">💬</div><div class="empty-h">មិនទាន់មាន</div></div>';return;}
     const cmts=Object.entries(data).filter(([k])=>!k.startsWith('r_')).map(([k,v])=>({...v,id:k})).sort((a,b)=>a.createdAt-b.createdAt);
     el.innerHTML=cmts.map(c=>{
-      const cu=AU[c.userId]||{displayName:'User',avatar:'💬',color:'#00C37A'};
-      const lkc=(U.likedCmts||{})[c.id];
+      const cu=AU[c.userId]||{};const lkc=(U.likedCmts||{})[c.id];
       const replies=data['r_'+c.id]?Object.entries(data['r_'+c.id]).map(([k,v])=>({...v,id:k})).sort((a,b)=>a.createdAt-b.createdAt):[];
       return`<div class="cmt-item">
-        <div class="cav" style="background:${cu.color}22;color:${cu.color}" onclick="viewProf('${c.userId}')">${avHTML(cu,30)}</div>
+        <div class="cav av" style="width:32px;height:32px;background:${cu.color||'#00C37A'}22;color:${cu.color||'#00C37A'}" onclick="viewProf('${c.userId}')">${avHTML(cu,32)}</div>
         <div class="cbody">
-          <div class="cname" onclick="viewProf('${c.userId}')">${cu.displayName}</div>
+          <div class="cname">${cu.displayName||'User'}</div>
           <div class="ctext">${c.text}</div>
           <div class="cacts">
             <span class="cact ${lkc?'lk':''}" onclick="likeCmt('${pid}','${c.id}',this)">${lkc?'❤️':'🤍'} ${c.likes||0}</span>
-            <span class="cact" onclick="setReply('${c.id}','${cu.displayName}')">↩ Reply</span>
+            <span class="cact" style="color:var(--g)" onclick="setCmtReply('${c.id}','${(cu.displayName||'User').replace(/'/g,"\\'")}')">↩ Reply</span>
             ${c.userId===U.id?`<span class="cact" style="color:var(--red)" onclick="delCmt('${pid}','${c.id}')">លុប</span>`:''}
           </div>
-          ${replies.length?`<div class="reply-wrap">${replies.map(r=>{const ru=AU[r.userId]||{};return`<div class="cmt-item" style="margin-bottom:6px">
-            <div class="cav" style="width:26px;height:26px;background:${ru.color||'#00C37A'}22;color:${ru.color||'#00C37A'}">${avHTML(ru,26)}</div>
+          ${replies.map(r=>{const ru=AU[r.userId]||{};return`<div class="cmt-item" style="margin-top:6px">
+            <div class="cav av" style="width:24px;height:24px;background:${ru.color||'#00C37A'}22;color:${ru.color||'#00C37A'}">${avHTML(ru,24)}</div>
             <div class="cbody"><div class="cname" style="font-size:11px">${ru.displayName||'User'}</div>
-            <div class="ctext" style="font-size:12px">${r.text}</div>
-            ${r.userId===U.id?`<div class="cacts"><span class="cact" style="color:var(--red)" onclick="delCmt('${pid}','r_${c.id}/${r.id}')">លុប</span></div>`:''}</div></div>`;}).join('')}</div>`:''}
+            <div class="ctext" style="font-size:12px">${r.text}</div></div>
+          </div>`;}).join('')}
         </div>
       </div>`;
     }).join('');el.scrollTop=el.scrollHeight;
   });
 }
-function closeCmt(){closeSheet('cmt-ov');db.ref('comments/'+curTip).off();replyId=null;replyName=null;document.getElementById('cmt-inp').placeholder='សរសេរមតិ...';}
-function setReply(id,name){replyId=id;replyName=name;document.getElementById('cmt-inp').placeholder='Reply to '+name+'...';document.getElementById('cmt-inp').focus();}
+function closeCmt(){closeSheet('cmt-ov');if(curTip)db.ref('comments/'+curTip).off();cmtReplyId=null;}
+function setCmtReply(cid,name){cmtReplyId=cid;document.getElementById('cmt-inp').placeholder='Reply to '+name+'...';document.getElementById('cmt-inp').focus();}
 async function submitCmt(){
   const text=document.getElementById('cmt-inp').value.trim();if(!text||!curTip)return;
-  if(replyId){await FP('comments/'+curTip+'/r_'+replyId,{userId:U.id,text,createdAt:Date.now()});}
+  if(cmtReplyId)await FP('comments/'+curTip+'/r_'+cmtReplyId,{userId:U.id,text,createdAt:Date.now()});
   else{
     await FP('comments/'+curTip,{userId:U.id,text,likes:0,createdAt:Date.now()});
-    // Update comment count locally
-    if(allPostsData[curTip]){allPostsData[curTip].comments=(allPosts[curTip].comments||0)+1;const el=document.querySelector(`#pc-${curTip} .pab:nth-child(2) span:last-child`);if(el)el.textContent=allPosts[curTip].comments;}
-    FG('posts/'+curTip+'/comments').then(cur=>FS('posts/'+curTip+'/comments',(cur||0)+1));
-    const ownerId=await FG('posts/'+curTip+'/userId');
-    if(ownerId&&ownerId!==U.id){const pts=(await FG('users/'+ownerId+'/points'))||0;const m=isVerified(AU[ownerId])?0.4:0.2;await FS('users/'+ownerId+'/points',pts+m);sendNotif(ownerId,'comment',U.displayName+' Comment: '+text.slice(0,30),U.id,curTip);}
+    if(allPosts[curTip])allPosts[curTip].comments=(allPosts[curTip].comments||0)+1;
+    const cnt=document.querySelector(`#pc-${curTip} .pab:nth-child(2) span:last-child`);if(cnt)cnt.textContent=allPosts[curTip]?.comments||0;
+    FG('posts/'+curTip+'/comments').then(c=>FS('posts/'+curTip+'/comments',(c||0)+1));
+    const oid=await FG('posts/'+curTip+'/userId');
+    if(oid&&oid!==U.id){const op=(await FG('users/'+oid+'/points'))||0;const m=isVer(AU[oid])?0.4:0.2;FS('users/'+oid+'/points',op+m);sendNotif(oid,'comment',U.displayName+' Comment: '+text.slice(0,30),U.id,curTip);}
   }
-  document.getElementById('cmt-inp').value='';replyId=null;replyName=null;document.getElementById('cmt-inp').placeholder='សរសេរមតិ...';
+  document.getElementById('cmt-inp').value='';document.getElementById('cmt-inp').placeholder='សរសេរមតិ...';cmtReplyId=null;
 }
-async function delCmt(pid,path){if(!confirm('លុប?'))return;await FD('comments/'+pid+'/'+path);if(!path.includes('r_')){const c=(await FG('posts/'+pid+'/comments'))||1;await FS('posts/'+pid+'/comments',Math.max(0,c-1));}toast('🗑️ លុបហើយ','ok');}
 async function likeCmt(pid,cid,btn){
   const lk=btn.classList.contains('lk');const liked=!lk;
-  if(!U.likedCmts)U.likedCmts={};
-  await FU('users/'+U.id,{['likedCmts/'+cid]:liked||null});U.likedCmts[cid]=liked||undefined;
-  const cur=(await FG('comments/'+pid+'/'+cid+'/likes'))||0;await FS('comments/'+pid+'/'+cid+'/likes',Math.max(0,liked?cur+1:cur-1));
+  if(!U.likedCmts)U.likedCmts={};U.likedCmts[cid]=liked||undefined;
+  FU('users/'+U.id,{['likedCmts/'+cid]:liked||null});
+  const cur=(await FG('comments/'+pid+'/'+cid+'/likes'))||0;
+  FS('comments/'+pid+'/'+cid+'/likes',Math.max(0,liked?cur+1:cur-1));
   btn.classList.toggle('lk',liked);btn.textContent=(liked?'❤️':'🤍')+' '+Math.max(0,liked?cur+1:cur-1);
 }
+async function delCmt(pid,cid){if(!confirm('លុក?'))return;await FD('comments/'+pid+'/'+cid);toast('🗑️','ok');}
 
-// ═══════════════════════════ STARS ═══════════════════════════
-function openStar(uid){if(uid===U.id){toast('⚠️ មិនអាចអោយ Star ខ្លួនឯង','inf');return;}curStarUid=uid;curStar=0;renderStars(0);openSheet('star-ov');}
-function renderStars(n){const lbls=['','⭐ ព្យាយាម','⭐⭐ ល្អ','⭐⭐⭐ ល្អណាស់','⭐⭐⭐⭐ អស្ចារ្យ','⭐⭐⭐⭐⭐ ឥតខ្ចោះ'];document.getElementById('stars-row').innerHTML=[1,2,3,4,5].map(i=>`<span class="star-ic" onclick="selStar(${i})">${i<=n?'⭐':'☆'}</span>`).join('');document.getElementById('star-lbl').textContent=n?lbls[n]:'ជ្រើស Stars...';curStar=n;}
-function selStar(n){renderStars(n);}
-async function submitStar(){
-  if(!curStar){toast('⚠️ ជ្រើស Stars','err');return;}
-  await FS('stars/'+curStarUid+'/'+U.id,{stars:curStar,createdAt:Date.now()});
-  const all=await FG('stars/'+curStarUid);
-  if(all){const vals=Object.values(all).map(s=>s.stars);const avg=vals.reduce((a,b)=>a+b,0)/vals.length;await FU('users/'+curStarUid,{avgStars:avg.toFixed(1),starCount:vals.length});}
-  closeSheet('star-ov');toast('⭐ '+curStar+' Stars ផ្ញើ!','ok');sendNotif(curStarUid,'star',U.displayName+' ផ្ដល់ '+curStar+' Stars ⭐',U.id);
+// ══════════════════════════════════════════════
+// FOLLOW
+// ══════════════════════════════════════════════
+async function togFollow(uid,name,btn){
+  const isFol=(U.followingList||{})[uid];
+  if(isFol){await FU('users/'+U.id,{['followingList/'+uid]:null,following:Math.max(0,(U.following||1)-1)});await FU('users/'+uid,{followers:Math.max(0,(AU[uid]?.followers||1)-1)});if(!U.followingList)U.followingList={};delete U.followingList[uid];U.following=Math.max(0,(U.following||1)-1);btn.textContent='+ Follow';btn.classList.remove('ing');toast('Unfollow','inf');}
+  else{await FU('users/'+U.id,{['followingList/'+uid]:true,following:(U.following||0)+1});await FU('users/'+uid,{followers:(AU[uid]?.followers||0)+1});if(!U.followingList)U.followingList={};U.followingList[uid]=true;U.following=(U.following||0)+1;btn.textContent='Following';btn.classList.add('ing');toast('✅ Follow '+name,'ok');sendNotif(uid,'follow',U.displayName+' Follow អ្នក 👥',U.id);}
 }
 
-// ═══════════════════════════ PREDICTIONS ═══════════════════════════
+// ══════════════════════════════════════════════
+// STARS
+// ══════════════════════════════════════════════
+function openStar(uid){if(uid===U.id){toast('⚠️ មិនអាច','inf');return;}curStarUid=uid;curStar=0;renderStarRow(0);openSheet('star-ov');}
+function renderStarRow(n){const L=['','⭐ ព្យាយាម','⭐⭐ ល្អ','⭐⭐⭐ ល្អណាស់','⭐⭐⭐⭐ អស្ចារ្យ','⭐⭐⭐⭐⭐ ឥតខ្ចោះ'];document.getElementById('stars-row').innerHTML=[1,2,3,4,5].map(i=>`<span class="star-ic" onclick="selStar(${i})">${i<=n?'⭐':'☆'}</span>`).join('');document.getElementById('star-lbl').textContent=n?L[n]:'ជ្រើស...';curStar=n;}
+function selStar(n){renderStarRow(n);}
+async function submitStar(){if(!curStar){toast('⚠️ ជ្រើស Stars','err');return;}await FS('stars/'+curStarUid+'/'+U.id,{stars:curStar,createdAt:Date.now()});const all=await FG('stars/'+curStarUid);if(all){const vals=Object.values(all).map(s=>s.stars);const avg=vals.reduce((a,b)=>a+b,0)/vals.length;await FU('users/'+curStarUid,{avgStars:avg.toFixed(1),starCount:vals.length});}closeSheet('star-ov');toast('⭐ '+curStar+' Stars!','ok');sendNotif(curStarUid,'star',U.displayName+' ផ្ដល់ '+curStar+' Stars ⭐',U.id);}
+
+// ══════════════════════════════════════════════
+// MATCHES
+// ══════════════════════════════════════════════
 async function loadMatches(){
   const today=new Date().toDateString();const data=await FG('matches');
   const tm=data?Object.entries(data).filter(([k,v])=>v.matchDate===today&&v.active!==false).map(([k,v])=>({...v,id:k})):[];
   const mp=await FG('predictions/'+U.id+'/'+today)||{};const used=Object.keys(mp).length;
-  document.getElementById('ldots').innerHTML=[0,1,2].map(i=>`<div class="ld ${i<used?'u':''}"></div>`).join('');
+  document.getElementById('ldots').innerHTML=[0,1,2].map(i=>`<div style="width:9px;height:9px;border-radius:50%;background:${i<used?'var(--g)':'var(--b2)'}"></div>`).join('');
   document.getElementById('ltxt').textContent=used+'/3 ការទស្សន៍ទាយ';
   const el=document.getElementById('matches');
   if(!tm.length){el.innerHTML='<div class="empty"><div class="empty-ic">⚽</div><div class="empty-h">គ្មានការប្រកួតថ្ងៃនេះ</div></div>';return;}
   el.innerHTML=tm.map(m=>{const myP=mp[m.id];const dis=used>=3&&!myP;
-    return`<div class="mc"><div class="mct"><div style="font-size:11px;font-weight:600;color:var(--t2)">🏆 ${m.league}</div><div style="font-size:11px;color:var(--t2)">⏰ ${m.time}</div></div>
-    <div class="mteams"><div class="team"><span class="tic">${m.homeIcon||'⚽'}</span><div class="tn">${m.home}</div></div><div class="vs">VS</div><div class="team" style="text-align:right"><span class="tic">${m.awayIcon||'⚽'}</span><div class="tn">${m.away}</div></div></div>
-    <div class="popts">
-      <button class="pb ${myP==='home'?'sel':''} ${dis&&myP!=='home'?'dis':''}" onclick="predict('${m.id}','home','${m.home}')">🏠 ម្ចាស់</button>
-      <button class="pb ${myP==='draw'?'sel':''} ${dis&&myP!=='draw'?'dis':''}" onclick="predict('${m.id}','draw','ស្មើ')">🤝 ស្មើ</button>
-      <button class="pb ${myP==='away'?'sel':''} ${dis&&myP!=='away'?'dis':''}" onclick="predict('${m.id}','away','${m.away}')">✈️ ភ្ញៀវ</button>
-    </div>${myP?`<div style="padding:8px 12px;font-size:11px;color:var(--g);text-align:center;border-top:1px solid var(--b)">✅ ${myP==='home'?m.home:myP==='draw'?'ស្មើ':m.away} · ⏳</div>`:''}</div>`;}).join('');
+    return`<div class="mc"><div class="mct"><span style="font-size:11px;font-weight:600;color:var(--t2)">🏆 ${m.league}</span><span style="font-size:11px;color:var(--t2)">⏰ ${m.time}</span></div>
+    <div style="padding:12px;display:flex;align-items:center"><div style="flex:1;text-align:center"><span style="font-size:24px;display:block;margin-bottom:3px">${m.homeIcon||'⚽'}</span><div style="font-size:12px;font-weight:600">${m.home}</div></div><div style="padding:0 10px;font-size:11px;color:var(--t2);font-weight:700">VS</div><div style="flex:1;text-align:center"><span style="font-size:24px;display:block;margin-bottom:3px">${m.awayIcon||'⚽'}</span><div style="font-size:12px;font-weight:600">${m.away}</div></div></div>
+    <div style="display:flex;gap:6px;padding:0 12px 12px">
+      <button class="pb ${myP==='home'?'sel':''} ${dis&&myP!=='home'?'dis':''}" onclick="predict('${m.id}','home')">🏠 ម្ចាស់</button>
+      <button class="pb ${myP==='draw'?'sel':''} ${dis&&myP!=='draw'?'dis':''}" onclick="predict('${m.id}','draw')">🤝 ស្មើ</button>
+      <button class="pb ${myP==='away'?'sel':''} ${dis&&myP!=='away'?'dis':''}" onclick="predict('${m.id}','away')">✈️ ភ្ញៀវ</button>
+    </div>${myP?`<div style="padding:7px 12px;font-size:11px;color:var(--g);text-align:center;border-top:1px solid var(--b)">✅ ${myP==='home'?m.home:myP==='draw'?'ស្មើ':m.away} · ⏳</div>`:''}</div>`;
+  }).join('');
 }
-async function predict(mid,ch,lbl){
-  const today=new Date().toDateString();const mp=await FG('predictions/'+U.id+'/'+today)||{};
-  if(mp[mid]){toast('⚠️ ទស្សន៍ទាយរួចហើយ','inf');return;}
-  if(Object.keys(mp).length>=3){toast('⚠️ អស់ 3 គូ!','err');return;}
-  await FS('predictions/'+U.id+'/'+today+'/'+mid,ch);toast('🎯 '+lbl+' · +10pts!','ok');loadMatches();
-}
+async function predict(mid,ch){const today=new Date().toDateString();const mp=await FG('predictions/'+U.id+'/'+today)||{};if(mp[mid]){toast('⚠️ ទស្សន៍ទាយរួច','inf');return;}if(Object.keys(mp).length>=3){toast('⚠️ អស់ 3 គូ!','err');return;}await FS('predictions/'+U.id+'/'+today+'/'+mid,ch);toast('🎯 +10pts!','ok');loadMatches();}
 
-// ═══════════════════════════ LEADERBOARD ═══════════════════════════
+// ══════════════════════════════════════════════
+// LEADERBOARD
+// ══════════════════════════════════════════════
 function renderLead(data){
   let users=Object.entries(data).map(([k,v])=>({...v,id:k}));
-  // Sort based on active tab
-  if(leadTab==='wr'){
-    users=users.filter(u=>u.settledTips>=3);// min 3 settled tips for win rate
-    users.sort((a,b)=>(b.winRate||0)-(a.winRate||0));
-  } else if(leadTab==='tips'){
-    users.sort((a,b)=>(b.posts||0)-(a.posts||0));
-  } else {
-    users.sort((a,b)=>(b.points||0)-(a.points||0));
-  }
-  const q300=leadTab==='pts'?users.filter(u=>u.points>=300):users.filter(u=>leadTab==='wr'?u.winRate>=60:u.posts>=5);
-  const top3=q300.slice(0,3);
-  const medals=['🥇','🥈','🥉'],bc=['bg-g','bg-s','bg-b'],bt=['Champion','Runner-up','3rd'];
-  const secTitle=leadTab==='wr'?'🎯 Top Win Rate (min 3 tips)':leadTab==='tips'?'📝 Most Active Tipsters':'🥇 TOP 3';
-  const emptyMsg=leadTab==='wr'?'ត្រូវការ 3+ settled tips':leadTab==='tips'?'ត្រូវការ 5+ posts':'មិនទាន់មាន 300+ pts';
-  document.getElementById('lead-sec1-title').textContent=secTitle;
+  if(leadTab==='wr'){users=users.filter(u=>u.settledTips>=3);users.sort((a,b)=>(b.winRate||0)-(a.winRate||0));}
+  else if(leadTab==='tips'){users.sort((a,b)=>(b.posts||0)-(a.posts||0));}
+  else users.sort((a,b)=>(b.points||0)-(a.points||0));
+  const top3=users.slice(0,3);const medals=['🥇','🥈','🥉'],bc=['bg-g','bg-s','bg-b'],bt=['Champion','Runner-up','3rd'];
   document.getElementById('top3').innerHTML=top3.length?top3.map((u,i)=>{
-    const statVal=leadTab==='wr'?u.winRate+'%':leadTab==='tips'?u.posts+' tips':Math.floor(u.points||0)+' pts';
-    const statColor=leadTab==='wr'?(u.winRate>=70?'#1D9E75':u.winRate>=50?'#BA7517':'#D85A30'):'var(--gold)';
+    const v=leadTab==='wr'?(u.winRate||0)+'%':leadTab==='tips'?u.posts||0:Math.floor(u.points||0);
+    const vc=leadTab==='wr'?(u.winRate>=70?'#1D9E75':u.winRate>=50?'#BA7517':'#D85A30'):'var(--gold)';
     return`<div class="lc" onclick="viewProf('${u.id}')">
-    <span style="font-size:18px;width:28px;text-align:center">${medals[i]}</span>
-    <div style="width:38px;height:38px;border-radius:50%;overflow:hidden;flex-shrink:0;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center">${avHTML(u,38)}</div>
-    <div style="flex:1">
-      <div class="ln">${nameH(u)}</div>
-      <div class="lp">${Math.floor(u.points||0)} pts${u.avgStars?' · ⭐'+u.avgStars:''}</div>
-    </div>
-    <div style="text-align:right">
-      <div style="font-size:16px;font-weight:700;color:${statColor}">${statVal}</div>
-      <span class="lbg ${bc[i]}">${bt[i]}</span>
-    </div></div>`;}).join(''):`<div class="empty"><div class="empty-ic">🏆</div><div class="empty-h">${emptyMsg}</div></div>`;
+      <span style="font-size:18px;width:28px;text-align:center">${medals[i]}</span>
+      <div class="av" style="width:38px;height:38px;background:${u.color}22;color:${u.color}">${avHTML(u,38)}</div>
+      <div style="flex:1"><div class="ln">${nameH(u)}${u.winRate!=null?`<span style="font-size:10px;font-weight:500;padding:1px 6px;border-radius:8px;background:${u.winRate>=70?'#E1F5EE':u.winRate>=50?'#FAEEDA':'#FCEBEB'};color:${u.winRate>=70?'#0F6E56':u.winRate>=50?'#854F0B':'#A32D2D'}">${u.winRate}%</span>`:''}</div><div class="lp">${Math.floor(u.points||0)} pts${u.avgStars?' · ⭐'+u.avgStars:''}</div></div>
+      <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:${vc}">${v}</div><span class="lbg ${bc[i]}">${bt[i]}</span></div>
+    </div>`;}).join(''):'<div class="empty"><div class="empty-ic">🏆</div><div class="empty-h">មិនទាន់មាន</div></div>';
   document.getElementById('leader-all').innerHTML=users.map((u,i)=>{
-    const mainVal=leadTab==='wr'?(u.winRate!=null?u.winRate+'%':'—'):leadTab==='tips'?(u.posts||0)+' tips':Math.floor(u.points||0)+' pts';
-    const mainColor=leadTab==='wr'?(u.winRate>=70?'#1D9E75':u.winRate>=50?'#BA7517':'#D85A30'):'var(--gold)';
-    const subVal=leadTab==='wr'?`${u.wonTips||0}W/${u.settledTips||0} settled`:leadTab==='tips'?`${Math.floor(u.points||0)} pts`:`${u.winRate!=null?u.winRate+'% win':''}`;
+    const v=leadTab==='wr'?(u.winRate!=null?u.winRate+'%':'—'):leadTab==='tips'?(u.posts||0)+' tips':Math.floor(u.points||0)+' pts';
+    const vc=leadTab==='wr'?(u.winRate>=70?'#1D9E75':u.winRate>=50?'#BA7517':'#D85A30'):'var(--gold)';
     return`<div class="lc" onclick="viewProf('${u.id}')">
-    <span style="font-size:12px;color:var(--t2);font-weight:600;width:28px;text-align:center">${i+1}</span>
-    <div style="width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center">${avHTML(u,32)}</div>
-    <div style="flex:1"><div class="ln">${nameH(u)}</div><div class="lp" style="font-size:11px">${subVal}</div></div>
-    <div style="text-align:right;flex-shrink:0">
-      <div style="font-size:14px;font-weight:700;color:${mainColor}">${mainVal}</div>
-      ${u.id===U?.id?'<span class="pill p-g" style="font-size:9px">អ្នក</span>':''}
-    </div></div>`;}).join('');
-  document.getElementById('wib').innerHTML=`
-    <div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--g)">${users.length}</div><div style="font-size:10px;color:var(--t2);margin-top:2px">Users</div></div>
-    <div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--g)">${q300.length}</div><div style="font-size:10px;color:var(--t2);margin-top:2px">Qualified</div></div>
-    <div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--g)">$10</div><div style="font-size:10px;color:var(--t2);margin-top:2px">Prize</div></div>`;
+      <span style="font-size:12px;color:var(--t2);font-weight:600;width:28px;text-align:center">${i+1}</span>
+      <div class="av" style="width:32px;height:32px;background:${u.color}22;color:${u.color}">${avHTML(u,32)}</div>
+      <div style="flex:1"><div class="ln">${nameH(u)}</div><div class="lp" style="font-size:11px">${leadTab==='wr'?`${u.wonTips||0}W/${u.settledTips||0}`:leadTab==='tips'?Math.floor(u.points||0)+' pts':u.winRate!=null?u.winRate+'% WR':''}</div></div>
+      <div style="text-align:right;flex-shrink:0"><div style="font-size:14px;font-weight:700;color:${vc}">${v}</div>${u.id===U?.id?'<span class="pill p-g" style="font-size:9px">អ្នក</span>':''}</div>
+    </div>`;}).join('');
+  document.getElementById('wib').innerHTML=`<div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--g)">${users.length}</div><div style="font-size:10px;color:var(--t2)">Users</div></div><div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--g)">${users.filter(u=>u.points>=300).length}</div><div style="font-size:10px;color:var(--t2)">Qualified</div></div><div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--gold)">$10</div><div style="font-size:10px;color:var(--t2)">Prize</div></div>`;
 }
+function switchLeadTab(tab){leadTab=tab;['pts','wr','tips'].forEach(t=>{const el=document.getElementById('lt-'+t);if(!el)return;el.style.color=t===tab?'var(--g)':'var(--t2)';el.style.borderBottomColor=t===tab?'var(--g)':'transparent';el.style.fontWeight=t===tab?'600':'500';});renderLead(AU);}
 function updateWT(){const now=new Date(),end=new Date();end.setDate(now.getDate()+(7-now.getDay()));end.setHours(23,59,59,0);const d=end-now,dy=Math.floor(d/86400000),h=Math.floor((d%86400000)/3600000),m=Math.floor((d%3600000)/60000);document.getElementById('wt').textContent=dy+'d '+h+'h '+m+'m';}
 
-let leadTab='pts';
-function switchLeadTab(tab){
-  leadTab=tab;
-  ['pts','wr','tips'].forEach(t=>{
-    const el=document.getElementById('lt-'+t);if(!el)return;
-    el.style.color=t===tab?'var(--g)':'var(--t2)';
-    el.style.borderBottomColor=t===tab?'var(--g)':'transparent';
-    el.style.fontWeight=t===tab?'600':'500';
-  });
-  // Use cached AU — no Firebase call
-  renderLead(AU);
-}
-
-// ═══════════════════════════ CHAT ═══════════════════════════
-function renderChatList(data){
+// ══════════════════════════════════════════════
+// CHAT — Telegram style
+// ══════════════════════════════════════════════
+async function loadConvList(){
   const el=document.getElementById('chat-list');
-  // Only show users who have actually chatted with current user
-  loadConversations(data,el);
-}
-async function loadConversations(data,el){
-  if(!U?.id)return;
-  const users=Object.entries(data||{}).filter(([k])=>k!==U.id).map(([k,v])=>({...v,id:k}));
-  // Load all chat keys for current user
+  const users=Object.entries(AU).filter(([k])=>k!==U.id).map(([k,v])=>({...v,id:k}));
   const convs=[];
-  await Promise.all(users.map(async u=>{
-    const key=[U.id,u.id].sort().join('_');
-    const last=await FG('chats/'+key+'/last');
-    if(last){convs.push({...u,last});}// Only add if conversation exists
-  }));
-  if(!convs.length){
-    el.innerHTML='<div class="empty"><div class="empty-ic">💬</div><div class="empty-h">មិនទាន់មានការសន្ទនា</div><div class="empty-s">ចូល Profile User ណាមួយ → ចុច 💬 ឆាត</div></div>';
-    return;
-  }
+  await Promise.all(users.map(async u=>{const key=[U.id,u.id].sort().join('_');const last=await FG('chats/'+key+'/last');if(last)convs.push({...u,last});}));
+  if(!convs.length){el.innerHTML='<div class="empty"><div class="empty-ic">💬</div><div class="empty-h">មិនទាន់មាន Conversations</div><div class="empty-s">ចូល Profile User → ចុច 💬</div></div>';return;}
   convs.sort((a,b)=>(b.last?.time||0)-(a.last?.time||0));
   el.innerHTML=convs.map(u=>{
-    const preview=u.last?.type==='img'?'📷 Photo':u.last?.type==='voice'?'🎤 Voice':u.last?.text||'';
-    const isMe=u.last?.from===U.id;
-    return`<div class="cli" onclick="openCW('${u.id}','${u.displayName||'User'}','${u.color||'#00C37A'}')">
-      <div style="position:relative">
-        <div style="width:50px;height:50px;border-radius:50%;overflow:hidden;flex-shrink:0;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};display:flex;align-items:center;justify-content:center">${avHTML(u,50)}</div>
-      </div>
-      <div style="flex:1;min-width:0;padding-left:2px">
+    const pre=u.last?.type==='img'?'📷 Photo':u.last?.type==='voice'?'🎤 Voice':u.last?.text||'';
+    const isme=u.last?.from===U.id;
+    return`<div class="cli" onclick="openCW('${u.id}','${(u.displayName||'User').replace(/'/g,"\\'")}','${u.color||'#00C37A'}')">
+      <div class="av" style="width:50px;height:50px;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'}">${avHTML(u,50)}</div>
+      <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
           <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px">${nameH(u)}</div>
           <div style="font-size:11px;color:var(--t3);flex-shrink:0">${ta(u.last?.time)}</div>
         </div>
-        <div style="font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${isMe?'អ្នក: ':''} ${preview}</div>
+        <div style="font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${isme?'អ្នក: ':''} ${pre}</div>
       </div>
-    </div>`;
-  }).join('');
+    </div>`;}).join('');
 }
-async function openCW(uid,name,color){
+
+function openCW(uid,name,color){
   curChat=uid;const u=AU[uid]||{};
-  const cwN=document.getElementById('cw-n');cwN.innerHTML=nameH({...u,id:uid});
-  const a=document.getElementById('cw-av');a.style.background=(u.color||color)+'22';a.style.color=u.color||color;a.innerHTML=avHTML(u,36);
+  document.getElementById('cw-n').innerHTML=nameH({...u,id:uid});
+  const a=document.getElementById('cw-av');a.style.background=(u.color||color)+'22';a.style.color=u.color||color;a.innerHTML=avHTML(u,38);
   document.getElementById('cw').classList.add('op');
   const key=[U.id,uid].sort().join('_');
-  db.ref('chats/'+key+'/msgs').on('value',snap=>{
-    const data=snap.val();const el=document.getElementById('msgs');
-    if(!data){el.innerHTML='<div class="empty" style="padding:30px"><div class="empty-ic">👋</div><div class="empty-s">ពេក្យ "ជំរាបសួរ"!</div></div>';return;}
-    const msgs=Object.values(data).sort((a,b)=>a.createdAt-b.createdAt);
-    el.innerHTML=msgs.map(m=>{const me=m.from===U.id;
-      let content='';
-      if(m.type==='img')content=`<img src="${m.data}" class="msg-img" onclick="window.open(this.src)">`;
-      else if(m.type==='voice')content=`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${me?'rgba(0,0,0,.2)':'var(--card)'};border-radius:20px;min-width:160px;max-width:220px">
-  <div onclick="playV('${m.data}',this)" style="width:36px;height:36px;border-radius:50%;background:${me?'rgba(0,0,0,.3)':'var(--g)'};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:16px">▶</div>
-  <div style="flex:1">
-    <div style="display:flex;align-items:center;gap:2px;height:28px">${[3,6,8,5,9,7,4,8,6,3].map(h=>`<div style="width:3px;height:${h*3}px;border-radius:2px;background:${me?'rgba(0,0,0,.5)':'var(--g)'};opacity:.8"></div>`).join('')}</div>
-    <div style="font-size:10px;color:${me?'rgba(0,0,0,.6)':'var(--t3)'};margin-top:2px">${m.dur||0}s</div>
-  </div>
-</div>`;
-      else content=`<div class="mb">${m.text}</div>`;
-      return`<div class="msg ${me?'me':'th'}">${content}<div class="mt">${ta(m.createdAt)}</div></div>`;}).join('');
-    el.scrollTop=el.scrollHeight;
-  });
-  sendNotif(uid,'chat',U.displayName+' ផ្ញើ Message 💬',U.id);
+  db.ref('chats/'+key+'/msgs').on('value',snap=>{renderMsgs(snap.val(),key);});
 }
-function closeCW(){document.getElementById('cw').classList.remove('op');if(curChat){const key=[U.id,curChat].sort().join('_');db.ref('chats/'+key+'/msgs').off();}curChat=null;}
-function playV(url,btn){
+function renderMsgs(data,key){
+  const el=document.getElementById('msgs');if(!el)return;
+  if(!data){el.innerHTML='<div style="text-align:center;color:var(--t2);padding:36px;font-size:14px">👋 ពេក្យ ជំរាបសួរ!</div>';return;}
+  const msgs=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>a.createdAt-b.createdAt);
+  el.innerHTML=msgs.map(m=>{
+    const me=m.from===U.id;
+    // Build reactions display
+    const reacts=m.reactions||{};const rSum={};
+    Object.entries(reacts).forEach(([uid,e])=>{rSum[e]=(rSum[e]||0)+1;});
+    const reactRow=Object.keys(rSum).length?`<div class="react-row">${Object.entries(rSum).map(([e,n])=>`<span class="rbadge ${reacts[U.id]===e?'mine':''}" onclick="toggleReact('${key}','${m.id}','${e}')">${e} ${n}</span>`).join('')}</div>`:'';
+    // Message content
+    let content='';
+    if(m.type==='img')content=`<img src="${m.data}" class="msg-img" onclick="window.open(this.src)">`;
+    else if(m.type==='voice')content=voiceBubbleH(m,me);
+    else{
+      let txt=m.text||'';
+      if(m.replyText)txt=`<div style="background:rgba(255,255,255,.1);border-left:3px solid ${me?'rgba(255,255,255,.5)':'var(--g)'};padding:4px 8px;border-radius:4px;margin-bottom:5px;font-size:12px;opacity:.8">${m.replyText}</div>`+txt;
+      content=`<span>${txt}</span><span class="btime">${ta(m.createdAt)}</span>`;
+    }
+    return`<div class="mwrap ${me?'me':'th'}" id="msg-${m.id}"
+      ontouchstart="startLongPress(event,'${key}','${m.id}')"
+      ontouchend="endLongPress()"
+      ontouchmove="endLongPress()"
+      oncontextmenu="showReactPopup(event,'${key}','${m.id}');return false">
+      <div class="bubble">${content}</div>
+      ${reactRow}
+    </div>`;
+  }).join('');
+  el.scrollTop=el.scrollHeight;
+}
+// Voice bubble — Telegram style
+function voiceBubbleH(m,isMe){
+  const hArr=[30,55,80,65,90,70,45,60,35,50,75,50,40,70,55];
+  return`<div class="vbubble">
+    <button class="vplay" onclick="playVMsg('${m.data}',this)">▶</button>
+    <div class="vwave">${hArr.map(h=>`<div class="vbar" style="height:${h}%"></div>`).join('')}</div>
+    <span class="vdur">${m.dur||0}s</span>
+  </div>`;
+}
+function playVMsg(url,btn){
   const audio=new Audio(url);
-  if(btn){btn.textContent='⏸';btn.style.background='var(--red)';}
-  audio.play();
-  audio.onended=()=>{if(btn){btn.textContent='▶';btn.style.background='';}};
-  audio.onerror=()=>{toast('❌ Play ខុស','err');if(btn){btn.textContent='▶';}};
+  btn.textContent='⏸';
+  audio.play().catch(()=>{toast('❌ Error','err');btn.textContent='▶';});
+  audio.onended=()=>btn.textContent='▶';
+  audio.onerror=()=>{toast('❌','err');btn.textContent='▶';};
 }
+// Reactions — Telegram long-press
+function startLongPress(e,key,mid){longPressTimer=setTimeout(()=>showReactPopup(e,key,mid),500);}
+function endLongPress(){clearTimeout(longPressTimer);}
+function showReactPopup(e,key,mid){
+  e.preventDefault?.();
+  document.querySelectorAll('.react-popup').forEach(r=>r.remove());
+  const wrap=document.getElementById('msg-'+mid);if(!wrap)return;
+  const bar=document.createElement('div');bar.className='react-popup';
+  bar.innerHTML=EMOJIS.map(em=>`<span class="react-em" onclick="toggleReact('${key}','${mid}','${em}');this.closest('.react-popup').remove()">${em}</span>`).join('');
+  wrap.style.position='relative';wrap.appendChild(bar);
+  setTimeout(()=>document.addEventListener('touchstart',()=>bar.remove(),{once:true,passive:true}),150);
+}
+async function toggleReact(key,mid,emoji){
+  const cur=await FG('chats/'+key+'/msgs/'+mid+'/reactions')||{};
+  if(cur[U.id]===emoji)await FD('chats/'+key+'/msgs/'+mid+'/reactions/'+U.id);
+  else await FS('chats/'+key+'/msgs/'+mid+'/reactions/'+U.id,emoji);
+}
+function closeCW(){
+  document.getElementById('cw').classList.remove('op');
+  if(curChat){const key=[U.id,curChat].sort().join('_');db.ref('chats/'+key+'/msgs').off();}
+  curChat=null;cancelReply();
+}
+function cancelReply(){replyId=null;replyText=null;replyFrom=null;document.getElementById('reply-bar').classList.remove('show');}
 async function sendMsg(){
   const txt=document.getElementById('ci').value.trim();if(!txt||!curChat)return;
   const key=[U.id,curChat].sort().join('_');
-  await FP('chats/'+key+'/msgs',{from:U.id,text:txt,type:'text',createdAt:Date.now()});
+  const msg={from:U.id,text:txt,type:'text',createdAt:Date.now()};
+  if(replyId){msg.replyId=replyId;msg.replyText=replyText;}
+  await FP('chats/'+key+'/msgs',msg);
   await FS('chats/'+key+'/last',{text:txt,time:Date.now(),from:U.id});
-  document.getElementById('ci').value='';
+  document.getElementById('ci').value='';document.getElementById('ci').style.height='auto';cancelReply();
+  sendNotif(curChat,'chat',U.displayName+': '+txt.slice(0,40),U.id);
 }
-async function sendPhoto(input){
+async function sendCWPhoto(input){
   const f=input.files[0];if(!f||!curChat)return;
-  if(f.size>3*1024*1024){toast('⚠️ Photo <3MB','err');return;}
+  if(f.size>5*1024*1024){toast('⚠️ <5MB','err');return;}
   const b=await toB64(f);const key=[U.id,curChat].sort().join('_');
   await FP('chats/'+key+'/msgs',{from:U.id,type:'img',data:b,createdAt:Date.now()});
   await FS('chats/'+key+'/last',{text:'📷 Photo',time:Date.now(),from:U.id});
   input.value='';toast('📷 ផ្ញើ!','ok');
 }
+// Voice recording — Telegram style
 async function toggleVoice(){
-  if(isRec){mr?.stop();isRec=false;document.getElementById('vbtn').textContent='🎤';document.getElementById('vbtn').style.color='';}
-  else{
-    try{const s=await navigator.mediaDevices.getUserMedia({audio:true});recChunks=[];mr=new MediaRecorder(s);
-    mr.ondataavailable=e=>recChunks.push(e.data);
-    const t0=Date.now();
-    mr.onstop=async()=>{const b=new Blob(recChunks,{type:'audio/webm'});if(b.size>1*1024*1024){toast('⚠️ Voice <1MB','err');return;}const d=await toB64(b);const key=[U.id,curChat].sort().join('_');const dur=Math.round((Date.now()-t0)/1000);await FP('chats/'+key+'/msgs',{from:U.id,type:'voice',data:d,dur,createdAt:Date.now()});await FS('chats/'+key+'/last',{text:'🎤 Voice',time:Date.now(),from:U.id});s.getTracks().forEach(t=>t.stop());};
-    mr.start();isRec=true;document.getElementById('vbtn').textContent='⏹';document.getElementById('vbtn').style.color='var(--red)';toast('🔴 Recording...','inf');
-    }catch(e){toast('❌ Mic access denied','err');}
+  const btn=document.getElementById('send-btn-main');
+  if(isRec){
+    mr?.stop();isRec=false;
+    document.getElementById('vbtn').textContent='🎤';
+    document.getElementById('vbtn').style.color='';
+    btn.classList.remove('rec-btn');
+  } else {
+    try{
+      const s=await navigator.mediaDevices.getUserMedia({audio:true});
+      recChunks=[];mr=new MediaRecorder(s);recStart=Date.now();
+      mr.ondataavailable=e=>recChunks.push(e.data);
+      mr.onstop=async()=>{
+        const blob=new Blob(recChunks,{type:'audio/webm'});
+        if(blob.size>3*1024*1024){toast('⚠️ <3MB','err');return;}
+        const b64=await toB64(blob);const key=[U.id,curChat].sort().join('_');
+        const dur=Math.round((Date.now()-recStart)/1000);
+        await FP('chats/'+key+'/msgs',{from:U.id,type:'voice',data:b64,dur,createdAt:Date.now()});
+        await FS('chats/'+key+'/last',{text:'🎤 Voice',time:Date.now(),from:U.id});
+        s.getTracks().forEach(t=>t.stop());
+      };
+      mr.start();isRec=true;
+      document.getElementById('vbtn').textContent='⏹';
+      document.getElementById('vbtn').style.color='var(--red)';
+      btn.classList.add('rec-btn');
+      toast('🔴 Recording...','inf');
+    }catch(e){toast('❌ Mic denied','err');}
   }
 }
 
-// ═══════════════════════════ NOTIFICATIONS ═══════════════════════════
-async function sendNotif(toUid,type,text,fromUid,refId=''){
-  if(!toUid||toUid===U.id)return;
-  await FP('notifications/'+toUid,{type,text,fromUid:fromUid||null,refId:refId||null,read:false,createdAt:Date.now()});
-}
-async function loadNotifs(){
-  db.ref('notifications/'+U.id).orderByChild('createdAt').limitToLast(50).on('value',snap=>{
-    const data=snap.val();const el=document.getElementById('notif-list');
-    if(!data){el.innerHTML='<div class="empty"><div class="empty-ic">🔔</div><div class="empty-h">គ្មានការជូនដំណឹង</div></div>';return;}
-    const icons={like:'❤️',follow:'👥',comment:'💬',chat:'💬',star:'⭐',milestone:'🎉',repost:'🔁'};
-    const colors={like:'rgba(255,75,110,.15)',follow:'rgba(0,195,122,.15)',comment:'rgba(75,139,255,.15)',chat:'rgba(139,92,246,.15)',star:'rgba(245,200,66,.15)',milestone:'rgba(255,125,64,.15)',repost:'rgba(0,207,255,.15)'};
-    const ns=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
-    el.innerHTML=ns.map(n=>`<div class="ni-item ${n.read?'':'unrd'}" onclick="clickNotif('${n.id}','${n.type}','${n.refId||''}','${n.fromUid||''}')">
-      <div style="width:44px;height:44px;border-radius:50%;background:${colors[n.type]||'rgba(255,255,255,.08)'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${icons[n.type]||'🔔'}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;line-height:1.5;margin-bottom:2px">${n.text}</div>
-        <div style="font-size:11px;color:var(--t3)">${ta(n.createdAt)}</div>
-      </div>
-      ${!n.read?'<div style="width:8px;height:8px;border-radius:50%;background:var(--g);flex-shrink:0"></div>':''}
-    </div>`).join('');
-  });
-}
-async function clickNotif(id,type,refId,fromUid){
-  await FU('notifications/'+U.id+'/'+id,{read:true});
-  // Navigate based on type
-  if(type==='like'||type==='comment'||type==='repost'){
-    if(refId){nav('home');setTimeout(()=>{const el=document.getElementById('pc-'+refId);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},300);}
-  } else if(type==='follow'||type==='star'){
-    if(fromUid)viewProf(fromUid);
-  } else if(type==='chat'){
-    if(fromUid){const u=AU[fromUid];if(u){nav('chat');setTimeout(()=>openCW(fromUid,u.displayName||'User',u.color||'#00C37A'),300);}}
-  }
-}
-async function readN(id){await FU('notifications/'+U.id+'/'+id,{read:true});}
-async function markAllRead(){const d=await FG('notifications/'+U.id);if(!d)return;const u={};Object.keys(d).forEach(k=>{u[k+'/read']=true;});await FU('notifications/'+U.id,u);}
-
-// ═══════════════════════════ PROFILE ═══════════════════════════
+// ══════════════════════════════════════════════
+// PROFILE — Facebook style
+// ══════════════════════════════════════════════
 async function renderMyProf(){
   const me=AU[U.id]||U;U={...U,...me};document.getElementById('tp-n').textContent=Math.floor(U.points||0);
-  const s=await db.ref('posts').orderByChild('userId').equalTo(U.id).once('value');
-  const pd=s.val()||{};const posts=Object.entries(pd).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt).slice(0,12);
-  document.getElementById('prof-c').innerHTML=profH({...U,id:U.id},posts,true);
+  const snap=await db.ref('posts').orderByChild('userId').equalTo(U.id).once('value');
+  const pd=snap.val()||{};const posts=Object.entries(pd).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+  const won=posts.filter(p=>p.status==='won').length;const settled=posts.filter(p=>p.status==='won'||p.status==='lost').length;
+  const wr=settled>0?Math.round((won/settled)*100):null;
+  document.getElementById('prof-c').innerHTML=profH({...U,id:U.id},posts,true,wr,won,settled);
 }
 async function viewProf(uid){
-  if(!uid||uid==='undefined')return;const u=AU[uid];if(!u)return;
-  const s=await db.ref('posts').orderByChild('userId').equalTo(uid).once('value');
-  const pd=s.val()||{};const posts=Object.entries(pd).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt).slice(0,12);
+  if(!uid||uid==='undefined')return;
+  const u=AU[uid];if(!u)return;
+  const po=document.getElementById('po');
   document.getElementById('po-t').textContent=u.displayName;
-  document.getElementById('po-c').innerHTML=profH({...u,id:uid},posts,false);
-  document.getElementById('po').classList.add('op');
+  document.getElementById('po-more').onclick=()=>{
+    document.getElementById('menu-items').innerHTML=`<div class="mitem" onclick="togFollow('${uid}','${u.displayName}',{classList:{contains:()=>(U.followingList||{})[uid],toggle:()=>{},add:()=>{},remove:()=>{}}});closeSheet('menu-ov')">👥 ${(U.followingList||{})[uid]?'Unfollow':'Follow'}</div>
+    <div class="mitem" onclick="openStar('${uid}');closeSheet('menu-ov')">⭐ ផ្ដល់ Stars</div>
+    <div class="mitem danger" onclick="toast('🚩 Report sent','ok');closeSheet('menu-ov')">🚩 Report</div>`;
+    openSheet('menu-ov');
+  };
+  po.classList.add('op');
+  const scroll=document.getElementById('po-scroll');
+  scroll.innerHTML='<div style="text-align:center;padding:40px"><span class="spin"></span></div>';
+  const snap=await db.ref('posts').orderByChild('userId').equalTo(uid).once('value');
+  const pd=snap.val()||{};const posts=Object.entries(pd).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+  const won=posts.filter(p=>p.status==='won').length;const settled=posts.filter(p=>p.status==='won'||p.status==='lost').length;
+  const wr=settled>0?Math.round((won/settled)*100):null;
+  scroll.innerHTML=profH({...u,id:uid},posts,false,wr,won,settled);
 }
 function closePO(){document.getElementById('po').classList.remove('op');}
 
-function profH(u,posts,isMe){
+function profH(u,posts,isMe,wr,won,settled){
+  const isFol=(U.followingList||{})[u.id];const ver=isVer(u);
+  const wrC=wr!=null?(wr>=70?'#1D9E75':wr>=50?'#BA7517':'#D85A30'):'var(--t2)';
+  const wrBadge=wr!=null?`<div style="display:inline-flex;align-items:center;gap:5px;background:${wrC}18;color:${wrC};border:1px solid ${wrC}30;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:8px">${wr>=70?'🔥':wr>=50?'⚡':'📉'} ${wr}% Win Rate · ${won}W/${settled}</div>`:'';
   const ref='https://t.me/'+BOT+'?start=ref_'+u.username;
-  const isFol=(U.followingList||{})[u.id];const f=u.followers||0;
-  const ver=isVerified(u);const d2x=ver&&!u.isAdmin;
-  const si=f>=50,grp=f>=100;
-  // Calculate win rate from posts
-  const wonPosts=posts.filter(p=>p.status==='won').length;
-  const settledPosts=posts.filter(p=>p.status==='won'||p.status==='lost').length;
-  const winRate=settledPosts>0?Math.round((wonPosts/settledPosts)*100):null;
-  const winRateColor=winRate>=70?'#1D9E75':winRate>=50?'#BA7517':'#D85A30';
-  const winRateBadge=winRate!==null?`<span style="display:inline-flex;align-items:center;gap:4px;background:${winRateColor}18;color:${winRateColor};border:1px solid ${winRateColor}30;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">${winRate>=70?'🔥':winRate>=50?'⚡':'📉'} ${winRate}% Win Rate</span>`:'';
   return`<div class="phero">
     <div class="pav-wrap" ${isMe?'onclick="changeAv()"':''}>
-      <div class="pav" style="background:${u.color}22;color:${u.color}">${u.avUrl?`<img src="${u.avUrl}">`:`<span style="font-size:30px">${u.avatar}</span>`}</div>
+      <div class="pav" style="background:${u.color}22;color:${u.color}">${u.avUrl?`<img src="${u.avUrl}">`:`<span style="font-size:32px">${u.avatar||'⚽'}</span>`}</div>
       ${isMe?'<div class="pav-ed">✏️</div>':''}
     </div>
-    <div class="pn">${u.displayName}${ver?'<span class="btick">✓</span>':''}</div>
-    ${u.isAdmin?'<div style="font-size:11px;color:rgba(29,161,242,.38);letter-spacing:.5px;font-weight:600;margin-bottom:4px">CEO FootTips</div>':''}
-    ${d2x?'<div style="font-size:10px;color:var(--gold);margin-bottom:4px">⚡ 2x Points Active</div>':''}
-    <div class="ph">@${u.username}${u.tgId?' · ✈️':''}</div>
-    <div class="pbio">${u.bio||''}</div>
-    ${u.avgStars?`<div style="font-size:13px;color:var(--gold);margin-bottom:6px">⭐ ${u.avgStars} (${u.starCount||0} reviews)</div>`:''}
-    ${winRateBadge?`<div style="margin-bottom:10px">${winRateBadge}</div>`:''}
-    ${settledPosts>0?`<div style="font-size:11px;color:var(--t2);margin-bottom:10px">${wonPosts}W · ${settledPosts-wonPosts}L · ${settledPosts} settled tips</div>`:''}
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px">
+    <div class="pname">${u.displayName}${ver?'<span class="btick">✓</span>':''}</div>
+    ${u.isAdmin?'<div style="font-size:11px;color:rgba(29,161,242,.38);font-weight:600;margin-bottom:4px">CEO FootTips</div>':''}
+    ${ver&&!u.isAdmin?'<div style="font-size:10px;color:var(--gold);margin-bottom:4px">⚡ 2x Points</div>':''}
+    <div style="font-size:12px;color:var(--t2);margin-bottom:6px">@${u.username}</div>
+    ${wrBadge}
+    ${u.bio?`<div style="font-size:13px;color:var(--t2);margin-bottom:10px">${u.bio}</div>`:''}
+    ${u.avgStars?`<div style="font-size:13px;color:var(--gold);margin-bottom:8px">⭐ ${u.avgStars} (${u.starCount||0})</div>`:''}
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
       ${isMe?`
-        <button class="btn-o" style="width:auto;padding:7px 14px;font-size:12px" onclick="openSets()">⚙️ ការកំណត់</button>
-        ${si?`<button class="btn-o" style="width:auto;padding:7px 14px;font-size:12px" onclick="showIns()">📊 Insights</button>`:''}
-        ${grp?`<button class="btn-o" style="width:auto;padding:7px 14px;font-size:12px" onclick="createGrp()">👥 Group</button>`:''}
+        <button class="btn-o" style="width:auto;padding:8px 16px;font-size:12px" onclick="openSets()">⚙️ ការកំណត់</button>
+        ${(u.followers||0)>=50?`<button class="btn-o" style="width:auto;padding:8px 16px;font-size:12px" onclick="showIns()">📊 Insights</button>`:''}
       `:`
-        <button class="btn ${isFol?'btn-o':''}" style="width:auto;padding:9px 20px;font-size:13px" onclick="togFollow('${u.id}','${u.displayName}',this)">${isFol?'Following':'+ Follow'}</button>
-        <button class="btn-o" style="width:auto;padding:9px 20px;font-size:13px" onclick="closePO();nav('chat');setTimeout(()=>openCW('${u.id}','${u.displayName}','${u.color}'),280)">💬 ឆាត</button>
-        <button class="btn-o" style="width:auto;padding:7px 12px;font-size:12px" onclick="openStar('${u.id}')">⭐ Stars</button>
+        <button class="${isFol?'btn-o':'btn'}" style="width:auto;padding:9px 22px;font-size:13px" id="fol-po-${u.id}" onclick="togFollow('${u.id}','${u.displayName}',this)">${isFol?'Following':'+ Follow'}</button>
+        <button class="btn-o" style="width:auto;padding:9px 22px;font-size:13px" onclick="closePO();nav('chat');setTimeout(()=>openCW('${u.id}','${u.displayName}','${u.color||'#00C37A'}'),280)">💬 ឆាត</button>
+        <button class="btn-o" style="width:auto;padding:8px 14px;font-size:12px" onclick="openStar('${u.id}')">⭐</button>
       `}
     </div>
   </div>
@@ -1327,177 +1405,213 @@ function profH(u,posts,isMe){
     <div class="ps"><div class="psn">${u.posts||0}</div><div class="psl">Posts</div></div>
     <div class="ps"><div class="psn" style="color:var(--gold)">${Math.floor(u.points||0)}</div><div class="psl">pts</div></div>
   </div>
-  ${isMe?`<div class="rc">
-    <div style="font-size:13px;font-weight:600;margin-bottom:4px">🔗 Link ណែនាំ (+30 pts)</div>
-    <div class="rl">${ref}</div>
-    <button class="btn-o" onclick="navigator.clipboard?.writeText('${ref}').then(()=>toast('📋 Copy!','ok'))">📋 Copy Link</button>
-  </div>`:''}
+  ${isMe?`<div class="rc"><div style="font-size:13px;font-weight:600;margin-bottom:4px">🔗 Link ណែនាំ (+30 pts)</div><div class="rl">${ref}</div><button class="btn-o" onclick="navigator.clipboard?.writeText('${ref}').then(()=>toast('📋 Copy!','ok'))">📋 Copy</button></div>`:''}
   <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase">📝 Posts</div>
-  ${posts.length?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:0 12px 12px">${posts.map(p=>`<div style="background:var(--card);border-radius:var(--rs);aspect-ratio:1;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;transition:transform .15s" onclick="openPostFull('${p.id}')" onmousedown="this.style.transform='scale(.97)'" onmouseup="this.style.transform='scale(1)'">
-    ${p.mediaUrl&&p.mediaType==='image'?`<img src="${p.mediaUrl}" style="width:100%;height:100%;object-fit:cover">`:p.mediaUrl&&p.mediaType==='video'?`<div style="width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;font-size:28px">▶</div>`:`<div style="padding:8px;font-size:11px;color:var(--t2);text-align:center;line-height:1.4">${(p.caption||p.prediction||'').slice(0,40)}</div>`}
-    <div style="position:absolute;bottom:4px;right:4px;font-size:10px;color:#fff;background:rgba(0,0,0,.5);padding:2px 5px;border-radius:8px">❤️${p.likes||0}</div>
-    ${isMe?`<div style="position:absolute;top:4px;left:4px;font-size:10px;color:#fff;background:rgba(0,0,0,.5);padding:2px 5px;border-radius:8px">👁${Object.keys(p.views||{}).length}</div>`:''}
-  </div>`).join('')}</div>`:'<div class="empty" style="padding:20px"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន Posts</div></div>'}`;
+  ${posts.length?`<div class="pgrid">${posts.map(p=>`<div class="pg-cell" onclick="openPostFull('${p.id}')">
+    ${p.mediaUrl&&p.mediaType==='image'?`<img src="${p.mediaUrl}" style="width:100%;height:100%;object-fit:cover">`:p.mediaUrl&&p.mediaType==='video'?`<video src="${p.mediaUrl}" style="width:100%;height:100%;object-fit:cover" preload="metadata"></video><div style="position:absolute;font-size:20px;color:#fff">▶</div>`:`<div style="padding:8px;font-size:11px;color:var(--t2);text-align:center;line-height:1.4">${(p.caption||p.prediction||'').slice(0,40)}</div>`}
+    <div style="position:absolute;bottom:4px;right:4px;font-size:10px;color:#fff;background:rgba(0,0,0,.5);padding:1px 5px;border-radius:8px">❤️${p.likes||0}</div>
+  </div>`).join('')}</div>`:'<div class="empty" style="padding:20px"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន</div></div>'}`;
 }
-
-// ═══════════════════════════ AVATAR CHANGE ═══════════════════════════
-function changeAv(){
-  const emojis='⭐🚀🎯💎🔥⚡🌟🎪🦁🐯🦊🐼🦅🎭🏆🎬🌙🎸🦋🍀'.split('');
-  document.getElementById('menu-items').innerHTML=`<div style="padding:4px 12px 8px;font-size:13px;font-weight:700">ជ្រើស Avatar</div>
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:0 12px 12px">${emojis.map(e=>`<div style="font-size:32px;cursor:pointer;padding:8px;border-radius:8px;text-align:center" onclick="setAv('${e}')">${e}</div>`).join('')}</div>
-  <div style="padding:0 12px 12px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--card);border:1px dashed var(--b2);border-radius:var(--rs);padding:12px;">
-    <span>📷</span><span style="font-size:13px;color:var(--t2)">Upload Photo</span>
-    <input type="file" accept="image/*" style="display:none" onchange="upAv(this)">
-  </label></div>`;
-  openSheet('menu-ov');
-}
-async function setAv(e){await FU('users/'+U.id,{avatar:e,avUrl:''});U.avatar=e;U.avUrl='';closeSheet('menu-ov');renderMyProf();toast('✅ Avatar ប្ដូរ!','ok');}
-async function upAv(input){
-  const f=input.files[0];if(!f)return;if(f.size>2*1024*1024){toast('⚠️ Photo <2MB','err');return;}
-  const b=await toB64(f);await FU('users/'+U.id,{avUrl:b});U.avUrl=b;closeSheet('menu-ov');renderMyProf();toast('✅ Photo ប្ដូរ!','ok');
-}
-
-// ═══════════════════════════ INSIGHTS ═══════════════════════════
-async function showIns(){
-  const s=await db.ref('posts').orderByChild('userId').equalTo(U.id).once('value');
-  const ps=s.val()?Object.values(s.val()):[];
-  const tv=ps.reduce((a,p)=>a+Object.keys(p.views||{}).length,0);
-  const tl=ps.reduce((a,p)=>a+(p.likes||0),0);const tc=ps.reduce((a,p)=>a+(p.comments||0),0);
-  document.getElementById('menu-items').innerHTML=`<div style="padding:4px 12px 8px;font-size:14px;font-weight:700">📊 Insights</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px 12px">
-    ${[['👁 Views',tv],['❤️ Likes',tl],['💬 Comments',tc],['📝 Posts',ps.length],['👥 Followers',U.followers||0],['⭐ Avg Stars',U.avgStars||'N/A']].map(([l,v])=>`<div style="background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:12px"><div style="font-size:24px;font-weight:700;color:var(--g)">${v}</div><div style="font-size:11px;color:var(--t2);margin-top:2px">${l}</div></div>`).join('')}
-  </div><div style="padding:0 12px 12px"><button class="btn-o" onclick="closeSheet('menu-ov')">បិទ</button></div>`;
-  openSheet('menu-ov');
-}
-
-// ═══════════════════════════ GROUP ═══════════════════════════
-async function createGrp(){const n=prompt('ឈ្មោះ Group:');if(!n?.trim())return;const ref=FP('groups',{name:n.trim(),ownerId:U.id,members:{[U.id]:true},createdAt:Date.now()});toast('👥 Group "'+n+'" បង្កើត!','ok');}
-
-// ═══════════════════════════ SEARCH ═══════════════════════════
-function openSearch(){document.getElementById('sov').classList.add('on');setTimeout(()=>document.getElementById('sinp').focus(),100);}
-function closeSearch(){document.getElementById('sov').classList.remove('on');}
-function doSearch(q){
-  if(!q.trim()){document.getElementById('sres').innerHTML='<div class="empty"><div class="empty-ic">🔍</div><div class="empty-h">ស្វែងរក</div></div>';return;}
-  const ql=q.toLowerCase();
-  const users=Object.entries(AU).filter(([k,v])=>v.displayName?.toLowerCase().includes(ql)||v.username?.toLowerCase().includes(ql)).map(([k,v])=>({...v,id:k}));
-  document.getElementById('sres').innerHTML=users.length?users.map(u=>`<div class="cli" onclick="closeSearch();viewProf('${u.id}')">
-    <div style="width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center">${avHTML(u,44)}</div>
-    <div style="flex:1"><div style="font-size:13px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:4px">${nameH(u)}</div>
-    <div style="font-size:12px;color:var(--t2)">@${u.username} · ${u.followers||0} followers</div></div></div>`).join('')
-    :'<div class="empty"><div class="empty-ic">🔍</div><div class="empty-h">រកមិនឃើញ</div></div>';
-}
-
-// ═══════════════════════════ WALLET (back button fix) ═══════════════════════════
-function showWallet(){
-  const me=AU[U.id]||U;const pts=Math.floor(me.points||0);
-  // Use overlay instead of page replace - fixes back button!
-  const old=document.getElementById('wallet-ov');if(old)old.remove();
-  const ov=document.createElement('div');ov.id='wallet-ov';
-  ov.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:85;overflow-y:auto;animation:ti .2s ease';
-  ov.innerHTML=`<div class="cwtb"><div class="bk" onclick="document.getElementById(\'wallet-ov\').remove()">←</div><div style="flex:1;font-size:14px;font-weight:700">💳 Wallet</div></div>
+async function openPostFull(pid){
+  const p=allPosts[pid]||await FG('posts/'+pid);if(!p)return;
+  const u=AU[p.userId]||{};const lk=(U.likedPosts||{})[pid];
+  const ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch';
+  ov.innerHTML=`<div style="position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--b);padding:10px 12px;display:flex;align-items:center;gap:10px;z-index:1">
+    <div style="font-size:22px;cursor:pointer" onclick="this.closest('div[style]').remove()">←</div>
+    <div style="flex:1;font-size:14px;font-weight:700">Post</div>
+    <div style="cursor:pointer;font-size:20px;color:var(--t3)" onclick="showPostMenu('${pid}','${p.userId}')">···</div>
+  </div>
+  <div style="padding:12px;display:flex;align-items:center;gap:10px">
+    <div class="av" style="width:42px;height:42px;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};cursor:pointer" onclick="this.closest('div[style]').remove();viewProf('${p.userId}')">${avHTML(u,42)}</div>
+    <div><div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px">${nameH(u)}</div><div style="font-size:12px;color:var(--t2)">${ta(p.createdAt)}</div></div>
+  </div>
+  ${p.mediaUrl&&p.mediaType==='image'?`<img src="${p.mediaUrl}" style="width:100%;object-fit:contain;background:#000;display:block">`:p.mediaUrl&&p.mediaType==='video'?`<video src="${p.mediaUrl}" controls autoplay playsinline style="width:100%;background:#000;display:block;max-height:65vh;object-fit:contain"></video>`:''}
   <div style="padding:12px">
-    <div style="background:linear-gradient(135deg,#00C37A,#0090CC);border-radius:var(--r);padding:20px;text-align:center;position:relative;overflow:hidden;margin-bottom:12px">
-      <div style="content:\'⚽\';position:absolute;right:-8px;bottom:-18px;font-size:85px;opacity:.1">⚽</div>
-      <div style="font-size:12px;color:rgba(0,0,0,.6);margin-bottom:4px">Points Balance</div>
-      <div style="font-size:38px;font-weight:700;color:#000">${pts}</div>
-      <div style="font-size:13px;color:rgba(0,0,0,.6);margin-top:3px">≈ $${(pts/250).toFixed(2)} USD</div>
+    ${p.caption?`<div style="font-size:15px;line-height:1.7;margin-bottom:10px">${p.caption}</div>`:''}
+    ${p.prediction?`<div style="margin-bottom:10px"><span class="t-pred">🎯 ${p.prediction}</span></div>`:''}
+    <div style="display:flex;gap:16px;padding:10px 0;border-top:1px solid var(--b);border-bottom:1px solid var(--b);margin-bottom:12px">
+      <span style="font-size:13px;font-weight:600">❤️ ${p.likes||0}</span>
+      <span style="font-size:13px;color:var(--t2)">💬 ${p.comments||0}</span>
+      <span style="font-size:13px;color:var(--t2)">👁 ${Object.keys(p.views||{}).length}</span>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <button style="flex:1;padding:11px;border-radius:var(--rs);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;background:var(--card);color:var(--t);border:1px solid var(--b2)" onclick="toast('📊 Coming soon!','inf')">📊 ប្រវត្តិ</button>
-      <button style="flex:1;padding:11px;border-radius:var(--rs);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;background:var(--g);color:#000;border:none" onclick="${pts>=500?`window.Telegram?.WebApp?.openTelegramLink?.('https://t.me/FootTipsSupport')||toast('📧 @FootTipsSupport','inf')`:`toast('⚠️ ត្រូវ 500+ pts','err')`}">💸 ដក</button>
-    </div>
-    <div style="background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:12px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:10px">🔄 អត្រាពិន្ទុ</div>
-      <div style="font-size:12px;color:var(--t2);line-height:2.2">
-        250pts = $1 USD<br>
-        ❤️ Like = +0.1pts (2x បើ Verified)<br>
-        💬 Comment = +0.2pts (2x បើ Verified)<br>
-        ↗️ Share = +0.25pts<br>
-        ✅ ទស្សន៍ទាយត្រូវ = +10pts<br>
-        👥 ណែនាំ = +30pts<br>
-        ⭐ Stars = +5pts<br>
-        Min ដក = 500pts ($2)
-      </div>
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--b);margin-bottom:12px">
+      <button class="pab ${lk?'lk':''}" id="lkb-${pid}" onclick="togLike('${pid}','${p.userId}',this)"><span>${lk?'❤️':'🤍'}</span><span> Like</span></button>
+      <button class="pab" onclick="openCmt('${pid}')"><span>💬</span><span> Comment</span></button>
+      <button class="pab" onclick="doShare('${pid}','')"><span>↗️</span><span> Share</span></button>
     </div>
   </div>`;
   document.body.appendChild(ov);
 }
 
-// ═══════════════════════════ SETTINGS ═══════════════════════════
+// ══════════════════════════════════════════════
+// AVATAR + CROP — Facebook style
+// ══════════════════════════════════════════════
+function changeAv(){
+  document.getElementById('menu-items').innerHTML=`
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:12px">${'⭐🚀🎯💎🔥⚡🌟🎪🦁🐯🦊🐼🦅🎭🏆🎬🌙🎸🦋🍀'.split('').map(e=>`<div style="font-size:30px;cursor:pointer;padding:8px;border-radius:8px;text-align:center;background:var(--card)" onclick="setAv('${e}')">${e}</div>`).join('')}</div>
+  <div style="padding:0 12px 12px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--card);border:1px dashed var(--b2);border-radius:var(--rs);padding:12px">
+    <span style="font-size:18px">📷</span><span style="font-size:13px;color:var(--t2)">Upload & Crop Photo (ដូច Facebook)</span>
+    <input type="file" accept="image/*" style="display:none" onchange="startCrop(this)">
+  </label></div>`;
+  openSheet('menu-ov');
+}
+async function setAv(e){await FU('users/'+U.id,{avatar:e,avUrl:''});U.avatar=e;U.avUrl='';closeSheet('menu-ov');renderMyProf();toast('✅ Avatar ប្ដូរ!','ok');}
+function startCrop(inp){
+  const f=inp.files[0];if(!f)return;closeSheet('menu-ov');
+  const rd=new FileReader();
+  rd.onload=e=>{
+    const img=document.getElementById('crop-img');
+    img.src=e.target.result;
+    img.onload=()=>{cropOffX=0;cropOffY=0;cropScale=1;applyXform();document.getElementById('crop-ov').classList.add('on');};
+  };rd.readAsDataURL(f);
+}
+function applyXform(){const img=document.getElementById('crop-img');if(img)img.style.transform=`translate(${cropOffX}px,${cropOffY}px) scale(${cropScale})`;}
+function cancelCrop(){document.getElementById('crop-ov').classList.remove('on');}
+async function applyCrop(){
+  const img=document.getElementById('crop-img');if(!img)return;
+  const SZ=300;const c=document.createElement('canvas');c.width=SZ;c.height=SZ;
+  const ctx=c.getContext('2d');
+  ctx.beginPath();ctx.arc(SZ/2,SZ/2,SZ/2,0,Math.PI*2);ctx.clip();
+  const area=document.getElementById('crop-area');const ar=area.getBoundingClientRect();
+  const ir=img.getBoundingClientRect();
+  const R=110;
+  const cx=ar.left+ar.width/2,cy=ar.top+ar.height/2;
+  const sx=(cx-R-ir.left)/cropScale,sy=(cy-R-ir.top)/cropScale;
+  const sw=R*2/cropScale,sh=R*2/cropScale;
+  ctx.drawImage(img,Math.max(0,sx),Math.max(0,sy),Math.max(1,sw),Math.max(1,sh),0,0,SZ,SZ);
+  const b64=c.toDataURL('image/jpeg',.88);
+  await FU('users/'+U.id,{avUrl:b64,avatar:''});U.avUrl=b64;
+  cancelCrop();renderMyProf();toast('✅ Photo ប្ដូរ!','ok');
+}
+// Crop touch handlers
+(()=>{
+  const area=()=>document.getElementById('crop-area');
+  document.addEventListener('touchstart',e=>{
+    if(!document.getElementById('crop-ov').classList.contains('on'))return;
+    if(e.touches.length===1){cDrag=true;cLX=e.touches[0].clientX;cLY=e.touches[0].clientY;}
+    if(e.touches.length===2)cDist0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!document.getElementById('crop-ov').classList.contains('on'))return;
+    if(e.touches.length===1&&cDrag){cropOffX+=e.touches[0].clientX-cLX;cropOffY+=e.touches[0].clientY-cLY;cLX=e.touches[0].clientX;cLY=e.touches[0].clientY;applyXform();}
+    if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);cropScale=Math.max(.5,Math.min(5,cropScale*(d/cDist0)));cDist0=d;applyXform();}
+  },{passive:true});
+  document.addEventListener('touchend',()=>{cDrag=false;},{passive:true});
+})();
+
+// ══════════════════════════════════════════════
+// WIN RATE
+// ══════════════════════════════════════════════
+async function calcWR(uid){
+  const s=await db.ref('posts').orderByChild('userId').equalTo(uid).once('value');
+  const posts=s.val()?Object.values(s.val()):[];
+  const won=posts.filter(p=>p.status==='won').length;const settled=posts.filter(p=>p.status==='won'||p.status==='lost').length;
+  const rate=settled>0?Math.round((won/settled)*100):null;
+  if(settled>0)await FU('users/'+uid,{winRate:rate,wonTips:won,settledTips:settled});return rate;
+}
+async function syncWR(){const ids=Object.keys(AU||{}).slice(0,20);for(const id of ids)await calcWR(id);}
+
+// ══════════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════════
+async function loadNotifs(){
+  db.ref('notifications/'+U.id).orderByChild('createdAt').limitToLast(50).on('value',snap=>{
+    const data=snap.val();const el=document.getElementById('notif-list');
+    if(!data){el.innerHTML='<div class="empty"><div class="empty-ic">🔔</div><div class="empty-h">គ្មានការជូនដំណឹង</div></div>';return;}
+    const icons={like:'❤️',follow:'👥',comment:'💬',chat:'💬',star:'⭐',milestone:'🎉',repost:'🔁'};
+    const ns=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+    el.innerHTML=ns.map(n=>`<div style="display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--b);cursor:pointer;${n.read?'':'background:rgba(0,195,122,.04)'}" onclick="clickNotif('${n.id}','${n.type||''}','${n.refId||''}','${n.fromUid||''}')">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${icons[n.type]||'🔔'}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:13px;line-height:1.5">${n.text}</div><div style="font-size:11px;color:var(--t3);margin-top:2px">${ta(n.createdAt)}</div></div>
+      ${!n.read?'<div style="width:8px;height:8px;border-radius:50%;background:var(--g);flex-shrink:0"></div>':''}
+    </div>`).join('');
+  });
+}
+async function clickNotif(id,type,refId,fromUid){
+  await FU('notifications/'+U.id+'/'+id,{read:true});
+  if((type==='like'||type==='comment')&&refId){nav('home');setTimeout(()=>document.getElementById('pc-'+refId)?.scrollIntoView({behavior:'smooth',block:'center'}),400);}
+  else if((type==='follow'||type==='star')&&fromUid)viewProf(fromUid);
+  else if(type==='chat'&&fromUid){const u=AU[fromUid];if(u){nav('chat');setTimeout(()=>openCW(fromUid,u.displayName||'User',u.color||'#00C37A'),300);}}
+}
+async function markAllRead(){const d=await FG('notifications/'+U.id);if(!d)return;const u={};Object.keys(d).forEach(k=>u[k+'/read']=true);await FU('notifications/'+U.id,u);}
+
+// ══════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════
 function openSets(){
   const me=AU[U.id]||U;const f=me.followers||0;
   document.getElementById('set-c').innerHTML=`
-    <div class="set-s"><div class="set-title">Profile</div><div class="set-card">
-      <div class="sr"><span class="si">${me.avatar}</span><span class="sl">${me.displayName}</span><span class="sv">@${me.username}</span></div>
-      ${me.tgId?'<div class="sr"><span class="si">✈️</span><span class="sl">Telegram</span><span class="sv">✅ Connected</span></div>':''}
-      <div class="sr" onclick="changeAv()"><span class="si">🖼️</span><span class="sl">ប្ដូរ Avatar/Photo</span><span class="sv">→</span></div>
-      <div class="sr" onclick="chgName()"><span class="si">✏️</span><span class="sl">ប្ដូរឈ្មោះ</span><span class="sv">→</span></div>
-      <div class="sr" onclick="chgBio()"><span class="si">📝</span><span class="sl">ប្ដូរ Bio</span><span class="sv">→</span></div>
-    </div></div>
-    ${f>=50||f>=100?`<div class="set-s"><div class="set-title">Features</div><div class="set-card">
-      ${f>=50?'<div class="sr" onclick="closeSets();showIns()"><span class="si">📊</span><span class="sl">Insights</span><span class="sv">→</span></div>':''}
-      ${f>=100?'<div class="sr" onclick="createGrp()"><span class="si">👥</span><span class="sl">Create Group</span><span class="sv">→</span></div>':''}
-    </div></div>`:''}
-    <div class="set-s"><div class="set-title">More</div><div class="set-card">
-      <div class="sr" onclick="closeSets();nav('notif')"><span class="si">🔔</span><span class="sl">ការជូនដំណឹង</span><span class="sv">→</span></div>
-      <div class="sr" onclick="doLogout()" style="color:var(--red)"><span class="si">🚪</span><span class="sl" style="color:var(--red)">ចេញ</span><span class="sv" style="color:var(--red)">→</span></div>
-    </div></div>`;
+  <div class="set-s"><div class="set-title">Profile</div><div class="set-card">
+    <div class="sr"><span class="si">${me.avUrl?'📷':me.avatar||'⚽'}</span><span class="sl">${me.displayName}</span><span class="sv">@${me.username}</span></div>
+    <div class="sr" onclick="changeAv();document.getElementById('set-dr').style.transform=''"><span class="si">🖼️</span><span class="sl">ប្ដូរ Avatar/Photo</span><span class="sv">→</span></div>
+    <div class="sr" onclick="chgName()"><span class="si">✏️</span><span class="sl">ប្ដូរឈ្មោះ</span><span class="sv">→</span></div>
+    <div class="sr" onclick="chgBio()"><span class="si">📝</span><span class="sl">ប្ដូរ Bio</span><span class="sv">→</span></div>
+  </div></div>
+  ${f>=50?`<div class="set-s"><div class="set-title">Features</div><div class="set-card">
+    <div class="sr" onclick="closeSets();showIns()"><span class="si">📊</span><span class="sl">Insights</span><span class="sv">→</span></div>
+    ${f>=100?'<div class="sr" onclick="createGrp()"><span class="si">👥</span><span class="sl">Create Group</span><span class="sv">→</span></div>':''}
+  </div></div>`:''}
+  <div class="set-s"><div class="set-card">
+    <div class="sr" onclick="closeSets();nav('notif')"><span class="si">🔔</span><span class="sl">ការជូនដំណឹង</span><span class="sv">→</span></div>
+    <div class="sr" onclick="doLogout()" style="color:var(--red)"><span class="si">🚪</span><span class="sl" style="color:var(--red)">ចេញ</span><span class="sv" style="color:var(--red)">→</span></div>
+  </div></div>`;
   document.getElementById('set-dr').style.transform='translateX(0)';
 }
 function closeSets(){document.getElementById('set-dr').style.transform='';}
-async function chgName(){const n=prompt('ឈ្មោះថ្មី:',U.displayName);if(!n?.trim())return;await FU('users/'+U.id,{displayName:n.trim()});U.displayName=n.trim();toast('✅','ok');renderMyProf();openSets();}
-async function chgBio(){const b=prompt('Bio:',U.bio||'');if(b===null)return;await FU('users/'+U.id,{bio:b.trim()});U.bio=b.trim();toast('✅','ok');renderMyProf();openSets();}
-// Full post viewer
-async function openPostFull(pid){
-  const p=allPostsData[pid]||await FG('posts/'+pid);if(!p)return;
-  const u=AU[p.userId]||{};const ml=U.likedPosts||{};const lk=ml[pid]===true;
-  const ov=document.createElement('div');ov.id='post-full-ov';
-  ov.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;animation:slideUp .25s ease';
-  const st=p.status==='won'?'<span class="pill p-g">✅ Won</span>':p.status==='lost'?'<span class="pill p-r">❌ Lost</span>':p.prediction?'<span class="pill" style="background:var(--bg3);color:var(--t2);border:1px solid var(--b)">⏳</span>':'';
-  ov.innerHTML=`
-    <style>@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}</style>
-    <div style="position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--b);padding:10px 14px;display:flex;align-items:center;gap:10px;z-index:1">
-      <div style="font-size:20px;cursor:pointer" onclick="document.getElementById('post-full-ov')?.remove()">←</div>
-      <div style="flex:1;font-size:14px;font-weight:700">Post</div>
-      <div style="font-size:20px;cursor:pointer" onclick="showPostMenu('${pid}','${p.userId}')">···</div>
+async function chgName(){const n=prompt('ឈ្មោះថ្មី:',U.displayName);if(!n?.trim())return;await FU('users/'+U.id,{displayName:n.trim()});U.displayName=n.trim();toast('✅','ok');renderMyProf();}
+async function chgBio(){const b=prompt('Bio:',U.bio||'');if(b===null)return;await FU('users/'+U.id,{bio:b.trim()});U.bio=b.trim();toast('✅','ok');renderMyProf();}
+function doLogout(){if(!confirm('ចេញ?'))return;ls.s('uid',null);db.goOffline();location.reload();}
+async function showIns(){
+  const s=await db.ref('posts').orderByChild('userId').equalTo(U.id).once('value');
+  const ps=s.val()?Object.values(s.val()):[];
+  const tv=ps.reduce((a,p)=>a+Object.keys(p.views||{}).length,0);
+  document.getElementById('menu-items').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px">${[['👁 Views',tv],['❤️ Likes',ps.reduce((a,p)=>a+(p.likes||0),0)],['💬 Comments',ps.reduce((a,p)=>a+(p.comments||0),0)],['📝 Posts',ps.length],['👥 Followers',U.followers||0],['⭐ Stars',U.avgStars||'N/A']].map(([l,v])=>`<div style="background:var(--card);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--g)">${v}</div><div style="font-size:11px;color:var(--t2);margin-top:2px">${l}</div></div>`).join('')}</div>
+  <div style="padding:0 12px 12px"><button class="btn-o" onclick="closeSheet('menu-ov')">បិទ</button></div>`;
+  openSheet('menu-ov');
+}
+async function createGrp(){const n=prompt('ឈ្មោះ Group:');if(!n?.trim())return;await FP('groups',{name:n.trim(),ownerId:U.id,members:{[U.id]:true},createdAt:Date.now()});toast('👥 Group "'+n+'" បង្កើត!','ok');}
+
+// ══════════════════════════════════════════════
+// WALLET
+// ══════════════════════════════════════════════
+function showWallet(){
+  const pts=Math.floor((AU[U.id]||U).points||0);
+  const old=document.getElementById('w-ov');if(old)old.remove();
+  const ov=document.createElement('div');ov.id='w-ov';ov.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:85;overflow-y:auto;';
+  ov.innerHTML=`<div class="cwtb"><div class="bk" onclick="document.getElementById('w-ov').remove()">←</div><div style="flex:1;font-size:14px;font-weight:700">💳 Wallet</div></div>
+  <div style="padding:12px">
+    <div style="background:linear-gradient(135deg,#00C37A,#0090CC);border-radius:var(--r);padding:22px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;bottom:-20px;font-size:90px;opacity:.08">⚽</div>
+      <div style="font-size:12px;color:rgba(0,0,0,.6);margin-bottom:4px">Balance</div>
+      <div style="font-size:42px;font-weight:700;color:#000">${pts}</div>
+      <div style="font-size:13px;color:rgba(0,0,0,.6);margin-top:3px">≈ $${(pts/250).toFixed(2)} USD</div>
     </div>
-    <div style="padding:12px;display:flex;align-items:center;gap:10px">
-      <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="viewProf('${p.userId}')">${avHTML(u,40)}</div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px">${nameH(u)}</div><div style="font-size:12px;color:var(--t2)">${ta(p.createdAt)}</div></div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button style="flex:1;padding:11px;border-radius:var(--rs);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;background:var(--card);color:var(--t);border:1px solid var(--b2)" onclick="toast('Coming soon!','inf')">📊 ប្រវត្តិ</button>
+      <button class="btn" style="flex:1;padding:11px" onclick="${pts>=500?`window.Telegram?.WebApp?.openTelegramLink?.('https://t.me/FootTipsSupport')||toast('📧 @FootTipsSupport','inf')`:`toast('⚠️ ត្រូវ 500+ pts','err')`}">💸 ដក</button>
     </div>
-    ${p.mediaUrl&&p.mediaType==='image'?`<img src="${p.mediaUrl}" style="width:100%;max-height:60vh;object-fit:contain;background:#000;display:block">`:
-      p.mediaUrl&&p.mediaType==='video'?`<video src="${p.mediaUrl}" controls autoplay playsinline style="width:100%;max-height:60vh;background:#000;display:block"></video>`:''}
-    <div style="padding:12px">
-      ${p.caption?`<div style="font-size:15px;line-height:1.7;margin-bottom:10px">${p.caption}</div>`:''}
-      ${p.prediction?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="display:inline-flex;align-items:center;gap:5px;background:var(--gg);color:var(--g);padding:5px 12px;border-radius:20px;font-size:13px;font-weight:600;border:1px solid rgba(0,195,122,.25)">🎯 ${p.prediction}${p.odds>1?' · Odds '+p.odds:''}</span>${st}</div>`:''}
-      <div style="display:flex;gap:16px;padding:10px 0;border-top:1px solid var(--b);border-bottom:1px solid var(--b);margin-bottom:12px">
-        <span style="font-size:13px;font-weight:600">❤️ ${p.likes||0} Likes</span>
-        <span style="font-size:13px;color:var(--t2)">💬 ${p.comments||0} Comments</span>
-        <span style="font-size:13px;color:var(--t2)">👁 ${Object.keys(p.views||{}).length} Views</span>
-      </div>
-      <div style="display:flex;gap:0;border-bottom:1px solid var(--b);margin-bottom:12px">
-        <button class="pab ${lk?'lk':''}" id="lkb-${pid}" onclick="togLike('${pid}','${p.userId}',this)"><span>${lk?'❤️':'🤍'}</span><span> Like</span></button>
-        <button class="pab" onclick="this.closest('#post-full-ov').remove();openCmt('${pid}')"><span>💬</span><span> Comment</span></button>
-        <button class="pab" onclick="sharePost('${pid}','${(p.caption||p.prediction||'').replace(/'/g,"\\'")}')"><span>↗️</span><span> Share</span></button>
-      </div>
-      <div id="full-cmts" style="font-size:13px;color:var(--t2);text-align:center;padding:8px"><span class="spin"></span></div>
-    </div>`;
+    <div style="background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:14px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px">🔄 Rate</div>
+      <div style="font-size:12px;color:var(--t2);line-height:2">250pts = $1 · ❤️=+0.1 · 💬=+0.2 · ✅=+10 · 👥=+30 · Min=500pts</div>
+    </div>
+  </div>`;
   document.body.appendChild(ov);
-  // Load comments inline
-  db.ref('comments/'+pid).once('value').then(snap=>{
-    const data=snap.val();const el=ov.querySelector('#full-cmts');
-    if(!data){el.textContent='មិនទាន់មានមតិ';return;}
-    const cmts=Object.entries(data).filter(([k])=>!k.startsWith('r_')).map(([k,v])=>({...v,id:k})).sort((a,b)=>a.createdAt-b.createdAt);
-    el.innerHTML=cmts.map(cm=>{const cu=AU[cm.userId]||{};return`<div style="display:flex;gap:8px;margin-bottom:12px">
-      <div style="width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;background:${cu.color||'#00C37A'}22;color:${cu.color||'#00C37A'};display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="viewProf('${cm.userId}')">${avHTML(cu,32)}</div>
-      <div style="flex:1;background:var(--bg3);padding:8px 10px;border-radius:var(--rs)">
-        <div style="font-size:12px;font-weight:600;color:var(--g);margin-bottom:3px;cursor:pointer" onclick="viewProf('${cm.userId}')">${cu.displayName||'User'}</div>
-        <div style="font-size:13px;line-height:1.5">${cm.text}</div>
-      </div></div>`;}).join('');
-  });
 }
 
-function doLogout(){if(!confirm('ចេញ?'))return;ls.s('uid',null);db.goOffline();location.reload();}
+// ══════════════════════════════════════════════
+// SEARCH
+// ══════════════════════════════════════════════
+function openSearch(){document.getElementById('sov').style.display='flex';setTimeout(()=>document.getElementById('sinp').focus(),100);}
+function closeSearch(){document.getElementById('sov').style.display='none';}
+function doSearch(q){
+  if(!q.trim()){document.getElementById('sres').innerHTML='<div class="empty"><div class="empty-ic">🔍</div><div class="empty-h">ស្វែងរក Users</div></div>';return;}
+  const ql=q.toLowerCase();
+  const users=Object.entries(AU).filter(([k,v])=>v.displayName?.toLowerCase().includes(ql)||v.username?.toLowerCase().includes(ql)).map(([k,v])=>({...v,id:k}));
+  document.getElementById('sres').innerHTML=users.length?users.map(u=>`<div class="cli" onclick="closeSearch();viewProf('${u.id}')">
+    <div class="av" style="width:46px;height:46px;background:${u.color}22;color:${u.color}">${avHTML(u,46)}</div>
+    <div><div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px">${nameH(u)}</div><div style="font-size:12px;color:var(--t2)">@${u.username} · ${u.followers||0} followers</div></div>
+  </div>`).join(''):'<div class="empty"><div class="empty-ic">🔍</div><div class="empty-h">រកមិនឃើញ</div></div>';
+}
 </script>
 </body>
 </html>
