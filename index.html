@@ -1815,10 +1815,12 @@ function profH(u,posts,isMe,wr,won,settled){
   </div>`).join('')}</div>`:'<div class="empty" style="padding:20px"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន</div></div>'}`;
 }
 function closePostFull(){
+  // No animation delay — instant close to prevent stuck
   const el=document.getElementById('pf-ov');
   if(!el)return;
-  el.style.animation='slideDown .2s ease forwards';
-  setTimeout(()=>el.remove(),200);
+  // Stop video if playing
+  el.querySelectorAll('video').forEach(v=>{try{v.pause();v.src='';}catch(e){}});
+  el.remove();
 }
 
 async function openPostFull(pid){
@@ -1833,7 +1835,7 @@ async function openPostFull(pid){
   NAV.push('post', closePostFull);
   ov.innerHTML=`
   <div style="position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--b);padding:10px 12px;display:flex;align-items:center;gap:10px;z-index:1">
-    <div style="font-size:24px;cursor:pointer;padding:4px 10px;margin-left:-6px;color:var(--g);font-weight:700" onclick="closePostFull()">←</div>
+    <div style="font-size:24px;cursor:pointer;padding:4px 10px;margin-left:-6px;color:var(--g);font-weight:700" onclick="NAV.pop()">←</div>
     <div style="flex:1;font-size:15px;font-weight:700">Post</div>
     <div style="cursor:pointer;font-size:22px;color:var(--t3);padding:4px 8px" onclick="showPostMenu('${pid}','${p.userId}')">···</div>
   </div>
