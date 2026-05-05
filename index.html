@@ -1120,21 +1120,20 @@ function renderTipChips(){
   const el=document.getElementById('ty-chips');if(!el)return;
   el.innerHTML=TIP_TYPES.map((t,i)=>{
     const act=t===_selTipType;
-    return`<div data-tip="${i}"
-      style="padding:6px 13px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;user-select:none;
-      background:${act?'var(--g)':'var(--bg2)'};
+    return`<div
+      ontouchstart="pickTip(${i})"
+      onclick="pickTip(${i})"
+      style="padding:7px 14px;border-radius:22px;font-size:12px;font-weight:600;cursor:pointer;
+      transition:all .18s;user-select:none;-webkit-tap-highlight-color:transparent;
+      background:${act?'var(--g)':'var(--bg3)'};
       color:${act?'#000':'var(--t2)'};
-      border:1.5px solid ${act?'var(--g)':'var(--b2)'};">${t}</div>`;
+      border:2px solid ${act?'var(--g)':'var(--b2)'};">${t}</div>`;
   }).join('');
-  // Use event delegation — no inline onclick with quotes
-  el.onclick=e=>{
-    const div=e.target.closest('[data-tip]');
-    if(!div)return;
-    const idx=parseInt(div.dataset.tip);
-    _selTipType=TIP_TYPES[idx];
-    document.getElementById('ti-ty').value=_selTipType;
-    renderTipChips();
-  };
+}
+function pickTip(i){
+  _selTipType=TIP_TYPES[i];
+  const inp=document.getElementById('ti-ty');if(inp)inp.value=_selTipType;
+  renderTipChips();
 }
 function closePostSheet(){
   const sh=document.getElementById('post-sheet');
