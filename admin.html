@@ -2,1003 +2,874 @@
 <html lang="km">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>FootTips Admin 🛡️</title>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <style>
 :root{
-  --g:#00C37A;--red:#FF4B6E;--blue:#4B8BFF;--gold:#F5C842;--purple:#8B5CF6;--orange:#FF7D40;
-  --bg:#0A0E1A;--bg2:#111827;--bg3:#1A2236;--card:#161E30;--card2:#1C2840;
-  --b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
-  --t:#F0F4FF;--t2:#8A95B0;--t3:#4A5470;
-  --r:12px;--rs:8px;--font:'Segoe UI','Noto Sans Khmer',sans-serif;
+  --bg:#0A0E1A;--bg2:#111827;--bg3:#1C2333;--card:#1A2235;--card2:#222D42;
+  --b:rgba(255,255,255,.08);--b2:rgba(255,255,255,.12);
+  --t:#F1F5F9;--t2:#94A3B8;--t3:#64748B;
+  --g:#00C37A;--g2:#00A366;--gg:rgba(0,195,122,.12);
+  --gold:#F5C842;--red:#FF4B6E;--blue:#4B8BFF;
+  --font:'Segoe UI',system-ui,sans-serif;
+  --rs:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);background:var(--bg);color:var(--t);min-height:100vh;}
-/* LOGIN */
-#login-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
-.admin-login-box{background:var(--card);border:1px solid var(--b2);border-radius:var(--r);padding:32px;width:100%;max-width:360px;text-align:center;}
-.admin-logo{font-size:48px;margin-bottom:12px;}
-.admin-title{font-size:22px;font-weight:700;margin-bottom:4px;}
-.admin-sub{font-size:13px;color:var(--t2);margin-bottom:24px;}
-.inp{width:100%;padding:12px 14px;background:var(--bg3);border:1px solid var(--b2);border-radius:var(--rs);font-family:var(--font);font-size:14px;color:var(--t);outline:none;margin-bottom:10px;}
-.inp:focus{border-color:var(--g);}
-.btn-primary{width:100%;padding:13px;background:var(--g);color:#000;font-family:var(--font);font-size:14px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;}
-.btn-primary:hover{opacity:.9;}
-/* LAYOUT */
-#admin-app{display:none;min-height:100vh;flex-direction:column;}
-.topbar{background:var(--card);border-bottom:1px solid var(--b);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.tb-logo{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;}
-.tb-badge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;}
-.tb-right{display:flex;align-items:center;gap:12px;}
-.tb-stat{font-size:12px;color:var(--t2);background:var(--bg3);padding:6px 12px;border-radius:20px;}
-.logout-btn{font-size:12px;color:var(--red);cursor:pointer;padding:6px 12px;border:1px solid var(--red);border-radius:20px;}
-.main-layout{display:flex;flex:1;}
-/* SIDEBAR */
-.sidebar{width:220px;background:var(--card);border-right:1px solid var(--b);padding:16px 0;flex-shrink:0;min-height:calc(100vh - 57px);position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;}
-.nav-group{padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t2);border-left:3px solid transparent;transition:all .15s;}
-.nav-item:hover{background:var(--bg3);color:var(--t);}
-.nav-item.act{background:var(--gg,rgba(0,195,122,.08));color:var(--g);border-left-color:var(--g);}
-.nav-item .ni{font-size:16px;width:20px;text-align:center;}
-/* CONTENT */
-.content{flex:1;padding:20px;overflow-x:hidden;}
-.page{display:none;}
-.page.act{display:block;}
-/* STATS GRID */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px;}
-.stat-card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:16px;display:flex;align-items:flex-start;gap:12px;}
-.stat-ic{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.stat-n{font-size:26px;font-weight:700;line-height:1;}
-.stat-l{font-size:12px;color:var(--t2);margin-top:3px;}
-/* CARDS */
-.section-card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);margin-bottom:16px;overflow:hidden;}
-.sc-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b);}
-.sc-title{font-size:14px;font-weight:600;}
-/* TABLE */
-table{width:100%;border-collapse:collapse;}
-th{padding:10px 14px;font-size:11px;font-weight:700;color:var(--t3);text-align:left;text-transform:uppercase;letter-spacing:.6px;background:var(--bg3);}
-td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--b);}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:rgba(255,255,255,.02);}
-/* BADGE */
-.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
-.badge-g{background:rgba(0,195,122,.12);color:var(--g);}
-.badge-r{background:rgba(255,75,110,.1);color:var(--red);}
-.badge-b{background:rgba(75,139,255,.12);color:var(--blue);}
-.badge-gold{background:rgba(245,200,66,.12);color:var(--gold);}
-.badge-gray{background:var(--bg3);color:var(--t2);}
-/* BUTTONS */
-.btn{padding:7px 14px;border-radius:var(--rs);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:opacity .15s;}
-.btn:hover{opacity:.85;}
-.btn-sm{padding:5px 10px;font-size:11px;}
-.btn-g{background:var(--g);color:#000;}
-.btn-r{background:var(--red);color:#fff;}
-.btn-b{background:var(--blue);color:#fff;}
-.btn-o{background:transparent;border:1px solid var(--b2);color:var(--t2);}
-.btn-gold{background:var(--gold);color:#000;}
-/* FORM */
-.form-group{margin-bottom:14px;}
-.form-label{font-size:11px;font-weight:700;color:var(--t2);margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.5px;}
-.form-inp{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--b2);border-radius:var(--rs);font-family:var(--font);font-size:13px;color:var(--t);outline:none;}
-.form-inp:focus{border-color:var(--g);}
-.form-row{display:flex;gap:10px;}
-.form-row .form-group{flex:1;}
-/* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
-.modal-bg.on{display:flex;}
-.modal{background:var(--card);border:1px solid var(--b2);border-radius:var(--r);padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
-.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
-.modal-close{cursor:pointer;font-size:20px;color:var(--t3);}
-/* AVATAR */
-.uav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;overflow:hidden;flex-shrink:0;}
-.uav img{width:100%;height:100%;object-fit:cover;}
-.user-row{display:flex;align-items:center;gap:8px;}
-/* AD CARD */
-.ad-item{border:1px solid var(--blue);border-radius:var(--r);padding:12px;margin-bottom:10px;background:rgba(75,139,255,.04);position:relative;}
-.ad-badge{position:absolute;top:8px;right:8px;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;}
-/* CHARTS (simple) */
-.bar-chart{display:flex;align-items:flex-end;gap:4px;height:80px;padding-top:8px;}
-.bar{flex:1;background:var(--g);border-radius:3px 3px 0 0;min-width:8px;transition:height .3s;}
-.bar:hover{opacity:.8;}
-/* SUGGEST */
-.suggest-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b);}
-.suggest-row:last-child{border-bottom:none;}
-/* MISC */
-.flex{display:flex;align-items:center;gap:8px;}
-.flex-1{flex:1;}
-.mt-8{margin-top:8px;}
-.mt-12{margin-top:12px;}
-.text-green{color:var(--g);}
-.text-red{color:var(--red);}
-.text-gold{color:var(--gold);}
-.text-muted{color:var(--t2);}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;}
+body{background:var(--bg);color:var(--t);font-family:var(--font);min-height:100vh;}
+input,select,textarea{background:var(--bg3);border:1.5px solid var(--b2);color:var(--t);font-family:var(--font);font-size:13px;padding:10px 12px;border-radius:10px;outline:none;width:100%;transition:border-color .2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--g);}
+button{cursor:pointer;font-family:var(--font);border:none;transition:all .15s;}
+.btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;}
+.btn-g{background:linear-gradient(135deg,var(--g),#00CFFF);color:#000;}
+.btn-r{background:rgba(255,75,110,.15);color:var(--red);border:1px solid rgba(255,75,110,.3);}
+.btn-b{background:rgba(75,139,255,.15);color:var(--blue);border:1px solid rgba(75,139,255,.3);}
+.btn-sm{padding:5px 10px;font-size:11px;border-radius:7px;}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-g{background:rgba(0,195,122,.15);color:var(--g);border:1px solid rgba(0,195,122,.3);}
+.badge-r{background:rgba(255,75,110,.15);color:var(--red);border:1px solid rgba(255,75,110,.3);}
+.badge-y{background:rgba(245,200,66,.15);color:var(--gold);border:1px solid rgba(245,200,66,.3);}
+.badge-gray{background:var(--bg3);color:var(--t3);border:1px solid var(--b);}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg)}}
-#toast-c{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:6px;}
-.toast{background:var(--card);border:1px solid var(--b2);padding:10px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.3);animation:ti .25s ease;}
-@keyframes ti{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-.toast.ok{border-color:rgba(0,195,122,.3);color:var(--g);}
-.toast.err{border-color:rgba(255,75,110,.3);color:var(--red);}
-.toast.inf{border-color:rgba(75,139,255,.3);color:var(--blue);}
-select.form-inp option{background:var(--card);}
-@media(max-width:768px){.sidebar{display:none;}.stats-grid{grid-template-columns:1fr 1fr;}}
+.toast-c{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;animation:fadeIn .3s;max-width:280px;}
+.toast-ok{background:#065F46;color:#fff;border:1px solid var(--g);}
+.toast-err{background:#7F1D1D;color:#fff;border:1px solid var(--red);}
+.toast-inf{background:#1E3A5F;color:#fff;border:1px solid var(--blue);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── LAYOUT ── */
+.app{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--b);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;}
+.main{margin-left:220px;flex:1;padding:24px;min-height:100vh;}
+.logo-area{padding:20px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;}
+.logo-ic{width:38px;height:38px;background:linear-gradient(135deg,var(--g),#00CFFF);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.logo-txt{font-size:15px;font-weight:800;background:linear-gradient(135deg,var(--g),#00CFFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-sub{font-size:10px;color:var(--t3);}
+.nav{flex:1;padding:12px 10px;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;margin-bottom:2px;transition:all .15s;}
+.nav-item:hover{background:var(--bg3);color:var(--t);}
+.nav-item.act{background:var(--gg);color:var(--g);font-weight:700;}
+.nav-ic{font-size:16px;width:22px;text-align:center;}
+.nav-sep{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:10px 12px 4px;}
+.sidebar-bottom{padding:12px 10px;border-top:1px solid var(--b);}
+.page{display:none;animation:fadeIn .2s;}
+.page.act{display:block;}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.ph-title{font-size:20px;font-weight:800;}
+.ph-sub{font-size:12px;color:var(--t2);margin-top:2px;}
+.card{background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden;}
+.card-h{padding:14px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;}
+.card-ht{font-size:14px;font-weight:700;}
+.card-b{padding:16px;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:16px;}
+.stat-n{font-size:26px;font-weight:800;margin-bottom:4px;}
+.stat-l{font-size:12px;color:var(--t2);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.fl{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+.fg{margin-bottom:12px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--b);}
+td{padding:10px 12px;border-bottom:1px solid var(--b);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg3);}
+
+/* ── TIP BUILDER ── */
+.match-builder{display:grid;grid-template-columns:1fr 64px 1fr;gap:12px;align-items:center;margin-bottom:16px;}
+.team-card{background:var(--bg3);border:2px solid var(--b);border-radius:14px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;}
+.team-card:hover{border-color:var(--g);background:rgba(0,195,122,.04);}
+.team-card.sel{border-color:var(--g);}
+.team-logo{height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.team-logo img{max-width:52px;max-height:52px;object-fit:contain;}
+.team-name{font-size:12px;font-weight:700;color:var(--t2);}
+.vs-block{text-align:center;}
+.vs-txt{font-size:18px;font-weight:800;color:var(--t3);}
+.vs-time{font-size:11px;color:var(--t3);margin-top:4px;}
+.tip-chip{display:inline-block;padding:6px 13px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;border:1.5px solid var(--b2);background:var(--bg3);color:var(--t2);user-select:none;}
+.tip-chip.act{background:var(--g);color:#000;border-color:var(--g);}
+.chip-wrap{display:flex;flex-wrap:wrap;gap:6px;}
+.preview-card{background:linear-gradient(135deg,rgba(0,195,122,.08),rgba(0,195,122,.03));border:1.5px solid rgba(0,195,122,.25);border-radius:14px;padding:14px;margin-bottom:14px;display:none;}
+.prev-teams{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.prev-logo{width:36px;height:36px;object-fit:contain;}
+.prev-info{flex:1;text-align:center;}
+.prev-match{font-size:13px;font-weight:700;}
+.prev-league{font-size:11px;color:var(--t2);margin-top:2px;}
+.post-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--g),#00CFFF);color:#000;font-size:15px;font-weight:800;border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;}
+.post-btn:active{transform:scale(.97);}
+.tip-row{padding:14px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px;}
+.tip-row:last-child{border-bottom:none;}
+.tip-logos{display:flex;gap:4px;align-items:center;}
+.tip-logo-img{width:28px;height:28px;object-fit:contain;}
+.tip-info{flex:1;}
+.tip-match{font-size:13px;font-weight:700;margin-bottom:2px;}
+.tip-meta{font-size:11px;color:var(--t2);}
+.tip-actions{display:flex;align-items:center;gap:6px;}
+.status-sel{background:var(--bg3);color:var(--t);border:1px solid var(--b2);border-radius:8px;padding:5px 8px;font-size:11px;font-family:var(--font);}
+
+/* ── TEAM SEARCH MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-bg.show{display:flex;}
+.modal-sheet{background:var(--bg2);width:100%;max-width:480px;border-radius:20px 20px 0 0;max-height:75vh;display:flex;flex-direction:column;}
+.modal-head{padding:14px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;}
+.modal-body{flex:1;overflow-y:auto;padding:8px 12px 20px;}
+.team-result{display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:10px;cursor:pointer;transition:background .1s;border-bottom:1px solid var(--b);}
+.team-result:hover{background:var(--card2);}
+.team-result:last-child{border-bottom:none;}
+.tr-logo{width:36px;height:36px;object-fit:contain;flex-shrink:0;}
+.tr-name{font-size:13px;font-weight:600;}
+.tr-league{font-size:11px;color:var(--t2);}
+
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+.login-card{background:var(--bg2);border:1px solid var(--b);border-radius:20px;padding:32px;width:320px;text-align:center;}
 </style>
 </head>
 <body>
-<div id="toast-c"></div>
+<div class="toast-c" id="toast-c"></div>
 
 <!-- LOGIN -->
-<div id="login-page">
-  <div class="admin-login-box">
-    <div class="admin-logo">🛡️</div>
-    <div class="admin-title">FootTips Admin</div>
-    <div class="admin-sub">CEO Dashboard — Restricted Access</div>
-    <input class="inp" id="admin-pw" type="password" placeholder="Admin Password" onkeydown="if(event.key==='Enter')adminLogin()">
-    <input class="inp" id="admin-uid" placeholder="Your Firebase User ID (optional)">
-    <button class="btn-primary" onclick="adminLogin()">🔐 Login Admin</button>
-    <div style="margin-top:12px;font-size:11px;color:var(--t3)">FootTips CEO Panel · Authorized only</div>
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--g),#00CFFF);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px">🛡️</div>
+    <div style="font-size:22px;font-weight:800;margin-bottom:4px;background:linear-gradient(135deg,var(--g),#00CFFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent">FootTips Admin</div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:24px">CEO Panel · Authorized only</div>
+    <div class="fg"><input type="password" id="pw-inp" placeholder="Admin Password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-g" style="width:100%;padding:12px;font-size:14px" onclick="doLogin()">🔐 Login</button>
   </div>
 </div>
 
-<!-- ADMIN APP -->
-<div id="admin-app">
-  <div class="topbar">
-    <div class="tb-logo">
-      <span style="font-size:24px">⚽</span>
-      FootTips Admin
-      <span class="tb-badge">CEO</span>
+<!-- MAIN APP -->
+<div class="app" id="app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo-area">
+      <div class="logo-ic">⚽</div>
+      <div>
+        <div class="logo-txt">FootTips</div>
+        <div class="logo-sub">Admin Dashboard</div>
+      </div>
     </div>
-    <div class="tb-right">
-      <div class="tb-stat" id="tb-online">⚡ Loading...</div>
-      <div class="tb-stat" id="tb-today">📅 Today: 0</div>
-      <div class="logout-btn" onclick="adminLogout()">🚪 Logout</div>
+    <div class="nav">
+      <div class="nav-sep">Overview</div>
+      <div class="nav-item act" onclick="showPage('dash',this)"><span class="nav-ic">📊</span>Dashboard</div>
+      <div class="nav-sep">Tips Management</div>
+      <div class="nav-item" onclick="showPage('post-tip',this)"><span class="nav-ic">🎯</span>Post Tips</div>
+      <div class="nav-item" onclick="showPage('results',this)"><span class="nav-ic">✅</span>Results</div>
+      <div class="nav-sep">Community</div>
+      <div class="nav-item" onclick="showPage('posts',this)"><span class="nav-ic">📝</span>All Posts</div>
+      <div class="nav-item" onclick="showPage('users',this)"><span class="nav-ic">👥</span>Users</div>
+      <div class="nav-item" onclick="showPage('leaderboard',this)"><span class="nav-ic">🏆</span>Leaderboard</div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="nav-item" onclick="adminLogout()" style="color:var(--red)"><span class="nav-ic">🚪</span>Logout</div>
     </div>
   </div>
-  <div class="main-layout">
-    <div class="sidebar">
-      <div class="nav-group">Overview</div>
-      <div class="nav-item act" onclick="showPage('dashboard')"><span class="ni">📊</span>Dashboard</div>
-      <div class="nav-item" onclick="showPage('analytics')"><span class="ni">📈</span>Analytics</div>
-      <div class="nav-group">Management</div>
-      <div class="nav-item" onclick="showPage('users')"><span class="ni">👥</span>Users</div>
-      <div class="nav-item" onclick="showPage('posts')"><span class="ni">📝</span>Posts & Tips</div>
-      <div class="nav-item" onclick="showPage('matches')"><span class="ni">⚽</span>Matches</div>
-      <div class="nav-item" onclick="showPage('predictions')"><span class="ni">🎯</span>Predictions</div>
-      <div class="nav-group">Monetization</div>
-      <div class="nav-item" onclick="showPage('ads')"><span class="ni">📢</span>Advertisements</div>
-      <div class="nav-item" onclick="showPage('suggest')"><span class="ni">✨</span>Suggest/Boost</div>
-      <div class="nav-group">Tools</div>
-      <div class="nav-item" onclick="showPage('tip-admin')"><span class="ni">🎯</span>Post Tips (CEO)</div>
-      <div class="nav-item" onclick="showPage('moderation')"><span class="ni">🛡️</span>Moderation</div>
-      <div class="nav-item" onclick="showPage('points')"><span class="ni">💰</span>Points Manager</div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page act" id="page-dash">
+      <div class="ph">
+        <div><div class="ph-title">📊 Dashboard</div><div class="ph-sub">FootTips Overview</div></div>
+        <div style="font-size:12px;color:var(--t2)" id="dash-date"></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-n" style="color:var(--g)" id="st-users">—</div><div class="stat-l">👥 Total Users</div></div>
+        <div class="stat-card"><div class="stat-n" style="color:var(--blue)" id="st-posts">—</div><div class="stat-l">📝 Total Posts</div></div>
+        <div class="stat-card"><div class="stat-n" style="color:var(--gold)" id="st-tips">—</div><div class="stat-l">🎯 CEO Tips</div></div>
+        <div class="stat-card"><div class="stat-n" style="color:var(--red)" id="st-pending">—</div><div class="stat-l">⏳ Pending Tips</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-ht">⏳ Tips Pending Result</div><button class="btn btn-sm btn-g" onclick="showPage('results',document.querySelector('.nav-item:nth-child(6))'))">View All →</button></div>
+        <div id="dash-pending"></div>
+      </div>
     </div>
-    <div class="content">
 
-      <!-- DASHBOARD -->
-      <div class="page act" id="page-dashboard">
-        <div style="font-size:20px;font-weight:700;margin-bottom:16px">📊 Dashboard Overview</div>
-        <div class="stats-grid" id="stats-grid">
-          <div class="stat-card"><div class="stat-ic" style="background:rgba(0,195,122,.12);color:var(--g)">👥</div><div><div class="stat-n" id="s-users">-</div><div class="stat-l">Total Users</div></div></div>
-          <div class="stat-card"><div class="stat-ic" style="background:rgba(75,139,255,.12);color:var(--blue)">📝</div><div><div class="stat-n" id="s-posts">-</div><div class="stat-l">Total Posts</div></div></div>
-          <div class="stat-card"><div class="stat-ic" style="background:rgba(245,200,66,.12);color:var(--gold)">🎯</div><div><div class="stat-n" id="s-preds">-</div><div class="stat-l">Predictions</div></div></div>
-          <div class="stat-card"><div class="stat-ic" style="background:rgba(255,75,110,.12);color:var(--red)">❤️</div><div><div class="stat-n" id="s-likes">-</div><div class="stat-l">Total Likes</div></div></div>
-          <div class="stat-card"><div class="stat-ic" style="background:rgba(139,92,246,.12);color:var(--purple)">📢</div><div><div class="stat-n" id="s-ads">-</div><div class="stat-l">Active Ads</div></div></div>
-          <div class="stat-card"><div class="stat-ic" style="background:rgba(255,125,64,.12);color:var(--orange)">🔒</div><div><div class="stat-n" id="s-blocked">-</div><div class="stat-l">Blocked Users</div></div></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div class="section-card">
-            <div class="sc-head"><div class="sc-title">🆕 New Users (Today)</div></div>
-            <div id="new-users-list" style="padding:0"></div>
-          </div>
-          <div class="section-card">
-            <div class="sc-head"><div class="sc-title">🔥 Top Posts Today</div></div>
-            <div id="top-posts-list" style="padding:0"></div>
-          </div>
-        </div>
+    <!-- POST TIPS -->
+    <div class="page" id="page-post-tip">
+      <div class="ph">
+        <div><div class="ph-title">🎯 Post CEO Tip</div><div class="ph-sub">ផុស Tips ជា CEO FootTips</div></div>
       </div>
 
-      <!-- ANALYTICS -->
-      <div class="page" id="page-analytics">
-        <div style="font-size:20px;font-weight:700;margin-bottom:16px">📈 Analytics</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-          <div class="section-card">
-            <div class="sc-head"><div class="sc-title">👥 User Growth</div></div>
-            <div style="padding:16px" id="user-chart"></div>
-          </div>
-          <div class="section-card">
-            <div class="sc-head"><div class="sc-title">📝 Post Activity</div></div>
-            <div style="padding:16px" id="post-chart"></div>
-          </div>
-        </div>
-        <div class="section-card">
-          <div class="sc-head"><div class="sc-title">💰 Points Economy</div></div>
-          <div id="points-analytics" style="padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;"></div>
-        </div>
-        <div class="section-card mt-12">
-          <div class="sc-head"><div class="sc-title">📢 Ad Performance</div></div>
-          <div id="ad-analytics" style="padding:16px"></div>
-        </div>
-      </div>
+      <div style="display:grid;grid-template-columns:1fr 380px;gap:20px">
+        <!-- Left: Tip Builder -->
+        <div class="card">
+          <div class="card-h"><div class="card-ht">⚽ Match Builder</div></div>
+          <div class="card-b">
 
-      <!-- USERS -->
-      <div class="page" id="page-users">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <div style="font-size:20px;font-weight:700">👥 User Management</div>
-          <div style="display:flex;gap:8px;">
-            <input class="form-inp" id="user-search" placeholder="Search users..." oninput="filterUsers(this.value)" style="width:200px;padding:8px 12px;">
-            <select class="form-inp" id="user-filter" onchange="filterUsers()" style="width:150px;padding:8px;">
-              <option value="all">All Users</option>
-              <option value="blocked">Blocked</option>
-              <option value="verified">Verified</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-        </div>
-        <div class="section-card">
-          <table>
-            <thead><tr>
-              <th>User</th><th>Points</th><th>Followers</th><th>Posts</th><th>Joined</th><th>Status</th><th>Actions</th>
-            </tr></thead>
-            <tbody id="users-table"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- POSTS -->
-      <div class="page" id="page-posts">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <div style="font-size:20px;font-weight:700">📝 Posts & Tips</div>
-          <div style="display:flex;gap:8px">
-            <select class="form-inp" id="post-filter" onchange="loadPosts()" style="width:160px;padding:8px;">
-              <option value="all">All Posts</option>
-              <option value="pending">⏳ Pending</option>
-              <option value="won">✅ Won</option>
-              <option value="lost">❌ Lost</option>
-            </select>
-          </div>
-        </div>
-        <div class="section-card">
-          <table>
-            <thead><tr>
-              <th>Post</th><th>User</th><th>Likes</th><th>Views</th><th>Status</th><th>Created</th><th>Actions</th>
-            </tr></thead>
-            <tbody id="posts-table"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- MATCHES -->
-      <div class="page" id="page-matches">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <div style="font-size:20px;font-weight:700">⚽ Match Manager</div>
-          <button class="btn btn-g" onclick="openAddMatch()">+ Add Match</button>
-        </div>
-        <div class="section-card">
-          <table>
-            <thead><tr><th>Home</th><th>Away</th><th>League</th><th>Date</th><th>Time</th><th>Result</th><th>Active</th><th>Actions</th></tr></thead>
-            <tbody id="matches-table"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- PREDICTIONS -->
-      <div class="page" id="page-predictions">
-        <div style="font-size:20px;font-weight:700;margin-bottom:16px">🎯 Predictions & Results</div>
-        <div class="section-card" style="margin-bottom:16px">
-          <div class="sc-head"><div class="sc-title">⚽ Mark Match Results</div></div>
-          <div id="result-matches" style="padding:12px"></div>
-        </div>
-        <div class="section-card">
-          <div class="sc-head"><div class="sc-title">📊 Prediction Stats</div></div>
-          <div id="pred-stats" style="padding:16px"></div>
-        </div>
-      </div>
-
-      <!-- ADS -->
-      <div class="page" id="page-ads">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <div style="font-size:20px;font-weight:700">📢 Advertisement Manager</div>
-          <button class="btn btn-g" onclick="openAddAd()">+ New Ad</button>
-        </div>
-        <div style="background:rgba(75,139,255,.08);border:1px solid rgba(75,139,255,.25);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.7;color:var(--t2)">
-          💡 <strong style="color:var(--t)">Ad System:</strong> User ចុច Ad → +3pts ភ្លាម · ក្នុង Post/Ad ដូចគ្នា User ម្នាក់ចុចបាន 1 ដង · Post ផ្សេង Ad ផ្សេង = ចុចបានថ្មី
-        </div>
-        <div id="ads-list"></div>
-      </div>
-
-      <!-- SUGGEST/BOOST -->
-      <div class="page" id="page-suggest">
-        <div style="font-size:20px;font-weight:700;margin-bottom:16px">✨ Suggest & Boost</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div class="section-card">
-            <div class="sc-head">
-              <div class="sc-title">👤 Boost User</div>
-              <div class="text-muted" style="font-size:11px">Show first in search & feed</div>
-            </div>
-            <div style="padding:14px">
-              <div class="form-group"><div class="form-label">Select User</div>
-                <select class="form-inp" id="boost-user-sel"><option value="">-- ជ្រើស User --</option></select>
-              </div>
-              <div class="form-group"><div class="form-label">Boost Duration</div>
-                <select class="form-inp" id="boost-dur">
-                  <option value="1">1 ថ្ងៃ</option><option value="3">3 ថ្ងៃ</option><option value="7">7 ថ្ងៃ</option><option value="30">30 ថ្ងៃ</option>
-                </select>
-              </div>
-              <button class="btn btn-gold" onclick="boostUser()" style="width:100%">⚡ Boost User</button>
-            </div>
-            <div id="boosted-users" style="padding:0"></div>
-          </div>
-          <div class="section-card">
-            <div class="sc-head">
-              <div class="sc-title">📝 Boost Post</div>
-              <div class="text-muted" style="font-size:11px">Pin to top of feed</div>
-            </div>
-            <div style="padding:14px">
-              <div class="form-group"><div class="form-label">Post ID or Search</div>
-                <input class="form-inp" id="boost-post-inp" placeholder="Post ID...">
-              </div>
-              <div class="form-group"><div class="form-label">Duration</div>
-                <select class="form-inp" id="boost-post-dur">
-                  <option value="1">1 ថ្ងៃ</option><option value="3">3 ថ្ងៃ</option><option value="7">7 ថ្ងៃ</option>
-                </select>
-              </div>
-              <button class="btn btn-gold" onclick="boostPost()" style="width:100%">⚡ Boost Post</button>
-            </div>
-          </div>
-        </div>
-        <div class="section-card mt-12">
-          <div class="sc-head"><div class="sc-title">🤖 Auto Suggest Rules</div></div>
-          <div style="padding:14px">
-            <div style="font-size:13px;color:var(--t2);margin-bottom:12px">Posts with more Likes/Comments get higher reach automatically</div>
-            <div class="form-row">
-              <div class="form-group"><div class="form-label">Min Likes for Boost</div><input class="form-inp" id="auto-likes" type="number" value="10" min="1"></div>
-              <div class="form-group"><div class="form-label">Reach Multiplier</div><input class="form-inp" id="auto-mult" type="number" value="2" min="1" max="10"></div>
-            </div>
-            <button class="btn btn-g" onclick="saveAutoRules()" style="width:100%">💾 Save Rules</button>
-          </div>
-          <div id="suggest-rules" style="padding:0"></div>
-        </div>
-      </div>
-
-      <!-- CEO TIP POSTING -->
-      <div class="page" id="page-tip-admin">
-        <div style="font-size:20px;font-weight:700;margin-bottom:16px">🎯 CEO Post Tips & Matches</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <!-- Post Tip -->
-          <div class="section-card">
-            <div class="sc-head"><div class="sc-title">📝 Post CEO Tip</div></div>
-            <div style="padding:14px">
-              <div class="form-group"><div class="form-label">ការប្រកួត</div><input class="form-inp" id="ceo-match" placeholder="Barcelona vs Real Madrid"></div>
-              <div class="form-row">
-                <div class="form-group"><div class="form-label">ការទស្សន៍ទាយ</div><input class="form-inp" id="ceo-pred" placeholder="Barcelona Win"></div>
-                <div class="form-group"><div class="form-label">Odds</div><input class="form-inp" id="ceo-odds" type="number" step="0.01" placeholder="1.85"></div>
-              </div>
-              <div class="form-row">
-                <div class="form-group"><div class="form-label">លីក</div><input class="form-inp" id="ceo-league" placeholder="La Liga"></div>
-                <div class="form-group"><div class="form-label">ប្រភេទ</div>
-                  <select class="form-inp" id="ceo-type"><option>Match Winner</option><option>Over/Under</option><option>Both Teams Score</option><option>Asian Handicap</option></select>
+            <!-- Match selector -->
+            <div class="match-builder">
+              <div>
+                <div class="fl">ក្រុមម្ចាស់ផ្ទះ</div>
+                <div class="team-card" id="home-card" onclick="openTeamSearch('home')">
+                  <div class="team-logo" id="home-logo"><span style="font-size:32px">🏠</span></div>
+                  <div class="team-name" id="home-name">ចុចជ្រើស</div>
                 </div>
               </div>
-              <div class="form-group"><div class="form-label">ការវិភាគ</div><textarea class="form-inp" id="ceo-analysis" rows="3" placeholder="CEO analysis..."></textarea></div>
-              <button class="btn btn-g" onclick="cePostTip()" style="width:100%">📢 Post as CEO FootTips</button>
+              <div class="vs-block">
+                <div class="vs-txt">VS</div>
+                <div class="vs-time" id="vs-time">—</div>
+              </div>
+              <div>
+                <div class="fl">ក្រុមភ្ញៀវ</div>
+                <div class="team-card" id="away-card" onclick="openTeamSearch('away')">
+                  <div class="team-logo" id="away-logo"><span style="font-size:32px">✈️</span></div>
+                  <div class="team-name" id="away-name">ចុចជ្រើស</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- League + Time -->
+            <div class="grid2" style="margin-bottom:14px">
+              <div class="fg">
+                <div class="fl">🏆 លីក</div>
+                <select id="t-league" onchange="updatePreview()">
+                  <option value="Champions League|⭐">⭐ Champions League</option>
+                  <option value="Premier League|🏴󠁧󠁢󠁥󠁮󠁧󠁿">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</option>
+                  <option value="La Liga|🇪🇸">🇪🇸 La Liga</option>
+                  <option value="Bundesliga|🇩🇪">🇩🇪 Bundesliga</option>
+                  <option value="Serie A|🇮🇹">🇮🇹 Serie A</option>
+                  <option value="Ligue 1|🇫🇷">🇫🇷 Ligue 1</option>
+                  <option value="Europa League|🟠">🟠 Europa League</option>
+                  <option value="World Cup 2026|🏆">🏆 World Cup 2026</option>
+                  <option value="FA Cup|🏴󠁧󠁢󠁥󠁮󠁧󠁿">🏴󠁧󠁢󠁥󠁮󠁧󠁿 FA Cup</option>
+                  <option value="Other|⚽">⚽ Other</option>
+                </select>
+              </div>
+              <div class="fg">
+                <div class="fl">⏰ ម៉ោង (PP Time)</div>
+                <input id="t-time" placeholder="22:00" oninput="document.getElementById('vs-time').textContent=this.value||'—';updatePreview()">
+              </div>
+            </div>
+
+            <!-- Tip Type Chips -->
+            <div class="fg">
+              <div class="fl">🎯 ប្រភេទ Tip</div>
+              <div class="chip-wrap" id="tip-chips"></div>
+              <input type="hidden" id="t-type" value="Over 2.5 Goals">
+            </div>
+
+            <!-- Prediction + Odds -->
+            <div class="grid2" style="margin-bottom:14px">
+              <div class="fg">
+                <div class="fl">🎯 ការទស្សន៍ទាយ</div>
+                <input id="t-pred" placeholder="Over 2.5 Goals" oninput="updatePreview()">
+              </div>
+              <div class="fg">
+                <div class="fl">📊 Odds (copy ពី bookmaker)</div>
+                <input id="t-odds" type="number" step="0.01" min="1" placeholder="1.85" oninput="updatePreview()">
+              </div>
+            </div>
+
+            <!-- Analysis -->
+            <div class="fg">
+              <div class="fl">📝 ការវិភាគ (ខ្មែរ)</div>
+              <textarea id="t-analysis" rows="3" placeholder="ពន្យល់ហេតុផល tip នេះ ១-២ ប្រយោគ..."></textarea>
+            </div>
+
+            <button class="post-btn" onclick="submitTip()">
+              <span>📢</span><span id="post-btn-txt">Post ជា CEO FootTips</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Preview -->
+        <div>
+          <!-- Preview Card -->
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-h"><div class="card-ht">👁 Preview</div></div>
+            <div class="card-b">
+              <div id="preview-empty" style="text-align:center;padding:20px;color:var(--t3)">
+                <div style="font-size:32px;margin-bottom:8px">👆</div>
+                <div style="font-size:12px">ជ្រើស ក្រុម ទើបឃើញ Preview</div>
+              </div>
+              <div id="preview-card" style="display:none">
+                <div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:12px">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                    <div style="font-size:11px;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:.5px" id="prev-league">—</div>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                    <div style="text-align:center;flex:1">
+                      <div id="prev-home-logo" style="height:50px;display:flex;align-items:center;justify-content:center;margin-bottom:6px"></div>
+                      <div style="font-size:12px;font-weight:700" id="prev-home-name">—</div>
+                    </div>
+                    <div style="text-align:center;padding:0 8px">
+                      <div style="font-size:16px;font-weight:800;color:var(--t3)">VS</div>
+                      <div style="font-size:10px;color:var(--t3)" id="prev-time">—</div>
+                    </div>
+                    <div style="text-align:center;flex:1">
+                      <div id="prev-away-logo" style="height:50px;display:flex;align-items:center;justify-content:center;margin-bottom:6px"></div>
+                      <div style="font-size:12px;font-weight:700" id="prev-away-name">—</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap">
+                    <span style="background:var(--g);color:#000;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700" id="prev-pred">—</span>
+                    <span style="background:rgba(75,139,255,.15);color:var(--blue);border:1px solid rgba(75,139,255,.3);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700" id="prev-odds">—</span>
+                  </div>
+                </div>
+                <div style="font-size:12px;color:var(--t2);line-height:1.6" id="prev-analysis">—</div>
+              </div>
             </div>
           </div>
-          <!-- Add Match -->
-          <div class="section-card">
-            <div class="sc-head"><div class="sc-title">⚽ Add Today's Match</div></div>
-            <div style="padding:14px" id="add-match-form">
-              <div class="form-row">
-                <div class="form-group"><div class="form-label">ក្រុមម្ចាស់ផ្ទះ</div><input class="form-inp" id="m-home" placeholder="Barcelona"></div>
-                <div class="form-group"><div class="form-label">ក្រុមភ្ញៀវ</div><input class="form-inp" id="m-away" placeholder="Real Madrid"></div>
-              </div>
-              <div class="form-row">
-                <div class="form-group"><div class="form-label">Home Icon</div><input class="form-inp" id="m-hic" placeholder="🔵🔴"></div>
-                <div class="form-group"><div class="form-label">Away Icon</div><input class="form-inp" id="m-aic" placeholder="⚪"></div>
-              </div>
-              <div class="form-row">
-                <div class="form-group"><div class="form-label">លីក</div><input class="form-inp" id="m-lg" placeholder="La Liga"></div>
-                <div class="form-group"><div class="form-label">ម៉ោង (KH)</div><input class="form-inp" id="m-time" placeholder="22:00"></div>
-              </div>
-              <div class="form-group"><div class="form-label">ថ្ងៃប្រកួត</div><input class="form-inp" id="m-date" type="date"></div>
-              <button class="btn btn-g" onclick="addMatch()" style="width:100%">+ Add Match</button>
+
+          <!-- Quick Tips Guide -->
+          <div class="card">
+            <div class="card-h"><div class="card-ht">💡 Quick Guide</div></div>
+            <div class="card-b" style="font-size:12px;color:var(--t2);line-height:2">
+              <div>① ចុច ជ្រើស ក្រុម ទាំង ២</div>
+              <div>② ជ្រើស លីក + ម៉ោង</div>
+              <div>③ ចុច Tip Type chip</div>
+              <div>④ Copy Odds ពី 1xBet/Bet365</div>
+              <div>⑤ សរសេរ Analysis ខ្មែរ</div>
+              <div>⑥ ចុច Post → ចេញ App ភ្លាម!</div>
             </div>
           </div>
         </div>
-        <div class="section-card mt-12">
-          <div class="sc-head"><div class="sc-title">📋 Recent CEO Posts</div></div>
-          <div id="ceo-posts-list" style="padding:0"></div>
-        </div>
       </div>
 
-      <!-- MODERATION -->
-      <div class="page" id="page-moderation">
-        <div style="font-size:20px;font-weight:700;margin-bottom:16px">🛡️ Moderation Center</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-          <div class="section-card">
-            <div class="sc-head"><div class="sc-title">🚫 Blocked Users</div></div>
-            <div id="blocked-list" style="padding:0"></div>
-          </div>
-          <div class="section-card">
-            <div class="sc-head"><div class="sc-title">🚩 Reported Content</div></div>
-            <div id="reports-list" style="padding:0"></div>
-          </div>
+      <!-- Recent CEO Tips -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-h">
+          <div class="card-ht">📋 CEO Tips ថ្មីៗ</div>
+          <div style="font-size:11px;color:var(--t2)">ចុច Won/Lost ពេលការប្រកួតចប់</div>
         </div>
-        <div class="section-card">
-          <div class="sc-head"><div class="sc-title">📝 All Comments (Monitor)</div></div>
-          <div id="all-comments" style="max-height:400px;overflow-y:auto;"></div>
-        </div>
+        <div id="ceo-tips-list"></div>
       </div>
+    </div>
 
-      <!-- POINTS MANAGER -->
-      <div class="page" id="page-points">
-        <div style="font-size:20px;font-weight:700;margin-bottom:16px">💰 Points Manager</div>
-        <div class="section-card" style="margin-bottom:16px">
-          <div class="sc-head"><div class="sc-title">⚡ Add/Remove Points</div></div>
-          <div style="padding:14px;display:flex;gap:10px;flex-wrap:wrap">
-            <select class="form-inp" id="pts-user" style="flex:2;min-width:180px"><option value="">-- ជ្រើស User --</option></select>
-            <input class="form-inp" id="pts-amount" type="number" placeholder="Amount (+ or -)" style="flex:1;min-width:120px">
-            <input class="form-inp" id="pts-reason" placeholder="Reason..." style="flex:2;min-width:180px">
-            <button class="btn btn-g" onclick="givePoints()">💰 Apply</button>
-          </div>
-        </div>
-        <div class="section-card">
-          <div class="sc-head"><div class="sc-title">🏆 Points Leaderboard</div></div>
-          <table>
-            <thead><tr><th>#</th><th>User</th><th>Points</th><th>Followers</th><th>Posts</th><th>Stars</th><th>Actions</th></tr></thead>
-            <tbody id="pts-table"></tbody>
-          </table>
-        </div>
+    <!-- RESULTS -->
+    <div class="page" id="page-results">
+      <div class="ph">
+        <div><div class="ph-title">✅ Results Management</div><div class="ph-sub">Update Won/Lost ពេលការប្រកួតចប់</div></div>
       </div>
+      <div class="card">
+        <div class="card-h"><div class="card-ht">⏳ Tips Pending Result</div></div>
+        <div id="results-list"></div>
+      </div>
+    </div>
 
-    </div><!-- content -->
-  </div><!-- main-layout -->
-</div><!-- admin-app -->
-
-<!-- MODALS -->
-<!-- User Detail Modal -->
-<div class="modal-bg" id="user-modal">
-  <div class="modal">
-    <div class="modal-title">👤 User Details <span class="modal-close" onclick="closeModal('user-modal')">✕</span></div>
-    <div id="user-modal-body"></div>
-  </div>
-</div>
-
-<!-- Add Match Modal -->
-<div class="modal-bg" id="match-modal">
-  <div class="modal">
-    <div class="modal-title">⚽ Add Match <span class="modal-close" onclick="closeModal('match-modal')">✕</span></div>
-    <div id="match-modal-body"></div>
-  </div>
-</div>
-
-<!-- Add Ad Modal -->
-<div class="modal-bg" id="ad-modal">
-  <div class="modal">
-    <div class="modal-title">📢 New Advertisement <span class="modal-close" onclick="closeModal('ad-modal')">✕</span></div>
-    <div style="padding:4px 0">
-      <div class="form-group"><div class="form-label">Ad Title</div><input class="form-inp" id="ad-title" placeholder="ចំណងជើង Ad..."></div>
-      <div class="form-group"><div class="form-label">Description</div><textarea class="form-inp" id="ad-desc" rows="2" placeholder="ការពិពណ៌នា..."></textarea></div>
-      <div class="form-group"><div class="form-label">Link URL</div><input class="form-inp" id="ad-url" placeholder="https://..."></div>
-      <div class="form-group"><div class="form-label">Banner Image URL (optional)</div><input class="form-inp" id="ad-img" placeholder="https://image.url..."></div>
-      <div class="form-row">
-        <div class="form-group"><div class="form-label">Points per Click</div><input class="form-inp" id="ad-pts" type="number" value="3" min="1"></div>
-        <div class="form-group"><div class="form-label">Placement</div>
-          <select class="form-inp" id="ad-placement">
-            <option value="feed">Feed (between posts)</option>
-            <option value="profile">Profile Page</option>
-            <option value="chat">Chat List</option>
-            <option value="all">All Pages</option>
+    <!-- ALL POSTS -->
+    <div class="page" id="page-posts">
+      <div class="ph">
+        <div><div class="ph-title">📝 All Posts</div><div class="ph-sub">Posts ទាំងអស់ក្នុង FootTips</div></div>
+        <div style="display:flex;gap:8px">
+          <select id="post-filter" onchange="filterPosts()" style="width:auto;font-size:12px;padding:7px 10px">
+            <option value="all">All Posts</option>
+            <option value="pending">⏳ Pending</option>
+            <option value="won">✅ Won</option>
+            <option value="lost">❌ Lost</option>
           </select>
         </div>
       </div>
-      <div class="form-group"><div class="form-label">Max Budget (pts)</div><input class="form-inp" id="ad-budget" type="number" placeholder="0 = unlimited"></div>
-      <button class="btn btn-g" onclick="createAd()" style="width:100%;margin-top:4px">📢 Create Ad</button>
+      <div class="card">
+        <table><thead><tr>
+          <th>Match</th><th>Prediction</th><th>Odds</th><th>League</th><th>Likes</th><th>Status</th><th>Action</th>
+        </tr></thead>
+        <tbody id="posts-tbody"></tbody></table>
+      </div>
     </div>
+
+    <!-- USERS -->
+    <div class="page" id="page-users">
+      <div class="ph"><div><div class="ph-title">👥 Users</div><div class="ph-sub">User management</div></div></div>
+      <div class="card">
+        <div class="card-h">
+          <div class="card-ht">Users (<span id="user-count">0</span>)</div>
+          <input id="user-search" placeholder="Search..." oninput="filterUsers()" style="width:160px;font-size:12px;padding:6px 10px">
+        </div>
+        <table><thead><tr><th>User</th><th>Points</th><th>Win Rate</th><th>Tips</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="users-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="page" id="page-leaderboard">
+      <div class="ph"><div><div class="ph-title">🏆 Leaderboard</div></div></div>
+      <div class="card">
+        <table><thead><tr><th>#</th><th>User</th><th>Points</th><th>Win Rate</th><th>Won/Settled</th></tr></thead>
+        <tbody id="lb-tbody"></tbody>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- TEAM SEARCH MODAL -->
+<div class="modal-bg" id="team-modal">
+  <div class="modal-sheet">
+    <div class="modal-head">
+      <div style="flex:1;font-size:15px;font-weight:700">🔍 ជ្រើស ក្រុម</div>
+      <div onclick="closeTeamModal()" style="cursor:pointer;font-size:20px;color:var(--t2);padding:4px">✕</div>
+    </div>
+    <div style="padding:10px 12px">
+      <input id="team-search-inp" placeholder="Bayern, Barcelona, Arsenal..." oninput="filterTeams(this.value)" style="border-radius:10px">
+    </div>
+    <div class="modal-body" id="team-results"></div>
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script>
-// ════════════════════════════════
-// FIREBASE
-// ════════════════════════════════
-firebase.initializeApp({
+// ── CONFIG ──
+const ADMIN_PASS = 'FootTips2024CEO!';
+const FB_CFG = {
   apiKey:"AIzaSyPlaceholderKeyForFootTips",
   databaseURL:"https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
-const db=firebase.database();
-const FG=p=>db.ref(p).once('value').then(s=>s.val());
-const FS=(p,d)=>db.ref(p).set(d);
-const FP=(p,d)=>db.ref(p).push(d);
-const FU=(p,d)=>db.ref(p).update(d);
-const FD=p=>db.ref(p).remove();
+};
+firebase.initializeApp(FB_CFG);
+const db = firebase.database();
+const FG = p => db.ref(p).once('value').then(s=>s.val());
+const FS = (p,v) => db.ref(p).set(v);
+const FU = (p,v) => db.ref(p).update(v);
+const FP = (p,v) => db.ref(p).push(v);
+const FD = p => db.ref(p).remove();
 
-// ════════════════════════════════
-// ADMIN AUTH
-// ════════════════════════════════
-const ADMIN_PASS='FootTips2024CEO!'; // Change this password!
-let adminUID='';
-let allUsers={};let allPosts={};let allAds={};
+let allPosts={}, allUsers={}, adminUID=null, selSide='home', homeTeam=null, awayTeam=null;
 
-function adminLogin(){
-  const pw=document.getElementById('admin-pw').value;
-  const uid=document.getElementById('admin-uid').value.trim();
+// ── TOAST ──
+function toast(msg,type='ok'){
+  const c=document.getElementById('toast-c');
+  const t=document.createElement('div');
+  t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+// ── AUTH ──
+function doLogin(){
+  const pw=document.getElementById('pw-inp').value;
   if(pw!==ADMIN_PASS){toast('❌ Wrong password','err');return;}
-  adminUID=uid;
-  document.getElementById('login-page').style.display='none';
-  document.getElementById('admin-app').style.display='flex';
-  document.getElementById('admin-app').style.flexDirection='column';
-  loadDashboard();
-  startRealtimeListeners();
-  toast('✅ Admin Login Success','ok');
+  document.getElementById('login-wrap').style.display='none';
+  document.getElementById('app').style.display='flex';
+  initApp();
 }
-function adminLogout(){document.getElementById('login-page').style.display='flex';document.getElementById('admin-app').style.display='none';}
-
-// ════════════════════════════════
-// REALTIME LISTENERS
-// ════════════════════════════════
-function startRealtimeListeners(){
-  db.ref('users').on('value',s=>{allUsers=s.val()||{};updateTopBar();populateUserSelects();});
-  db.ref('posts').on('value',s=>{allPosts=s.val()||{};});
-  db.ref('ads').on('value',s=>{allAds=s.val()||{};});
+function adminLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-wrap').style.display='flex';
+  document.getElementById('pw-inp').value='';
 }
 
-function updateTopBar(){
-  const total=Object.keys(allUsers).length;
-  const today=new Date().toDateString();
-  const newToday=Object.values(allUsers).filter(u=>new Date(u.createdAt).toDateString()===today).length;
-  document.getElementById('tb-online').textContent='👥 Total: '+total;
-  document.getElementById('tb-today').textContent='🆕 Today: +'+newToday;
+// ── INIT ──
+async function initApp(){
+  document.getElementById('dash-date').textContent=new Date().toLocaleDateString('km-KH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  initTipChips();
+  await loadAll();
+  renderDash();
+  renderCEOTips();
+  renderResults();
+}
+async function loadAll(){
+  const [posts,users]=await Promise.all([FG('posts'),FG('users')]);
+  allPosts=posts||{};allUsers=users||{};
+  // Find admin UID
+  const admin=Object.entries(allUsers).find(([k,v])=>v.isAdmin);
+  if(admin)adminUID=admin[0];
 }
 
-// ════════════════════════════════
-// NAVIGATION
-// ════════════════════════════════
-function showPage(p){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('act'));
-  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('act'));
-  document.getElementById('page-'+p).classList.add('act');
-  document.querySelector(`.nav-item[onclick="showPage('${p}')"]`)?.classList.add('act');
-  // Load page data
-  const loaders={dashboard:loadDashboard,users:loadUsers,posts:loadPosts,matches:loadMatchesAdmin,predictions:loadPredictions,ads:loadAds,suggest:loadSuggest,moderation:loadModeration,'tip-admin':loadCEOPosts,'points':loadPoints,analytics:loadAnalytics};
-  loaders[p]?.();
+// ── NAV ──
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('act'));
+  document.getElementById('page-'+id)?.classList.add('act');
+  if(el)el.classList.add('act');
+  if(id==='post-tip')renderCEOTips();
+  if(id==='results')renderResults();
+  if(id==='posts')renderPosts();
+  if(id==='users')renderUsers();
+  if(id==='leaderboard')renderLeaderboard();
 }
 
-// ════════════════════════════════
-// DASHBOARD
-// ════════════════════════════════
-async function loadDashboard(){
-  const [users,posts,preds,ads]=await Promise.all([FG('users'),FG('posts'),FG('predictions'),FG('ads')]);
-  const U=users||{};const P=posts||{};const A=ads||{};
-  const uArr=Object.values(U);const pArr=Object.values(P);
-  document.getElementById('s-users').textContent=uArr.length;
-  document.getElementById('s-posts').textContent=pArr.length;
-  document.getElementById('s-blocked').textContent=uArr.filter(u=>u.blocked).length;
-  document.getElementById('s-likes').textContent=pArr.reduce((a,p)=>a+(p.likes||0),0);
-  document.getElementById('s-ads').textContent=Object.values(A).filter(a=>a.active).length;
-  // Pred count
-  let predCount=0;
-  if(preds){Object.values(preds).forEach(day=>{if(typeof day==='object')Object.values(day).forEach(m=>{if(typeof m==='object')predCount+=Object.keys(m).length;});})}
-  document.getElementById('s-preds').textContent=predCount;
-  // New users today
-  const today=new Date().toDateString();
-  const newU=uArr.filter(u=>new Date(u.createdAt).toDateString()===today).slice(-5).reverse();
-  document.getElementById('new-users-list').innerHTML=newU.length?newU.map(u=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--b)">
-    <div style="width:30px;height:30px;border-radius:50%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:12px">${u.avatar}</div>
-    <div style="flex:1"><div style="font-size:13px;font-weight:600">${u.displayName}</div><div style="font-size:11px;color:var(--t2)">@${u.username}</div></div>
-    ${u.tgId?'<span class="badge badge-b">TG</span>':''}
-  </div>`).join(''):'<div style="padding:16px;text-align:center;color:var(--t2);font-size:13px">No new users today</div>';
-  // Top posts
-  const topP=pArr.sort((a,b)=>(b.likes||0)-(a.likes||0)).slice(0,5);
-  document.getElementById('top-posts-list').innerHTML=topP.length?topP.map(p=>{const u=U[p.userId]||{};return`<div style="padding:10px 14px;border-bottom:1px solid var(--b)">
-    <div style="font-size:13px;font-weight:500;margin-bottom:3px">${(p.caption||p.prediction||'No caption').slice(0,50)}${(p.caption||p.prediction||'').length>50?'...':''}</div>
-    <div style="display:flex;gap:8px;font-size:11px;color:var(--t2)"><span>👤 ${u.displayName||'User'}</span><span>❤️ ${p.likes||0}</span><span>👁️ ${Object.keys(p.views||{}).length}</span></div>
-  </div>`;}).join(''):'<div style="padding:16px;text-align:center;color:var(--t2);font-size:13px">No posts yet</div>';
-}
-
-// ════════════════════════════════
-// ANALYTICS
-// ════════════════════════════════
-async function loadAnalytics(){
-  const users=Object.values(allUsers);
+// ── DASHBOARD ──
+function renderDash(){
   const posts=Object.values(allPosts);
-  const totalPts=users.reduce((a,u)=>a+(u.points||0),0);
-  const avgPts=users.length?Math.floor(totalPts/users.length):0;
-  const totalLikes=posts.reduce((a,p)=>a+(p.likes||0),0);
-  const totalViews=posts.reduce((a,p)=>a+Object.keys(p.views||{}).length,0);
-  document.getElementById('points-analytics').innerHTML=
-    [['💰 Total Points',Math.floor(totalPts),'var(--gold)'],['📊 Avg Points',avgPts,'var(--g)'],['❤️ Total Likes',totalLikes,'var(--red)'],['👁️ Total Views',totalViews,'var(--blue)']]
-    .map(([l,v,c])=>`<div style="background:var(--bg3);border-radius:var(--rs);padding:14px;text-align:center"><div style="font-size:24px;font-weight:700;color:${c}">${v.toLocaleString()}</div><div style="font-size:11px;color:var(--t2);margin-top:4px">${l}</div></div>`).join('');
-
-  // Simple bar chart - users by day
-  const days={};users.forEach(u=>{if(u.createdAt){const d=new Date(u.createdAt).toLocaleDateString();days[d]=(days[d]||0)+1;}});
-  const dayEntries=Object.entries(days).slice(-7);const maxD=Math.max(...dayEntries.map(([k,v])=>v),1);
-  document.getElementById('user-chart').innerHTML=`<div class="bar-chart">${dayEntries.map(([d,v])=>`<div title="${d}: ${v}" class="bar" style="height:${Math.max(8,(v/maxD)*72)}px"></div>`).join('')}</div>
-  <div style="font-size:11px;color:var(--t2);margin-top:6px">Last 7 days · Total: ${users.length}</div>`;
-
-  // Post chart
-  const pdays={};Object.values(allPosts).forEach(p=>{if(p.createdAt){const d=new Date(p.createdAt).toLocaleDateString();pdays[d]=(pdays[d]||0)+1;}});
-  const pdayE=Object.entries(pdays).slice(-7);const maxP=Math.max(...pdayE.map(([k,v])=>v),1);
-  document.getElementById('post-chart').innerHTML=`<div class="bar-chart">${pdayE.map(([d,v])=>`<div title="${d}: ${v}" class="bar" style="height:${Math.max(8,(v/maxP)*72)}px;background:var(--blue)"></div>`).join('')}</div>
-  <div style="font-size:11px;color:var(--t2);margin-top:6px">Last 7 days · Total: ${Object.keys(allPosts).length}</div>`;
-
-  // Ad analytics
-  const ads=Object.entries(allAds);
-  document.getElementById('ad-analytics').innerHTML=ads.length?`<table style="width:100%"><thead><tr><th>Ad</th><th>Clicks</th><th>pts Given</th><th>Status</th></tr></thead><tbody>${ads.map(([id,a])=>`<tr><td>${a.title}</td><td>${Object.keys(a.clicks||{}).length}</td><td>${(Object.keys(a.clicks||{}).length*(a.ptsPerClick||3)).toLocaleString()}</td><td><span class="badge ${a.active?'badge-g':'badge-gray'}">${a.active?'Active':'Paused'}</span></td></tr>`).join('')}</tbody></table>`:'<div style="color:var(--t2);font-size:13px">No ads yet</div>';
+  const users=Object.values(allUsers);
+  const ceoTips=posts.filter(p=>p.isCEO);
+  const pending=ceoTips.filter(p=>p.status==='pending');
+  document.getElementById('st-users').textContent=users.length;
+  document.getElementById('st-posts').textContent=posts.length;
+  document.getElementById('st-tips').textContent=ceoTips.length;
+  document.getElementById('st-pending').textContent=pending.length;
+  // Pending list
+  const el=document.getElementById('dash-pending');
+  const items=pending.slice(0,5);
+  el.innerHTML=items.length?items.map(p=>pendingRow(p,Object.keys(allPosts).find(k=>allPosts[k]===p))).join('')
+    :'<div style="padding:20px;text-align:center;color:var(--t3)">✅ Tips ទាំងអស់មាន Result</div>';
 }
 
-// ════════════════════════════════
-// USERS
-// ════════════════════════════════
-let filteredUsers=[];
-async function loadUsers(){
-  const users=Object.entries(allUsers).map(([k,v])=>({...v,id:k})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  filteredUsers=users;renderUsersTable(users);
+// ── TIP CHIPS ──
+const TIP_TYPES=[
+  {l:'Over 1.5',v:'Over 1.5 Goals'},{l:'Over 2.5',v:'Over 2.5 Goals'},
+  {l:'Over 3.5',v:'Over 3.5 Goals'},{l:'Over 4.5',v:'Over 4.5 Goals'},
+  {l:'Under 1.5',v:'Under 1.5 Goals'},{l:'Under 2.5',v:'Under 2.5 Goals'},
+  {l:'Under 3.5',v:'Under 3.5 Goals'},
+  {l:'AH -0.5',v:'Home -0.5 AH'},{l:'AH -1',v:'Home -1.0 AH'},
+  {l:'AH +0.5',v:'Away +0.5 AH'},{l:'BTTS',v:'Both Teams Score'},
+  {l:'Home Win',v:'Home Win'},{l:'Away Win',v:'Away Win'},{l:'Draw',v:'Draw'},
+];
+let selTipVal='Over 2.5 Goals';
+function initTipChips(){
+  const el=document.getElementById('tip-chips');if(!el)return;
+  el.innerHTML=TIP_TYPES.map((t,i)=>`<div class="tip-chip${i===1?' act':''}" 
+    onclick="pickChip('${t.v}',this)">${t.l}</div>`).join('');
 }
-function filterUsers(q=''){
-  const filter=document.getElementById('user-filter').value;
-  let users=Object.entries(allUsers).map(([k,v])=>({...v,id:k}));
-  const search=q||document.getElementById('user-search')?.value||'';
-  if(search)users=users.filter(u=>u.displayName?.toLowerCase().includes(search.toLowerCase())||u.username?.toLowerCase().includes(search.toLowerCase()));
-  if(filter==='blocked')users=users.filter(u=>u.blocked);
-  else if(filter==='verified')users=users.filter(u=>(u.followers||0)>=500&&(u.posts||0)>=200||u.isAdmin);
-  else if(filter==='admin')users=users.filter(u=>u.isAdmin);
-  renderUsersTable(users);
-}
-function renderUsersTable(users){
-  document.getElementById('users-table').innerHTML=users.map(u=>`<tr>
-    <td><div class="user-row">
-      <div style="width:32px;height:32px;border-radius:50%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden">${u.avUrl?`<img src="${u.avUrl}" style="width:100%;height:100%;object-fit:cover">`:u.avatar}</div>
-      <div><div style="font-size:13px;font-weight:600">${u.displayName}${u.isAdmin?'<span class="badge badge-b" style="margin-left:4px">CEO</span>':''}</div><div style="font-size:11px;color:var(--t2)">@${u.username} ${u.tgId?'✈️':''}</div></div>
-    </div></td>
-    <td class="text-gold" style="font-weight:600">${Math.floor(u.points||0)}</td>
-    <td>${u.followers||0}</td>
-    <td>${u.posts||0}</td>
-    <td style="font-size:11px;color:var(--t2)">${u.createdAt?new Date(u.createdAt).toLocaleDateString():'-'}</td>
-    <td>${u.blocked?'<span class="badge badge-r">Blocked</span>':'<span class="badge badge-g">Active</span>'}</td>
-    <td><div style="display:flex;gap:4px;flex-wrap:wrap">
-      <button class="btn btn-sm btn-b" onclick="viewUserDetail('${u.id}')">👁</button>
-      <button class="btn btn-sm ${u.blocked?'btn-g':'btn-r'}" onclick="${u.blocked?`unblockUser('${u.id}')`:`blockUser('${u.id}','${u.displayName}')`}">${u.blocked?'Unblock':'Block'}</button>
-      <button class="btn btn-sm btn-o" onclick="deleteUser('${u.id}','${u.displayName}')">🗑</button>
-    </div></td>
-  </tr>`).join('');
+function pickChip(val,el){
+  selTipVal=val;
+  document.getElementById('t-type').value=val;
+  document.getElementById('t-pred').value=val;
+  document.querySelectorAll('.tip-chip').forEach(c=>c.classList.remove('act'));
+  el.classList.add('act');
+  updatePreview();
 }
 
-async function viewUserDetail(uid){
-  const u={...allUsers[uid],id:uid};
-  const posts=Object.entries(allPosts).filter(([k,v])=>v.userId===uid).map(([k,v])=>({...v,id:k}));
-  document.getElementById('user-modal-body').innerHTML=`
-    <div style="text-align:center;margin-bottom:16px">
-      <div style="width:60px;height:60px;border-radius:50%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 8px;overflow:hidden">${u.avUrl?`<img src="${u.avUrl}" style="width:100%;height:100%;object-fit:cover">`:u.avatar}</div>
-      <div style="font-size:16px;font-weight:700">${u.displayName}</div>
-      <div style="font-size:12px;color:var(--t2)">@${u.username} · ${u.tgId?'Telegram ✅':'No TG'}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
-      ${[['Points',Math.floor(u.points||0),'var(--gold)'],['Followers',u.followers||0,'var(--g)'],['Posts',u.posts||0,'var(--blue)']].map(([l,v,c])=>`<div style="background:var(--bg3);border-radius:var(--rs);padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:${c}">${v}</div><div style="font-size:11px;color:var(--t2)">${l}</div></div>`).join('')}
-    </div>
-    <div style="font-size:13px;color:var(--t2);margin-bottom:12px"><strong style="color:var(--t)">Bio:</strong> ${u.bio||'No bio'}</div>
-    <div style="font-size:13px;color:var(--t2);margin-bottom:12px"><strong style="color:var(--t)">Firebase ID:</strong> <code style="font-size:11px;background:var(--bg3);padding:2px 6px;border-radius:4px">${u.id}</code></div>
-    <div style="margin-bottom:12px"><strong style="font-size:13px">Recent Posts (${posts.length}):</strong>
-      ${posts.slice(0,3).map(p=>`<div style="padding:8px;background:var(--bg3);border-radius:var(--rs);margin-top:6px;font-size:12px;color:var(--t2)">${(p.caption||p.prediction||'Media post').slice(0,60)} · ❤️${p.likes||0}</div>`).join('')}
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-g" onclick="givePointsTo('${u.id}','${u.displayName}')">💰 Give Points</button>
-      <button class="btn btn-r" onclick="blockUser('${u.id}','${u.displayName}');closeModal('user-modal')">🚫 Block</button>
-      <button class="btn btn-o" onclick="deleteAllPosts('${u.id}')">🗑 Delete Posts</button>
-      ${u.isAdmin?'':`<button class="btn btn-b" onclick="makeAdmin('${u.id}')">👑 Make Admin</button>`}
-    </div>`;
-  openModal('user-modal');
-}
+// ── TEAM SEARCH ──
+const TEAMS=[
+  {n:'Arsenal',l:'https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg',g:'Premier League'},
+  {n:'Chelsea',l:'https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg',g:'Premier League'},
+  {n:'Liverpool',l:'https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg',g:'Premier League'},
+  {n:'Manchester City',l:'https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg',g:'Premier League'},
+  {n:'Manchester United',l:'https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg',g:'Premier League'},
+  {n:'Tottenham',l:'https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg',g:'Premier League'},
+  {n:'Newcastle',l:'https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg',g:'Premier League'},
+  {n:'Aston Villa',l:'https://upload.wikimedia.org/wikipedia/en/9/9f/Aston_Villa_FC_crest_%282016%29.svg',g:'Premier League'},
+  {n:'West Ham',l:'https://upload.wikimedia.org/wikipedia/en/c/c2/West_Ham_United_FC_logo.svg',g:'Premier League'},
+  {n:'Brighton',l:'https://upload.wikimedia.org/wikipedia/en/f/fd/Brighton_%26_Hove_Albion_logo.svg',g:'Premier League'},
+  {n:'Barcelona',l:'https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg',g:'La Liga'},
+  {n:'Real Madrid',l:'https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg',g:'La Liga'},
+  {n:'Atletico Madrid',l:'https://upload.wikimedia.org/wikipedia/en/f/f4/Atletico_Madrid_2017_logo.svg',g:'La Liga'},
+  {n:'Sevilla',l:'https://upload.wikimedia.org/wikipedia/en/3/3b/Sevilla_FC_logo.svg',g:'La Liga'},
+  {n:'Villarreal',l:'https://upload.wikimedia.org/wikipedia/en/b/b9/Villarreal_CF_Logo.svg',g:'La Liga'},
+  {n:'Real Sociedad',l:'https://upload.wikimedia.org/wikipedia/en/f/f1/Real_Sociedad_logo.svg',g:'La Liga'},
+  {n:'Bayern Munich',l:'https://upload.wikimedia.org/wikipedia/commons/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282002%E2%80%932017%29.svg',g:'Bundesliga'},
+  {n:'Borussia Dortmund',l:'https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg',g:'Bundesliga'},
+  {n:'RB Leipzig',l:'https://upload.wikimedia.org/wikipedia/en/0/04/RB_Leipzig_2014_logo.svg',g:'Bundesliga'},
+  {n:'Bayer Leverkusen',l:'https://upload.wikimedia.org/wikipedia/en/5/59/Bayer_04_Leverkusen_logo.svg',g:'Bundesliga'},
+  {n:'Inter Milan',l:'https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg',g:'Serie A'},
+  {n:'AC Milan',l:'https://upload.wikimedia.org/wikipedia/commons/d/d0/Logo_of_AC_Milan.svg',g:'Serie A'},
+  {n:'Juventus',l:'https://upload.wikimedia.org/wikipedia/commons/1/15/Juventus_FC_2017_logo.svg',g:'Serie A'},
+  {n:'Napoli',l:'https://upload.wikimedia.org/wikipedia/commons/2/2d/SSC_Napoli.svg',g:'Serie A'},
+  {n:'Roma',l:'https://upload.wikimedia.org/wikipedia/en/f/f7/AS_Roma_logo_%282017%29.svg',g:'Serie A'},
+  {n:'Lazio',l:'https://upload.wikimedia.org/wikipedia/en/7/7f/SS_Lazio.svg',g:'Serie A'},
+  {n:'PSG',l:'https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg',g:'Ligue 1'},
+  {n:'Monaco',l:'https://upload.wikimedia.org/wikipedia/en/e/ea/AS_Monaco_FC.svg',g:'Ligue 1'},
+  {n:'Lyon',l:'https://upload.wikimedia.org/wikipedia/en/0/09/Olympique_Lyonnais.svg',g:'Ligue 1'},
+  {n:'Marseille',l:'https://upload.wikimedia.org/wikipedia/commons/d/d8/Olympique_Marseille_logo.svg',g:'Ligue 1'},
+  {n:'PSV',l:'https://upload.wikimedia.org/wikipedia/en/0/05/PSV_Eindhoven.svg',g:'Eredivisie'},
+  {n:'Ajax',l:'https://upload.wikimedia.org/wikipedia/en/7/79/Ajax_Amsterdam.svg',g:'Eredivisie'},
+  {n:'Porto',l:'https://upload.wikimedia.org/wikipedia/en/f/f4/FC_Porto.svg',g:'Primeira Liga'},
+  {n:'Benfica',l:'https://upload.wikimedia.org/wikipedia/en/f/f4/Sport_Lisboa_e_Benfica.svg',g:'Primeira Liga'},
+  {n:'Sporting CP',l:'https://upload.wikimedia.org/wikipedia/en/4/4e/Sporting_CP.svg',g:'Primeira Liga'},
+  // World Cup National Teams
+  {n:'Brazil',l:'https://upload.wikimedia.org/wikipedia/en/0/09/Brazilian_Football_Confederation_%28CBF%29_logo.svg',g:'World Cup'},
+  {n:'Argentina',l:'https://upload.wikimedia.org/wikipedia/en/c/c1/Argentina_national_football_team_logo.svg',g:'World Cup'},
+  {n:'France',l:'https://upload.wikimedia.org/wikipedia/en/b/be/Flag_of_France.svg',g:'World Cup'},
+  {n:'England',l:'https://upload.wikimedia.org/wikipedia/en/b/be/Flag_of_England.svg',g:'World Cup'},
+  {n:'Germany',l:'https://upload.wikimedia.org/wikipedia/en/b/ba/Flag_of_Germany.svg',g:'World Cup'},
+  {n:'Spain',l:'https://upload.wikimedia.org/wikipedia/en/9/9a/Flag_of_Spain.svg',g:'World Cup'},
+  {n:'Portugal',l:'https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg',g:'World Cup'},
+  {n:'Netherlands',l:'https://upload.wikimedia.org/wikipedia/commons/2/20/Flag_of_the_Netherlands.svg',g:'World Cup'},
+  {n:'Belgium',l:'https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Belgium.svg',g:'World Cup'},
+  {n:'Italy',l:'https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg',g:'World Cup'},
+  {n:'USA',l:'https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg',g:'World Cup'},
+  {n:'Mexico',l:'https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg',g:'World Cup'},
+  {n:'Japan',l:'https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg',g:'World Cup'},
+];
 
-async function blockUser(uid,name){
-  if(!confirm('Block '+name+'?'))return;
-  await FU('users/'+uid,{blocked:true,blockedAt:Date.now()});
-  await FS('blocked/'+uid,{uid,name,blockedAt:Date.now()});
-  toast('🚫 '+name+' blocked','ok');loadUsers();loadModeration();
+function openTeamSearch(side){
+  selSide=side;
+  document.getElementById('team-modal').classList.add('show');
+  document.getElementById('team-search-inp').value='';
+  filterTeams('');
+  setTimeout(()=>document.getElementById('team-search-inp').focus(),100);
 }
-async function unblockUser(uid){
-  await FU('users/'+uid,{blocked:false});await FD('blocked/'+uid);
-  toast('✅ User unblocked','ok');loadUsers();
+function closeTeamModal(){document.getElementById('team-modal').classList.remove('show');}
+function filterTeams(q){
+  const el=document.getElementById('team-results');
+  const res=q?TEAMS.filter(t=>t.n.toLowerCase().includes(q.toLowerCase())):TEAMS;
+  el.innerHTML=res.map(t=>`<div class="team-result" onclick="selectTeam('${t.n}','${t.l}','${t.g}')">
+    <img class="tr-logo" src="${t.l}" onerror="this.style.display='none'">
+    <div><div class="tr-name">${t.n}</div><div class="tr-league">${t.g}</div></div>
+  </div>`).join('')||'<div style="padding:20px;text-align:center;color:var(--t3)">រកមិនឃើញ</div>';
 }
-async function deleteUser(uid,name){
-  if(!confirm('DELETE '+name+'? This is permanent!'))return;
-  await FD('users/'+uid);await FD('blocked/'+uid);
-  toast('🗑️ User deleted','ok');loadUsers();
-}
-async function makeAdmin(uid){
-  await FU('users/'+uid,{isAdmin:true});toast('👑 Admin granted','ok');closeModal('user-modal');
-}
-async function deleteAllPosts(uid){
-  if(!confirm('Delete ALL posts of this user?'))return;
-  const posts=Object.entries(allPosts).filter(([k,v])=>v.userId===uid);
-  for(const [k] of posts)await FD('posts/'+k);
-  await FU('users/'+uid,{posts:0});toast('🗑️ All posts deleted','ok');closeModal('user-modal');
-}
-async function givePointsTo(uid,name){
-  const amt=prompt('Points to give (use - for remove):');if(!amt)return;
-  const n=parseFloat(amt);if(isNaN(n))return;
-  const cur=(await FG('users/'+uid+'/points'))||0;
-  await FS('users/'+uid+'/points',Math.max(0,cur+n));
-  toast('💰 '+(n>0?'+':'')+n+' pts to '+name,'ok');
-}
-
-// ════════════════════════════════
-// POSTS
-// ════════════════════════════════
-async function loadPosts(){
-  const filter=document.getElementById('post-filter').value;
-  let posts=Object.entries(allPosts).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
-  if(filter!=='all')posts=posts.filter(p=>p.status===filter);
-  const tbody=document.getElementById('posts-table');
-  tbody.innerHTML=posts.map(p=>{const u=allUsers[p.userId]||{};const views=Object.keys(p.views||{}).length;
-    return`<tr>
-      <td style="max-width:200px"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.caption||p.prediction||'[Media]'}</div>${p.prediction?`<div style="font-size:11px;color:var(--g)">🎯 ${p.prediction}</div>`:''}</td>
-      <td><div style="font-size:12px;font-weight:500">${u.displayName||'Unknown'}</div></td>
-      <td>❤️ ${p.likes||0}</td><td>👁 ${views}</td>
-      <td>${p.status==='won'?'<span class="badge badge-g">Won</span>':p.status==='lost'?'<span class="badge badge-r">Lost</span>':'<span class="badge badge-gray">Pending</span>'}</td>
-      <td style="font-size:11px;color:var(--t2)">${p.createdAt?new Date(p.createdAt).toLocaleDateString():'-'}</td>
-      <td><div style="display:flex;gap:4px">
-        <select style="font-size:11px;background:var(--bg3);color:var(--t);border:1px solid var(--b2);border-radius:4px;padding:4px" onchange="setPostStatus('${p.id}',this.value)">
-          <option ${p.status==='pending'?'selected':''} value="pending">⏳</option>
-          <option ${p.status==='won'?'selected':''} value="won">✅ Won</option>
-          <option ${p.status==='lost'?'selected':''} value="lost">❌ Lost</option>
-        </select>
-        <button class="btn btn-sm btn-r" onclick="deletePost('${p.id}')">🗑</button>
-      </div></td>
-    </tr>`;}).join('');
-}
-async function setPostStatus(pid,status){
-  await FU('posts/'+pid,{status});
-  const post=allPosts[pid]||await FG('posts/'+pid);
-  if(post?.userId){
-    // Recalculate win rate for tipster
-    const snap=await db.ref('posts').orderByChild('userId').equalTo(post.userId).once('value');
-    const posts=snap.val()?Object.values(snap.val()):[];
-    // Include current post with new status
-    const won=posts.filter(p=>p.status==='won'||(p===post&&status==='won')).length;
-    const settled=posts.filter(p=>p.status==='won'||p.status==='lost'||(p===post&&(status==='won'||status==='lost'))).length;
-    const rate=settled>0?Math.round((won/settled)*100):null;
-    if(settled>0)await FU('users/'+post.userId,{winRate:rate,wonTips:won,settledTips:settled});
-    toast('✅ Status · Win Rate: '+(rate!=null?rate+'%':'N/A'),'ok');
-  } else toast('✅ Status updated','ok');
-  if(status==='won'&&post){
-    const preds=await FG('predictions');
-    if(preds){Object.entries(preds).forEach(async([uid,days])=>{Object.entries(days).forEach(async([day,matches])=>{if(matches[pid]==='home'||matches[pid]==='draw'||matches[pid]==='away'){const cur=(await FG('users/'+uid+'/points'))||0;await FS('users/'+uid+'/points',cur+10);}});});}
+function selectTeam(name,logo,group){
+  const side=selSide;
+  if(side==='home'){
+    homeTeam={n:name,l:logo};
+    document.getElementById('home-logo').innerHTML=`<img src="${logo}" style="max-width:52px;max-height:52px;object-fit:contain" onerror="this.parentNode.innerHTML='⚽'">`;
+    document.getElementById('home-name').textContent=name;
+    document.getElementById('home-card').classList.add('sel');
+  } else {
+    awayTeam={n:name,l:logo};
+    document.getElementById('away-logo').innerHTML=`<img src="${logo}" style="max-width:52px;max-height:52px;object-fit:contain" onerror="this.parentNode.innerHTML='⚽'">`;
+    document.getElementById('away-name').textContent=name;
+    document.getElementById('away-card').classList.add('sel');
   }
-}
-async function deletePost(pid){if(!confirm('Delete post?'))return;await FD('posts/'+pid);toast('🗑️ Post deleted','ok');loadPosts();}
-
-// ════════════════════════════════
-// MATCHES
-// ════════════════════════════════
-async function loadMatchesAdmin(){
-  const data=await FG('matches');const matches=data?Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>new Date(b.matchDate)-new Date(a.matchDate)):[];
-  document.getElementById('matches-table').innerHTML=matches.map(m=>`<tr>
-    <td>${m.homeIcon||'⚽'} ${m.home}</td><td>${m.awayIcon||'⚽'} ${m.away}</td>
-    <td>${m.league}</td><td>${m.matchDate||'-'}</td><td>${m.time}</td>
-    <td>${m.result?`<span class="badge badge-g">${m.result}</span>`:'<span class="badge badge-gray">TBD</span>'}</td>
-    <td><span class="badge ${m.active!==false?'badge-g':'badge-r'}">${m.active!==false?'Active':'Off'}</span></td>
-    <td><div style="display:flex;gap:4px">
-      <button class="btn btn-sm btn-b" onclick="setResult('${m.id}','${m.home}','${m.away}')">🏆 Result</button>
-      <button class="btn btn-sm ${m.active!==false?'btn-r':'btn-g'}" onclick="toggleMatch('${m.id}',${m.active!==false})">${m.active!==false?'Off':'On'}</button>
-      <button class="btn btn-sm btn-r" onclick="deleteMatch('${m.id}')">🗑</button>
-    </div></td>
-  </tr>`).join('');
-}
-function openAddMatch(){document.querySelector('#page-tip-admin .section-card:nth-child(2)')?.scrollIntoView();showPage('tip-admin');}
-async function addMatch(){
-  const home=document.getElementById('m-home').value.trim();const away=document.getElementById('m-away').value.trim();
-  if(!home||!away){toast('⚠️ Fill home & away','err');return;}
-  const d=document.getElementById('m-date').value||new Date().toISOString().slice(0,10);
-  const matchDate=new Date(d).toDateString();
-  await FP('matches',{home,away,homeIcon:document.getElementById('m-hic').value||'⚽',awayIcon:document.getElementById('m-aic').value||'⚽',league:document.getElementById('m-lg').value||'Football',time:document.getElementById('m-time').value||'22:00',matchDate,active:true,createdAt:Date.now()});
-  ['m-home','m-away','m-hic','m-aic','m-lg','m-time','m-date'].forEach(id=>document.getElementById(id).value='');
-  toast('✅ Match added!','ok');loadMatchesAdmin();
-}
-async function deleteMatch(id){if(!confirm('Delete match?'))return;await FD('matches/'+id);toast('🗑️ Deleted','ok');loadMatchesAdmin();}
-async function toggleMatch(id,wasActive){await FU('matches/'+id,{active:!wasActive});loadMatchesAdmin();}
-async function setResult(id,home,away){
-  const r=prompt(`Result for ${home} vs ${away}:\n"home" = ${home} wins\n"away" = ${away} wins\n"draw" = Draw`);
-  if(!r)return;await FU('matches/'+id,{result:r,active:false});
-  // Award prediction points
-  const allPreds=await FG('predictions');
-  if(allPreds){for(const [uid,days] of Object.entries(allPreds)){for(const [day,matches] of Object.entries(days)){if(matches&&matches[id]===r){const cur=(await FG('users/'+uid+'/points'))||0;await FS('users/'+uid+'/points',cur+10);}}}}
-  toast('🏆 Result set! Points awarded','ok');loadMatchesAdmin();
+  closeTeamModal();
+  updatePreview();
 }
 
-// ════════════════════════════════
-// PREDICTIONS
-// ════════════════════════════════
-async function loadPredictions(){
-  const [matches,preds]=await Promise.all([FG('matches'),FG('predictions')]);
-  const matchArr=matches?Object.entries(matches).map(([k,v])=>({...v,id:k})).filter(m=>!m.result&&m.active!==false):[];
-  document.getElementById('result-matches').innerHTML=matchArr.length?matchArr.map(m=>{
-    const today=new Date().toDateString();
-    let homeCnt=0,drawCnt=0,awayCnt=0;
-    if(preds)Object.values(preds).forEach(days=>{if(days[today]&&days[today][m.id]){if(days[today][m.id]==='home')homeCnt++;else if(days[today][m.id]==='draw')drawCnt++;else awayCnt++;}});
-    const total=homeCnt+drawCnt+awayCnt;
-    return`<div style="padding:12px;border-bottom:1px solid var(--b)">
-      <div style="font-size:14px;font-weight:600;margin-bottom:8px">${m.homeIcon||'⚽'} ${m.home} vs ${m.away} ${m.awayIcon||'⚽'} <span style="font-size:11px;color:var(--t2)">· ${m.league}</span></div>
-      <div style="display:flex;gap:8px;margin-bottom:8px;font-size:12px;color:var(--t2)">
-        <span>🏠 ${homeCnt} (${total?Math.round(homeCnt/total*100):0}%)</span>
-        <span>🤝 ${drawCnt} (${total?Math.round(drawCnt/total*100):0}%)</span>
-        <span>✈️ ${awayCnt} (${total?Math.round(awayCnt/total*100):0}%)</span>
-        <span style="color:var(--t)">Total: ${total} predictions</span>
-      </div>
-      <div style="display:flex;gap:6px">
-        <button class="btn btn-sm btn-g" onclick="setResult('${m.id}','${m.home}','${m.away}')">🏆 Set Result</button>
-      </div>
-    </div>`;}).join(''):'<div style="padding:16px;text-align:center;color:var(--t2)">No pending matches</div>';
+// ── PREVIEW ──
+function updatePreview(){
+  if(!homeTeam||!awayTeam){
+    document.getElementById('preview-empty').style.display='block';
+    document.getElementById('preview-card').style.display='none';
+    return;
+  }
+  document.getElementById('preview-empty').style.display='none';
+  document.getElementById('preview-card').style.display='block';
+  const lg=document.getElementById('t-league').value.split('|');
+  const pred=document.getElementById('t-pred').value||selTipVal;
+  const odds=document.getElementById('t-odds').value;
+  const time=document.getElementById('t-time').value;
+  document.getElementById('prev-league').textContent=(lg[1]||'⚽')+' '+lg[0];
+  document.getElementById('prev-home-logo').innerHTML=`<img src="${homeTeam.l}" style="max-width:44px;max-height:44px;object-fit:contain" onerror="this.parentNode.innerHTML='⚽'">`;
+  document.getElementById('prev-away-logo').innerHTML=`<img src="${awayTeam.l}" style="max-width:44px;max-height:44px;object-fit:contain" onerror="this.parentNode.innerHTML='⚽'">`;
+  document.getElementById('prev-home-name').textContent=homeTeam.n;
+  document.getElementById('prev-away-name').textContent=awayTeam.n;
+  document.getElementById('prev-time').textContent=time||'—';
+  document.getElementById('prev-pred').textContent=pred;
+  document.getElementById('prev-odds').textContent=odds?'Odds: '+odds:'';
+  document.getElementById('prev-analysis').textContent=document.getElementById('t-analysis').value||'(Analysis)';
 }
 
-// ════════════════════════════════
-// ADVERTISEMENTS
-// ════════════════════════════════
-async function loadAds(){
-  const ads=await FG('ads');const el=document.getElementById('ads-list');
-  if(!ads){el.innerHTML='<div style="text-align:center;color:var(--t2);padding:24px">No ads yet. Create your first ad!</div>';return;}
-  el.innerHTML=Object.entries(ads).map(([id,a])=>{
-    const clicks=Object.keys(a.clicks||{}).length;const pts=clicks*(a.ptsPerClick||3);
-    return`<div class="ad-item">
-      <div class="ad-badge">${a.placement||'feed'}</div>
-      <div style="font-size:14px;font-weight:700;margin-bottom:4px">${a.title}</div>
-      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">${a.desc||''}</div>
-      ${a.imgUrl?`<img src="${a.imgUrl}" style="max-height:80px;border-radius:var(--rs);margin-bottom:8px;display:block" onerror="this.style.display='none'">`:'' }
-      <div style="font-size:12px;color:var(--t2);margin-bottom:10px">🔗 <a href="${a.url}" target="_blank" style="color:var(--blue)">${a.url}</a></div>
-      <div style="display:flex;gap:12px;font-size:12px;margin-bottom:10px">
-        <span>👆 ${clicks} clicks</span>
-        <span class="text-gold">💰 ${pts} pts given</span>
-        <span>⚡ ${a.ptsPerClick||3} pts/click</span>
-        <span class="badge ${a.active?'badge-g':'badge-gray'}">${a.active?'Active':'Paused'}</span>
-      </div>
-      <div style="display:flex;gap:6px">
-        <button class="btn btn-sm ${a.active?'btn-r':'btn-g'}" onclick="toggleAd('${id}',${a.active})">${a.active?'Pause':'Activate'}</button>
-        <button class="btn btn-sm btn-o" onclick="editAd('${id}')">✏️ Edit</button>
-        <button class="btn btn-sm btn-r" onclick="deleteAd('${id}')">🗑 Delete</button>
-      </div>
-    </div>`;}).join('');
+// ── SUBMIT TIP ──
+async function submitTip(){
+  if(!homeTeam||!awayTeam){toast('⚠️ ជ្រើស ក្រុម ទាំង ២','err');return;}
+  const pred=document.getElementById('t-pred').value.trim();
+  const odds=parseFloat(document.getElementById('t-odds').value)||0;
+  if(!pred){toast('⚠️ ដាក់ Prediction','err');return;}
+  if(!odds){toast('⚠️ ដាក់ Odds ពី bookmaker','err');return;}
+  const btn=document.getElementById('post-btn-txt');
+  btn.innerHTML='<span class="spin"></span> Posting...';
+  const lg=document.getElementById('t-league').value.split('|');
+  const post={
+    userId:adminUID,
+    caption:`🔥 CEO Tip — ${homeTeam.n} vs ${awayTeam.n}`,
+    prediction:pred,
+    odds,
+    league:`${lg[1]||'⚽'} ${lg[0]}`,
+    tipType:selTipVal,
+    analysis:document.getElementById('t-analysis').value.trim(),
+    matchHome:homeTeam.n,
+    matchAway:awayTeam.n,
+    matchHomelogo:homeTeam.l,
+    matchAwayLogo:awayTeam.l,
+    matchTime:document.getElementById('t-time').value,
+    mediaUrl:'',mediaType:'',
+    likes:0,comments:0,shares:0,
+    status:'pending',
+    views:{[adminUID]:true},
+    isCEO:true,
+    createdAt:Date.now()
+  };
+  try{
+    const ref=await FP('posts',post);
+    allPosts[ref.key]={...post,id:ref.key};
+    toast('✅ CEO Tip Posted!','ok');
+    // Reset form
+    homeTeam=null;awayTeam=null;
+    document.getElementById('home-logo').innerHTML='<span style="font-size:32px">🏠</span>';
+    document.getElementById('home-name').textContent='ចុចជ្រើស';
+    document.getElementById('away-logo').innerHTML='<span style="font-size:32px">✈️</span>';
+    document.getElementById('away-name').textContent='ចុចជ្រើស';
+    document.getElementById('home-card').classList.remove('sel');
+    document.getElementById('away-card').classList.remove('sel');
+    document.getElementById('t-pred').value='';
+    document.getElementById('t-odds').value='';
+    document.getElementById('t-analysis').value='';
+    document.getElementById('vs-time').textContent='—';
+    document.getElementById('preview-empty').style.display='block';
+    document.getElementById('preview-card').style.display='none';
+    renderCEOTips();
+    renderDash();
+  }catch(e){toast('❌ '+e.message,'err');}
+  btn.textContent='Post ជា CEO FootTips';
 }
-function openAddAd(){openModal('ad-modal');}
-async function createAd(){
-  const title=document.getElementById('ad-title').value.trim();const url=document.getElementById('ad-url').value.trim();
-  if(!title||!url){toast('⚠️ Title & URL required','err');return;}
-  const ad={title,desc:document.getElementById('ad-desc').value.trim(),url,imgUrl:document.getElementById('ad-img').value.trim(),ptsPerClick:parseInt(document.getElementById('ad-pts').value)||3,placement:document.getElementById('ad-placement').value,budget:parseInt(document.getElementById('ad-budget').value)||0,clicks:{},active:true,createdAt:Date.now()};
-  await FP('ads',ad);closeModal('ad-modal');toast('📢 Ad created!','ok');loadAds();
-  ['ad-title','ad-desc','ad-url','ad-img'].forEach(id=>document.getElementById(id).value='');
-}
-async function toggleAd(id,wasActive){await FU('ads/'+id,{active:!wasActive});toast('✅ Updated','ok');loadAds();}
-async function deleteAd(id){if(!confirm('Delete ad?'))return;await FD('ads/'+id);toast('🗑️ Deleted','ok');loadAds();}
 
-// ════════════════════════════════
-// SUGGEST/BOOST
-// ════════════════════════════════
-function populateUserSelects(){
-  const users=Object.entries(allUsers).map(([k,v])=>({...v,id:k})).sort((a,b)=>a.displayName?.localeCompare(b.displayName));
-  const opts=users.map(u=>`<option value="${u.id}">${u.displayName} (@${u.username})</option>`).join('');
-  ['boost-user-sel','pts-user'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">-- ជ្រើស User --</option>'+opts;});
+// ── CEO TIPS LIST ──
+function renderCEOTips(){
+  const tips=Object.entries(allPosts)
+    .filter(([k,v])=>v.isCEO)
+    .map(([k,v])=>({...v,id:k}))
+    .sort((a,b)=>b.createdAt-a.createdAt)
+    .slice(0,20);
+  const el=document.getElementById('ceo-tips-list');
+  if(!el)return;
+  el.innerHTML=tips.length?tips.map(p=>ceoTipRow(p)).join('')
+    :'<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន CEO Tips</div>';
 }
-async function boostUser(){
-  const uid=document.getElementById('boost-user-sel').value;const dur=parseInt(document.getElementById('boost-dur').value)||1;
-  if(!uid){toast('⚠️ Select user','err');return;}
-  const exp=Date.now()+dur*86400000;
-  await FU('users/'+uid,{boosted:true,boostExp:exp});
-  await FU('boosted/'+uid,{uid,exp,dur,boostAt:Date.now()});
-  toast('⚡ User boosted for '+dur+' days!','ok');loadSuggest();
-}
-async function boostPost(){
-  const pid=document.getElementById('boost-post-inp').value.trim();const dur=parseInt(document.getElementById('boost-post-dur').value)||1;
-  if(!pid){toast('⚠️ Enter Post ID','err');return;}
-  const exp=Date.now()+dur*86400000;
-  await FU('posts/'+pid,{boosted:true,boostExp:exp});
-  toast('⚡ Post boosted!','ok');document.getElementById('boost-post-inp').value='';
-}
-async function saveAutoRules(){
-  const minLikes=parseInt(document.getElementById('auto-likes').value)||10;
-  const mult=parseFloat(document.getElementById('auto-mult').value)||2;
-  await FS('config/autoSuggest',{minLikes,mult,updatedAt:Date.now()});
-  toast('💾 Auto rules saved!','ok');
-}
-async function loadSuggest(){
-  const boosted=await FG('boosted');const el=document.getElementById('boosted-users');
-  if(!boosted){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--t2);font-size:13px">No boosted users</div>';return;}
-  const now=Date.now();
-  el.innerHTML=Object.entries(boosted).map(([uid,b])=>{const u=allUsers[uid]||{};const expired=b.exp<now;
-    return`<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--b)">
-      <div style="font-size:13px;flex:1">${u.displayName||'Unknown'} ${expired?'<span class="badge badge-r">Expired</span>':'<span class="badge badge-gold">Active</span>'}</div>
-      <div style="font-size:11px;color:var(--t2)">${b.dur}d · ${expired?'Expired':new Date(b.exp).toLocaleDateString()}</div>
-      <button class="btn btn-sm btn-r" onclick="unboostUser('${uid}')">✕</button>
-    </div>`;}).join('');
-}
-async function unboostUser(uid){await FU('users/'+uid,{boosted:false,boostExp:null});await FD('boosted/'+uid);toast('✅ Unboost','ok');loadSuggest();}
-
-// ════════════════════════════════
-// CEO TIP POST
-// ════════════════════════════════
-async function cePostTip(){
-  const match=document.getElementById('ceo-match').value.trim();const pred=document.getElementById('ceo-pred').value.trim();
-  if(!match||!pred){toast('⚠️ Match & prediction required','err');return;}
-  // Find or create CEO user
-  let ceoId=adminUID;
-  if(!ceoId){const snap=await db.ref('users').orderByChild('isAdmin').equalTo(true).once('value');const d=snap.val();if(d)ceoId=Object.keys(d)[0];}
-  if(!ceoId){toast('⚠️ Set Admin UID first','err');return;}
-  const post={userId:ceoId,caption:'',prediction:pred,odds:parseFloat(document.getElementById('ceo-odds').value)||1,league:document.getElementById('ceo-league').value.trim()||'Football',tipType:document.getElementById('ceo-type').value,analysis:document.getElementById('ceo-analysis').value.trim(),mediaUrl:'',mediaType:'',likes:0,comments:0,shares:0,status:'pending',views:{},isCEO:true,createdAt:Date.now()};
-  await FP('posts',post);
-  ['ceo-match','ceo-pred','ceo-odds','ceo-league','ceo-analysis'].forEach(id=>document.getElementById(id).value='');
-  toast('✅ CEO Tip posted!','ok');loadCEOPosts();
-}
-async function loadCEOPosts(){
-  const posts=Object.entries(allPosts).filter(([k,v])=>v.isCEO).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt).slice(0,10);
-  document.getElementById('ceo-posts-list').innerHTML=posts.length?posts.map(p=>`<div style="padding:12px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px">
-    <div style="flex:1">
-      <div style="font-size:13px;font-weight:600">🎯 ${p.prediction} · Odds ${p.odds||1}</div>
-      <div style="font-size:11px;color:var(--t2)">${p.league} · ❤️${p.likes||0} · ${new Date(p.createdAt).toLocaleDateString()}</div>
+function ceoTipRow(p){
+  const hl=p.matchHomelogo?`<img src="${p.matchHomelogo}" class="tip-logo-img" onerror="this.style.display='none'">`:'' ;
+  const al=p.matchAwayLogo?`<img src="${p.matchAwayLogo}" class="tip-logo-img" onerror="this.style.display='none'">`:'' ;
+  const date=new Date(p.createdAt).toLocaleDateString('km-KH');
+  return`<div class="tip-row">
+    <div class="tip-logos">${hl}<span style="font-size:10px;color:var(--t3);padding:0 3px">vs</span>${al}</div>
+    <div class="tip-info">
+      <div class="tip-match">${p.matchHome||'—'} vs ${p.matchAway||'—'}</div>
+      <div class="tip-meta">${p.league||''} · 🎯 ${p.prediction||''} · Odds ${p.odds||''} · ${date}</div>
     </div>
-    <span class="badge ${p.status==='won'?'badge-g':p.status==='lost'?'badge-r':'badge-gray'}">${p.status}</span>
-    <select style="font-size:11px;background:var(--bg3);color:var(--t);border:1px solid var(--b2);border-radius:4px;padding:4px" onchange="setPostStatus('${p.id}',this.value)">
-      <option ${p.status==='pending'?'selected':''} value="pending">⏳</option>
-      <option ${p.status==='won'?'selected':''} value="won">✅ Won</option>
-      <option ${p.status==='lost'?'selected':''} value="lost">❌ Lost</option>
-    </select>
-    <button class="btn btn-sm btn-r" onclick="deletePost('${p.id}')">🗑</button>
-  </div>`).join(''):'<div style="padding:16px;text-align:center;color:var(--t2)">No CEO posts yet</div>';
+    <div class="tip-actions">
+      <span class="badge ${p.status==='won'?'badge-g':p.status==='lost'?'badge-r':'badge-y'}">${p.status==='won'?'✅ Won':p.status==='lost'?'❌ Lost':'⏳ Pending'}</span>
+      <select class="status-sel" onchange="updateStatus('${p.id}',this.value)">
+        <option value="pending" ${p.status==='pending'?'selected':''}>⏳ Pending</option>
+        <option value="won" ${p.status==='won'?'selected':''}>✅ Won</option>
+        <option value="lost" ${p.status==='lost'?'selected':''}>❌ Lost</option>
+      </select>
+      <button class="btn btn-sm btn-r" onclick="delPost('${p.id}')">🗑</button>
+    </div>
+  </div>`;
 }
 
-// ════════════════════════════════
-// MODERATION
-// ════════════════════════════════
-async function loadModeration(){
-  const [blocked,reports]=await Promise.all([FG('blocked'),FG('reports')]);
-  // Blocked users
-  const bl=document.getElementById('blocked-list');
-  if(!blocked){bl.innerHTML='<div style="padding:14px;text-align:center;color:var(--t2);font-size:13px">No blocked users</div>';}
-  else{bl.innerHTML=Object.entries(blocked).map(([uid,b])=>{const u=allUsers[uid]||{};return`<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--b)">
-    <div style="flex:1"><div style="font-size:13px;font-weight:500">${u.displayName||b.name||'Unknown'}</div><div style="font-size:11px;color:var(--t2)">${new Date(b.blockedAt).toLocaleDateString()}</div></div>
-    <button class="btn btn-sm btn-g" onclick="unblockUser('${uid}')">Unblock</button>
-  </div>`;}).join('');}
-  // Reports
-  const rl=document.getElementById('reports-list');
-  rl.innerHTML='<div style="padding:14px;text-align:center;color:var(--t2);font-size:13px">No reports</div>';
+// ── RESULTS PAGE ──
+function renderResults(){
+  const pending=Object.entries(allPosts)
+    .filter(([k,v])=>v.status==='pending'&&v.matchHome)
+    .map(([k,v])=>({...v,id:k}))
+    .sort((a,b)=>b.createdAt-a.createdAt);
+  const el=document.getElementById('results-list');if(!el)return;
+  el.innerHTML=pending.length?pending.map(p=>pendingRow(p,p.id)).join('')
+    :'<div style="padding:30px;text-align:center;color:var(--t3)"><div style="font-size:32px;margin-bottom:8px">✅</div>Tips ទាំងអស់មាន Result</div>';
+}
+function pendingRow(p,id){
+  const hl=p.matchHomelogo?`<img src="${p.matchHomelogo}" class="tip-logo-img" onerror="this.style.display='none'">`:'' ;
+  const al=p.matchAwayLogo?`<img src="${p.matchAwayLogo}" class="tip-logo-img" onerror="this.style.display='none'">`:'' ;
+  return`<div class="tip-row">
+    <div class="tip-logos">${hl}<span style="font-size:10px;color:var(--t3);padding:0 3px">vs</span>${al}</div>
+    <div class="tip-info">
+      <div class="tip-match">${p.matchHome||'—'} vs ${p.matchAway||'—'}</div>
+      <div class="tip-meta">${p.league||''} · 🎯 ${p.prediction||''} · Odds ${p.odds||''}</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-sm btn-g" onclick="updateStatus('${id}','won')" style="font-size:13px">✅ Won</button>
+      <button class="btn btn-sm btn-r" onclick="updateStatus('${id}','lost')" style="font-size:13px">❌ Lost</button>
+    </div>
+  </div>`;
 }
 
-// ════════════════════════════════
-// POINTS
-// ════════════════════════════════
-async function loadPoints(){
-  const users=Object.entries(allUsers).map(([k,v])=>({...v,id:k})).sort((a,b)=>(b.points||0)-(a.points||0));
-  document.getElementById('pts-table').innerHTML=users.map((u,i)=>`<tr>
-    <td style="font-weight:700;color:var(--t2)">${i+1}</td>
-    <td><div class="user-row">
-      <div style="width:28px;height:28px;border-radius:50%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:11px">${u.avatar}</div>
-      <div><div style="font-size:13px;font-weight:600">${u.displayName}</div><div style="font-size:11px;color:var(--t2)">@${u.username}</div></div>
-    </div></td>
-    <td class="text-gold" style="font-weight:700">${Math.floor(u.points||0)}</td>
-    <td>${u.followers||0}</td><td>${u.posts||0}</td>
-    <td>${u.avgStars?'⭐'+u.avgStars:'—'}</td>
+// ── UPDATE STATUS ──
+async function updateStatus(pid,status){
+  await FU('posts/'+pid,{status});
+  if(allPosts[pid])allPosts[pid].status=status;
+  // Award pts if won
+  if(status==='won'){
+    try{
+      const preds=await FG('predictions');
+      if(preds){
+        for(const [uid,days] of Object.entries(preds)){
+          for(const [day,matches] of Object.entries(days)){
+            if(matches[pid]){
+              const cur=(await FG('users/'+uid+'/points'))||0;
+              await FS('users/'+uid+'/points',cur+10);
+            }
+          }
+        }
+      }
+    }catch(e){}
+    // Update win rate
+    const post=allPosts[pid];
+    if(post?.userId){
+      const userPosts=Object.values(allPosts).filter(p=>p.userId===post.userId&&p.isCEO);
+      const won=userPosts.filter(p=>p.status==='won').length;
+      const settled=userPosts.filter(p=>p.status==='won'||p.status==='lost').length;
+      if(settled>0){
+        const wr=Math.round(won/settled*100);
+        await FU('users/'+post.userId,{winRate:wr,wonTips:won,settledTips:settled});
+      }
+    }
+  }
+  toast(status==='won'?'✅ Won! +10pts awarded':'❌ Lost updated','ok');
+  renderCEOTips();
+  renderResults();
+  renderDash();
+}
+
+// ── DELETE POST ──
+async function delPost(pid){
+  if(!confirm('Delete?'))return;
+  await FD('posts/'+pid);
+  delete allPosts[pid];
+  toast('🗑️ Deleted','ok');
+  renderCEOTips();renderDash();
+}
+
+// ── ALL POSTS ──
+function renderPosts(){
+  const filter=document.getElementById('post-filter').value;
+  let posts=Object.entries(allPosts).map(([k,v])=>({...v,id:k}));
+  if(filter!=='all')posts=posts.filter(p=>p.status===filter);
+  posts.sort((a,b)=>b.createdAt-a.createdAt);
+  document.getElementById('posts-tbody').innerHTML=posts.map(p=>`<tr>
+    <td style="font-weight:600">${p.matchHome||'—'} vs ${p.matchAway||'—'}</td>
+    <td>${p.prediction||p.caption?.slice(0,30)||'—'}</td>
+    <td>${p.odds||'—'}</td>
+    <td style="font-size:11px">${p.league||'—'}</td>
+    <td>❤️ ${p.likes||0}</td>
+    <td><span class="badge ${p.status==='won'?'badge-g':p.status==='lost'?'badge-r':'badge-gray'}">${p.status||'—'}</span></td>
     <td><div style="display:flex;gap:4px">
-      <button class="btn btn-sm btn-g" onclick="givePointsTo('${u.id}','${u.displayName}')">💰</button>
-      <button class="btn btn-sm btn-b" onclick="viewUserDetail('${u.id}')">👁</button>
+      <select class="status-sel" onchange="updateStatus('${p.id}',this.value)">
+        <option value="pending" ${p.status==='pending'?'selected':''}>⏳</option>
+        <option value="won" ${p.status==='won'?'selected':''}>✅ Won</option>
+        <option value="lost" ${p.status==='lost'?'selected':''}>❌ Lost</option>
+      </select>
+      <button class="btn btn-sm btn-r" onclick="delPost('${p.id}')">🗑</button>
     </div></td>
+  </tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:20px">No posts</td></tr>';
+}
+function filterPosts(){renderPosts();}
+
+// ── USERS ──
+function renderUsers(){
+  const users=Object.entries(allUsers).map(([k,v])=>({...v,id:k})).sort((a,b)=>(b.points||0)-(a.points||0));
+  document.getElementById('user-count').textContent=users.length;
+  document.getElementById('users-tbody').innerHTML=users.map(u=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:8px">
+      <div style="width:32px;height:32px;border-radius:50%;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${(u.displayName||'?')[0]}</div>
+      <div><div style="font-size:13px;font-weight:600">${u.displayName||'—'}</div><div style="font-size:11px;color:var(--t2)">@${u.username||u.id?.slice(0,8)||'—'}</div></div>
+    </div></td>
+    <td style="font-weight:700;color:var(--g)">${Math.round(u.points||0).toLocaleString()}</td>
+    <td>${u.winRate!=null?u.winRate+'%':'—'}</td>
+    <td>${u.settledTips||0} tips</td>
+    <td>${u.isAdmin?'<span class="badge badge-g">Admin</span>':'<span class="badge badge-gray">User</span>'}</td>
+    <td><button class="btn btn-sm btn-r" onclick="banUser('${u.id}',${!u.banned})">
+      ${u.banned?'✅ Unban':'🚫 Ban'}
+    </button></td>
   </tr>`).join('');
-  populateUserSelects();
 }
-async function givePoints(){
-  const uid=document.getElementById('pts-user').value;const amt=parseFloat(document.getElementById('pts-amount').value);
-  if(!uid||isNaN(amt)){toast('⚠️ Select user & amount','err');return;}
-  const cur=(await FG('users/'+uid+'/points'))||0;await FS('users/'+uid+'/points',Math.max(0,cur+amt));
-  toast('💰 '+(amt>0?'+':'')+amt+' pts applied','ok');loadPoints();
+function filterUsers(){
+  const q=document.getElementById('user-search').value.toLowerCase();
+  document.querySelectorAll('#users-tbody tr').forEach(row=>{
+    row.style.display=row.textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
+async function banUser(uid,banned){
+  await FU('users/'+uid,{banned});
+  if(allUsers[uid])allUsers[uid].banned=banned;
+  toast(banned?'🚫 User banned':'✅ User unbanned','ok');
+  renderUsers();
 }
 
-// ════════════════════════════════
-// MODAL / UTILS
-// ════════════════════════════════
-function openModal(id){document.getElementById(id).classList.add('on');}
-function closeModal(id){document.getElementById(id).classList.remove('on');}
-document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');}));
-function toast(msg,type='inf'){const c=document.getElementById('toast-c'),t=document.createElement('div');t.className='toast '+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),2800);}
+// ── LEADERBOARD ──
+function renderLeaderboard(){
+  const users=Object.values(allUsers).filter(u=>u.points>0).sort((a,b)=>(b.points||0)-(a.points||0)).slice(0,50);
+  document.getElementById('lb-tbody').innerHTML=users.map((u,i)=>`<tr>
+    <td style="font-weight:700;color:${i===0?'var(--gold)':i===1?'var(--t2)':i===2?'#CD7F32':'var(--t3)'}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
+    <td><div style="display:flex;align-items:center;gap:8px">
+      <div style="width:28px;height:28px;border-radius:50%;background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">${(u.displayName||'?')[0]}</div>
+      ${u.displayName||'—'}
+    </div></td>
+    <td style="font-weight:700;color:var(--g)">${Math.round(u.points||0).toLocaleString()}</td>
+    <td>${u.winRate!=null?u.winRate+'%':'—'}</td>
+    <td>${u.wonTips||0}/${u.settledTips||0}</td>
+  </tr>`).join('');
+}
 
-// Set default date to today
-document.getElementById('m-date').value=new Date().toISOString().slice(0,10);
+// Click outside modal to close
+document.getElementById('team-modal').addEventListener('click',function(e){
+  if(e.target===this)closeTeamModal();
+});
 </script>
 </body>
 </html>
