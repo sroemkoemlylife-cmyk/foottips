@@ -312,6 +312,14 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
           <div class="fl">📝 ការវិភាគ (ខ្មែរ)</div>
           <textarea id="t-ana" rows="3" placeholder="ពន្យល់ហេតុផល tip..." oninput="updatePreview()"></textarea>
         </div>
+        <div class="fg">
+          <div class="fl">🔗 Link (optional) — ចុចពី Odds</div>
+          <input id="t-link" placeholder="https://... ព័ត៌មាន ឬ Live score..." oninput="updatePreview();document.getElementById('t-link-title-wrap').style.display=this.value?'block':'none'">
+        </div>
+        <div class="fg" id="t-link-title-wrap" style="display:none">
+          <div class="fl">📌 ចំណងជើង Link</div>
+          <input id="t-link-title" placeholder="ឧ. ព័ត៌មានបន្ថែម · Live Stream..." oninput="updatePreview()">
+        </div>
 
         <!-- PREVIEW -->
         <div id="preview-box" style="display:none;margin-bottom:14px;
@@ -390,50 +398,6 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
 
         <button id="post-btn" class="btn btn-g" style="width:100%;padding:14px;font-size:15px"
           onclick="submitTip()">📢 Post ជា CEO FootTips</button>
-      </div>
-    </div>
-
-    <!-- LINK POST CARD -->
-    <div class="card">
-      <div class="ch"><div class="ct">🔗 Post Link</div>
-        <span style="font-size:11px;color:var(--t2)">ផុស Link + ចំណងជើង → User ចុចបាន</span>
-      </div>
-      <div class="cb">
-        <div class="fg">
-          <div class="fl">🔗 Link URL</div>
-          <input id="lk-url" placeholder="https://..." oninput="previewLink()">
-        </div>
-        <div class="fg">
-          <div class="fl">📌 ចំណងជើង</div>
-          <input id="lk-title" placeholder="ឧ. ព័ត៌មានកីឡាបាល់ទាត់ថ្ងៃនេះ..." oninput="previewLink()">
-        </div>
-        <div class="fg">
-          <div class="fl">📝 ការពិពណ៌នា (optional)</div>
-          <input id="lk-desc" placeholder="ពិពណ៌នា..." oninput="previewLink()">
-        </div>
-        <!-- Link Preview -->
-        <div id="lk-preview" style="display:none;margin-bottom:14px">
-          <div style="font-size:11px;font-weight:700;color:var(--g);margin-bottom:8px">👁 Preview</div>
-          <div style="background:var(--bg3);border:1px solid var(--b);border-radius:12px;
-            overflow:hidden;cursor:pointer">
-            <div style="padding:12px 14px">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-                <span style="font-size:16px">🔗</span>
-                <span style="font-size:11px;color:var(--t2)" id="lk-domain">example.com</span>
-              </div>
-              <div style="font-size:14px;font-weight:700;margin-bottom:4px;color:var(--t)"
-                id="lk-prev-title">ចំណងជើង...</div>
-              <div style="font-size:12px;color:var(--t2)" id="lk-prev-desc"></div>
-              <div style="margin-top:10px;display:inline-flex;align-items:center;gap:6px;
-                background:var(--g);color:#000;padding:7px 14px;border-radius:20px;
-                font-size:12px;font-weight:700">
-                <span>🔗</span><span>ចុចដើម្បីមើល</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <button class="btn btn-g" style="width:100%;padding:12px;font-size:14px"
-          onclick="submitLink()" id="lk-btn">🔗 Post Link</button>
       </div>
     </div>
 
@@ -873,6 +837,10 @@ async function submitTip(){
   const btn=document.getElementById('post-btn');
   btn.innerHTML='<span class="spin"></span> Posting...';btn.disabled=true;
   const lg=document.getElementById('t-lg').value.split('|');
+  const linkUrl=(document.getElementById('t-link').value||'').trim();
+  const linkTitle=(document.getElementById('t-link-title').value||'').trim();
+  let linkDomain='';
+  if(linkUrl){try{linkDomain=new URL(linkUrl.startsWith('http')?linkUrl:'https://'+linkUrl).hostname;}catch(e){linkDomain=linkUrl;}}
   const post={
     userId:aUID,
     caption:`🔥 CEO Tip — ${hTeam.name} vs ${aTeam.name}`,
@@ -883,6 +851,9 @@ async function submitTip(){
     matchHome:hTeam.name,matchAway:aTeam.name,
     matchHomelogo:hTeam.logo,matchAwayLogo:aTeam.logo,
     matchTime:document.getElementById('t-time').value,
+    linkUrl:linkUrl?(linkUrl.startsWith('http')?linkUrl:'https://'+linkUrl):'',
+    linkTitle:linkTitle||'',
+    linkDomain:linkDomain,
     mediaUrl:'',mediaType:'',
     likes:0,comments:0,shares:0,
     status:'pending',views:{[aUID]:true},
@@ -903,66 +874,12 @@ async function submitTip(){
     document.getElementById('btn-a').classList.remove('on');
     document.getElementById('t-odds').value='';
     document.getElementById('t-ana').value='';
+    document.getElementById('t-link').value='';
+    document.getElementById('t-link-title').value='';
+    document.getElementById('t-link-title-wrap').style.display='none';
     renderCEO();renderDash();
   }catch(e){toast('❌ '+e.message,false);}
   btn.innerHTML='📢 Post ជា CEO FootTips';btn.disabled=false;
-}
-
-// ══ LINK POST ══
-function previewLink(){
-  const url=document.getElementById('lk-url').value.trim();
-  const title=document.getElementById('lk-title').value.trim();
-  const desc=document.getElementById('lk-desc').value.trim();
-  const box=document.getElementById('lk-preview');
-  if(!url&&!title){box.style.display='none';return;}
-  box.style.display='block';
-  // Domain extract
-  try{
-    const d=url?new URL(url.startsWith('http')?url:'https://'+url).hostname:'—';
-    document.getElementById('lk-domain').textContent=d;
-  }catch(e){document.getElementById('lk-domain').textContent=url.slice(0,30);}
-  document.getElementById('lk-prev-title').textContent=title||'ចំណងជើង...';
-  document.getElementById('lk-prev-desc').textContent=desc;
-  document.getElementById('lk-prev-desc').style.display=desc?'block':'none';
-}
-
-async function submitLink(){
-  const url=document.getElementById('lk-url').value.trim();
-  const title=document.getElementById('lk-title').value.trim();
-  const desc=document.getElementById('lk-desc').value.trim();
-  if(!url){toast('⚠️ ដាក់ Link URL',false);return;}
-  if(!title){toast('⚠️ ដាក់ ចំណងជើង',false);return;}
-  if(!aUID){toast('⚠️ Admin UID not found',false);return;}
-  const btn=document.getElementById('lk-btn');
-  btn.innerHTML='<span class="spin"></span> Posting...';btn.disabled=true;
-  let domain='';
-  try{domain=new URL(url.startsWith('http')?url:'https://'+url).hostname;}catch(e){domain=url;}
-  const post={
-    userId:aUID,
-    caption:title,
-    linkUrl:url.startsWith('http')?url:'https://'+url,
-    linkTitle:title,
-    linkDesc:desc,
-    linkDomain:domain,
-    mediaUrl:'',mediaType:'',
-    prediction:'',odds:0,
-    likes:0,comments:0,shares:0,
-    status:'link',
-    views:{[aUID]:true},
-    isCEO:true,isLink:true,
-    createdAt:Date.now()
-  };
-  try{
-    const ref=await FP('posts',post);
-    AP[ref.key]={...post,id:ref.key};
-    toast('✅ Link Posted!');
-    document.getElementById('lk-url').value='';
-    document.getElementById('lk-title').value='';
-    document.getElementById('lk-desc').value='';
-    document.getElementById('lk-preview').style.display='none';
-    renderCEO();renderDash();
-  }catch(e){toast('❌ '+e.message,false);}
-  btn.innerHTML='🔗 Post Link';btn.disabled=false;
 }
 
 // ══ STATUS ══
