@@ -1042,6 +1042,17 @@ function postH(p,ml){
           <div class="mc-badges">
             <span class="mc-pred">🎯 ${p.prediction||''}</span>
             ${p.odds>1?`<span class="mc-odds">Odds: ${p.odds}</span>`:''}
+            ${p.linkUrl?`<a href="${p.linkUrl}" target="_blank"
+              onclick="event.stopPropagation()"
+              style="display:inline-flex;align-items:center;gap:5px;
+              background:rgba(75,139,255,.12);color:#4B8BFF;
+              border:1px solid rgba(75,139,255,.3);
+              padding:6px 13px;border-radius:20px;font-size:12px;font-weight:700;
+              text-decoration:none;transition:background .15s"
+              onmouseover="this.style.background='rgba(75,139,255,.2)'"
+              onmouseout="this.style.background='rgba(75,139,255,.12)'">
+              <span>🔗</span><span>${p.linkTitle||'Link'}</span>
+            </a>`:''}
             ${st}
           </div>
         </div>
