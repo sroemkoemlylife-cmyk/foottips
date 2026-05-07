@@ -1505,40 +1505,43 @@ async function submitCmt(){
   const inp=document.getElementById('cmt-inp');
   if(!inp)return;
   const text=inp.value.trim();
-  if(!text)return;
-  if(!curTip){toast('⚠️ Error: no post','err');return;}
+  if(!text){inp.focus();return;}
+  if(!curTip||!U||!U.id){toast('⚠️ Login ដើម្បី Comment','err');return;}
+  // UI feedback
   const btn=document.querySelector('#cmt-ov .send-btn');
-  if(btn)btn.disabled=true;
+  const origBtnHTML=btn?btn.innerHTML:'';
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spin" style="border-top-color:#000"></span>';}
   inp.disabled=true;
   try{
+    const data={userId:U.id,text:text,createdAt:Date.now()};
     if(cmtReplyId){
-      await FP('comments/'+curTip+'/r_'+cmtReplyId,{userId:U.id,text,createdAt:Date.now()});
+      data.parentId=cmtReplyId;
+      await db.ref('comments/'+curTip+'/r_'+cmtReplyId).push(data);
     }else{
-      await FP('comments/'+curTip,{userId:U.id,text,likes:0,createdAt:Date.now()});
-      // Update count
-      const newCnt=((allPosts[curTip]?.comments)||0)+1;
-      if(allPosts[curTip])allPosts[curTip].comments=newCnt;
-      FS('posts/'+curTip+'/comments',newCnt);
-      document.querySelectorAll('.pab-cmt-cnt').forEach(el=>{
-        if(el.closest(`#pc-${curTip}`))el.textContent=newCnt;
-      });
-      // Notify
+      data.likes=0;
+      await db.ref('comments/'+curTip).push(data);
+      // Update post comment count
+      await db.ref('posts/'+curTip+'/comments').transaction(n=>(n||0)+1);
+      if(allPosts[curTip])allPosts[curTip].comments=(allPosts[curTip].comments||0)+1;
+      // Notify owner
       const oid=allPosts[curTip]?.userId;
       if(oid&&oid!==U.id){
-        FG('users/'+oid+'/points').then(p=>FS('users/'+oid+'/points',(p||0)+0.2));
+        db.ref('users/'+oid+'/points').transaction(p=>(p||0)+0.2);
         sendNotif(oid,'comment',U.displayName+': '+text.slice(0,30),U.id,curTip);
       }
     }
+    // Reset input
+    inp.value='';
+    inp.style.height='auto';
+    cancelReplyBar();
+    inp.focus();
   }catch(e){
-    console.error('Comment error:',e);
-    toast('❌ Comment fail','err');
+    console.error('Comment error:',e.message);
+    toast('❌ '+e.message,'err');
+  }finally{
+    inp.disabled=false;
+    if(btn){btn.disabled=false;btn.innerHTML=origBtnHTML;}
   }
-  inp.disabled=false;
-  inp.value='';
-  inp.style.height='auto';
-  if(btn)btn.disabled=false;
-  cancelReplyBar();
-  inp.focus();
 }
 async function likeCmt(pid,cid,btn){
   const lk=btn.classList.contains('lk');const liked=!lk;
