@@ -820,6 +820,19 @@ function updatePreview(){
   if(ana){anaEl.style.display='block';anaEl.textContent=ana;}
   else anaEl.style.display='none';
 
+  // Link button
+  const linkUrl=(document.getElementById('t-link')?.value||'').trim();
+  const linkTitle=(document.getElementById('t-link-title')?.value||'').trim()||'Link';
+  const pvLink=document.getElementById('pv-link');
+  if(pvLink){
+    if(linkUrl){
+      pvLink.style.display='inline-flex';
+      pvLink.textContent='🔗 '+linkTitle;
+    }else{
+      pvLink.style.display='none';
+    }
+  }
+
   // Live indicator pulse
   const live=document.getElementById('prev-live');
   live.style.color='var(--g)';
