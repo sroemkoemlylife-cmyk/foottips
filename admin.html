@@ -321,83 +321,55 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
           <input id="t-link-title" placeholder="ឧ. ព័ត៌មានបន្ថែម · Live Stream..." oninput="updatePreview()">
         </div>
 
-        <!-- PREVIEW -->
-        <div id="preview-box" style="display:none;margin-bottom:14px;
-          background:var(--bg2);border:1.5px solid rgba(0,195,122,.3);
-          border-radius:14px;overflow:hidden">
-          <div style="padding:10px 14px;background:rgba(0,195,122,.06);
-            border-bottom:1px solid rgba(0,195,122,.15);display:flex;
-            align-items:center;justify-content:space-between">
-            <div style="font-size:12px;font-weight:700;color:var(--g)">👁 Preview — Post នឹងបង្ហាញដូចនេះ</div>
-            <div style="font-size:10px;color:var(--t3)" id="prev-live">live</div>
-          </div>
-          <!-- Post header (CEO) -->
-          <div style="padding:12px 14px">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <div style="width:40px;height:40px;border-radius:50%;background:#00C37A22;
-                color:var(--g);display:flex;align-items:center;justify-content:center;
-                font-size:18px;font-weight:700;flex-shrink:0">P</div>
-              <div>
-                <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:5px">
-                  ADMIN PANDA
-                  <span style="color:var(--blue);font-size:12px">✓</span>
-                  <span style="background:var(--gold);color:#000;font-size:9px;
-                    font-weight:800;padding:1px 6px;border-radius:6px">CEO</span>
-                </div>
-                <div style="font-size:11px;color:var(--t2)">ឥឡូវនេះ</div>
-              </div>
-            </div>
-            <!-- Match card -->
-            <div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:10px">
-              <!-- League -->
-              <div style="font-size:11px;font-weight:700;color:var(--t2);
-                text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px"
-                id="pv-league">⭐ Champions League</div>
-              <!-- Teams -->
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-                <div style="text-align:center;flex:1">
-                  <div id="pv-hlogo" style="height:48px;display:flex;align-items:center;
-                    justify-content:center;margin-bottom:6px">
-                    <span style="font-size:30px">🏠</span>
-                  </div>
-                  <div style="font-size:12px;font-weight:700" id="pv-hname">ក្រុមមម្ចាស់ផ្ទះ</div>
-                </div>
-                <div style="text-align:center;padding:0 10px">
-                  <div style="font-size:11px;color:var(--t3);margin-bottom:4px" id="pv-time">22:00</div>
-                  <div style="font-size:15px;font-weight:800;color:var(--t3)">VS</div>
-                </div>
-                <div style="text-align:center;flex:1">
-                  <div id="pv-alogo" style="height:48px;display:flex;align-items:center;
-                    justify-content:center;margin-bottom:6px">
-                    <span style="font-size:30px">✈️</span>
-                  </div>
-                  <div style="font-size:12px;font-weight:700" id="pv-aname">ក្រុមភ្ញៀវ</div>
-                </div>
-              </div>
-              <!-- Tip badge -->
-              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-                <div style="background:var(--g);color:#000;padding:6px 14px;
-                  border-radius:20px;font-size:13px;font-weight:700" id="pv-pred">Over 2.5 Goals</div>
-                <div style="background:rgba(75,139,255,.15);color:var(--blue);
-                  border:1px solid rgba(75,139,255,.3);padding:6px 14px;
-                  border-radius:20px;font-size:13px;font-weight:700" id="pv-odds">Odds: 1.85</div>
-              </div>
-            </div>
-            <!-- Analysis -->
-            <div id="pv-ana" style="font-size:13px;color:var(--t2);line-height:1.7;
-              display:none;padding:0 2px"></div>
-            <!-- Action bar -->
-            <div style="display:flex;gap:0;margin-top:10px;border-top:1px solid var(--b);
-              padding-top:10px">
-              <div style="flex:1;text-align:center;font-size:12px;color:var(--t3)">🤍 Like</div>
-              <div style="flex:1;text-align:center;font-size:12px;color:var(--t3)">💬 Comment</div>
-              <div style="flex:1;text-align:center;font-size:12px;color:var(--t3)">↗️ Share</div>
-            </div>
-          </div>
-        </div>
 
         <button id="post-btn" class="btn btn-g" style="width:100%;padding:14px;font-size:15px"
           onclick="submitTip()">📢 Post ជា CEO FootTips</button>
+      </div>
+    </div>
+
+
+    <!-- PREVIEW (outside card, no overflow clip) -->
+    <div id="preview-box" style="display:none;margin-bottom:16px;background:var(--bg2);border:1.5px solid rgba(0,195,122,.3);border-radius:14px;overflow:hidden">
+      <div style="padding:10px 14px;background:rgba(0,195,122,.06);border-bottom:1px solid rgba(0,195,122,.15);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:12px;font-weight:700;color:var(--g)">👁 Preview — Post នឹងបង្ហាញដូចនេះ</div>
+        <div style="font-size:10px;color:var(--t3)" id="prev-live">live</div>
+      </div>
+      <div style="padding:12px 14px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:36px;height:36px;border-radius:50%;background:#00C37A22;color:var(--g);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0">P</div>
+          <div>
+            <div style="font-size:13px;font-weight:700">ADMIN PANDA <span style="color:var(--blue);font-size:11px">✓</span> <span style="background:var(--gold);color:#000;font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px">CEO</span></div>
+            <div style="font-size:11px;color:var(--t2)">ឥឡូវនេះ</div>
+          </div>
+        </div>
+        <div style="background:var(--bg3);border-radius:12px;padding:12px;margin-bottom:8px">
+          <div style="font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px" id="pv-league">⭐ Champions League</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="text-align:center;flex:1">
+              <div id="pv-hlogo" style="height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:4px"><span style="font-size:28px">🏠</span></div>
+              <div style="font-size:11px;font-weight:700" id="pv-hname">ម្ចាស់ផ្ទះ</div>
+            </div>
+            <div style="text-align:center;padding:0 8px">
+              <div style="font-size:10px;color:var(--t3)" id="pv-time">—</div>
+              <div style="font-size:13px;font-weight:800;color:var(--t3)">VS</div>
+            </div>
+            <div style="text-align:center;flex:1">
+              <div id="pv-alogo" style="height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:4px"><span style="font-size:28px">✈️</span></div>
+              <div style="font-size:11px;font-weight:700" id="pv-aname">ភ្ញៀវ</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <span style="background:var(--g);color:#000;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700" id="pv-pred">Tip...</span>
+            <span style="background:rgba(75,139,255,.15);color:#4B8BFF;border:1px solid rgba(75,139,255,.3);padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700" id="pv-odds">Odds: —</span>
+            <span id="pv-link" style="display:none;align-items:center;gap:4px;background:#ff7800;color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700">🔗 Link</span>
+          </div>
+        </div>
+        <div id="pv-ana" style="display:none;font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:6px"></div>
+        <div style="display:flex;gap:0;padding-top:8px;border-top:1px solid var(--b)">
+          <div style="flex:1;text-align:center;font-size:12px;color:var(--t3)">🤍 Like</div>
+          <div style="flex:1;text-align:center;font-size:12px;color:var(--t3)">💬 Comment</div>
+          <div style="flex:1;text-align:center;font-size:12px;color:var(--t3)">↗️ Share</div>
+        </div>
       </div>
     </div>
 
