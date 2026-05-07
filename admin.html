@@ -781,7 +781,9 @@ function updatePreview(){
   // Show preview once at least one team or prediction is set
   const pred=document.getElementById('t-pred').value.trim();
   const odds=document.getElementById('t-odds').value;
-  if(!hTeam&&!aTeam&&!pred){box.style.display='none';return;}
+  // Show preview when ANY field filled
+  const linkUrl2=(document.getElementById('t-link')?.value||'').trim();
+  if(!hTeam&&!aTeam&&!pred&&!odds&&!linkUrl2){box.style.display='none';return;}
   box.style.display='block';
 
   // League
