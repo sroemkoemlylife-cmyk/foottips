@@ -664,7 +664,7 @@ const ls={
   g:k=>{try{return JSON.parse(localStorage.getItem('ft_'+k));}catch(e){return null;}},
   s:(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}}
 };
-let U=null,AU={},allPosts={},feedTab='all',curTip=null,curChat=null;
+let U=null,AU={},allPosts={},feedTab='all',curTip=null,curChat=null,cmtReplyId=null;
 let leadTab='pts';
 let curStarUid=null,curStar=0,mediaFile=null;
 let isRec=false,mr=null,recChunks=[],recStart=0;
@@ -1369,8 +1369,6 @@ async
 // ══════════════════════════════════════════════
 // COMMENTS
 // ══════════════════════════════════════════════
-let cmtReplyId=null;
-
 function setBtnLoading(on){
   const btn=document.getElementById('post-btn');if(!btn)return;
   const ic=document.getElementById('post-btn-ic');
