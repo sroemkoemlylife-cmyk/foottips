@@ -856,6 +856,42 @@ function launch(){
   try{window.Telegram?.WebApp?.BackButton?.onClick(()=>NAV.pop());}catch(e){}
   // Android hardware back
   window.addEventListener('popstate',()=>NAV.pop());
+  // ── Handle shared post deep link ──
+  setTimeout(()=>handleDeepLink(),800);
+}
+
+async function handleDeepLink(){
+  try{
+    // Telegram Mini App passes startapp= as start_param
+    const sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||
+             new URLSearchParams(window.location.hash.replace('#','?')).get('startapp')||
+             new URLSearchParams(window.location.search).get('startapp')||
+             new URLSearchParams(window.location.search).get('start')||'';
+    if(!sp)return;
+    if(sp.startsWith('post_')){
+      const pid=sp.slice(5);
+      if(!pid)return;
+      // Wait for posts to load, then open
+      let tries=0;
+      const tryOpen=async()=>{
+        const post=allPosts[pid]||(await FG('posts/'+pid));
+        if(post){
+          // Add to allPosts cache
+          if(!allPosts[pid])allPosts[pid]={...post,id:pid};
+          // Add to AU cache if needed
+          if(post.userId&&!AU[post.userId]){
+            const u=await FG('users/'+post.userId);
+            if(u)AU[post.userId]=u;
+          }
+          openPostFull(pid);
+        }else if(tries<5){
+          tries++;
+          setTimeout(tryOpen,600);
+        }
+      };
+      tryOpen();
+    }
+  }catch(e){console.log('deeplink:',e.message);}
 }
 
 // ══════════════════════════════════════════════
@@ -1226,22 +1262,38 @@ function doShare(pid,text){
   if(allPosts[pid])allPosts[pid].shares=(allPosts[pid].shares||0)+1;
 }
 function shareToTG(pid){
-  const url=`https://t.me/share/url?url=https://t.me/${BOT}/foottips168&text=⚽ Check this tip on FootTips!`;
-  window.open(url,'_blank');closeSheet('menu-ov');
-}
-function copyShareLink(pid){
-  const url=`https://t.me/${BOT}?start=post_${pid}`;
-  if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>toast('✅ Link copied!','ok'));
-  else{
-    const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();
-    document.execCommand('copy');document.body.removeChild(t);toast('✅ Link copied!','ok');
-  }
+  const post=allPosts[pid]||{};
+  const title=post.matchHome?`⚽ ${post.matchHome} vs ${post.matchAway} — 🎯${post.prediction||''}`:
+    post.linkTitle||post.caption||'FootTips Tip';
+  const appLink=`https://t.me/${BOT}/foottips168?startapp=post_${pid}`;
+  const shareText=encodeURIComponent(`${title}
+
+👉 ចុចចូល FootTips App`);
+  const shareUrl=encodeURIComponent(appLink);
+  window.open(`https://t.me/share/url?url=${shareUrl}&text=${shareText}`,'_blank');
   closeSheet('menu-ov');
 }
+function copyShareLink(pid){
+  // Use startapp= for Mini App deep link (correct format)
+  const url=`https://t.me/${BOT}/foottips168?startapp=post_${pid}`;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(()=>toast('✅ Link copied!','ok')).catch(()=>{
+      legacyCopy(url);toast('✅ Link copied!','ok');
+    });
+  }else{legacyCopy(url);toast('✅ Link copied!','ok');}
+  closeSheet('menu-ov');
+}
+function legacyCopy(text){
+  const t=document.createElement('textarea');
+  t.value=text;t.style.position='fixed';t.style.opacity='0';
+  document.body.appendChild(t);t.select();
+  document.execCommand('copy');document.body.removeChild(t);
+}
 function shareNative(pid,title){
-  const url=`https://t.me/${BOT}?start=post_${pid}`;
-  if(navigator.share){navigator.share({title:'FootTips',text:title,url}).catch(()=>{});}
-  else copyShareLink(pid);
+  const url=`https://t.me/${BOT}/foottips168?startapp=post_${pid}`;
+  if(navigator.share){
+    navigator.share({title:'FootTips',text:title+' | FootTips',url}).catch(()=>{});
+  }else copyShareLink(pid);
   closeSheet('menu-ov');
 }
 function shareToStory(pid){toast('🌟 Story feature coming soon!','inf');closeSheet('menu-ov');}
