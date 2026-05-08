@@ -724,7 +724,8 @@ const NAV={
 // Simple lazy: only load videos near viewport
 function avHTML(u,sz=38){
   const s=sz+'px';
-  if(u?.avUrl&&u.avUrl.length>10)return`<img src="${u.avUrl}" style="width:${s};height:${s};border-radius:50%;object-fit:cover">`;
+  const photo=u?.tgPhoto||u?.avUrl||'';
+  if(photo&&photo.length>10)return`<img src="${photo}" style="width:${s};height:${s};border-radius:50%;object-fit:cover" onerror="this.style.display='none'">`;
   return`<span style="font-size:${Math.floor(sz*.42)}px;line-height:${s};display:flex;align-items:center;justify-content:center;width:${s};height:${s}">${u?.avatar||'⚽'}</span>`;
 }
 function nameH(u){
@@ -773,16 +774,43 @@ window.addEventListener('load',()=>{
 // ══════════════════════════════════════════════
 async function loginTg(tgUser){
   const tgId=String(tgUser.id);
+  const name=((tgUser.first_name||'')+(tgUser.last_name?' '+tgUser.last_name:'')).trim()||tgUser.username||'User';
+  const tgPhoto=tgUser.photo_url||''; // Telegram profile photo
   const snap=await db.ref('users').orderByChild('tgId').equalTo(tgId).once('value');
   const data=snap.val();
-  if(data){const uid=Object.keys(data)[0];ls.s('uid',uid);return{...data[uid],id:uid};}
+  if(data){
+    const uid=Object.keys(data)[0];
+    const existing=data[uid];
+    ls.s('uid',uid);
+    // Auto-sync: update name + photo if changed
+    const updates={};
+    const newName=name||existing.displayName;
+    if(newName&&newName!==existing.displayName)updates.displayName=newName;
+    if(tgPhoto&&tgPhoto!==existing.tgPhoto){
+      updates.tgPhoto=tgPhoto; // Save TG photo URL
+      updates.avUrl=tgPhoto;   // Use as avatar
+    }
+    if(Object.keys(updates).length>0){
+      await FU('users/'+uid,updates);
+      Object.assign(existing,updates);
+    }
+    return{...existing,id:uid};
+  }
+  // New user — create with TG photo
   const idx=parseInt(tgId.slice(-2))%COLS.length;
-  const name=((tgUser.first_name||'')+(tgUser.last_name?' '+tgUser.last_name:'')).trim()||tgUser.username||'User';
   const uname=(tgUser.username||'tg'+tgId.slice(-6)).toLowerCase().replace(/[^a-z0-9_]/g,'');
   const ref=db.ref('users').push();const uid=ref.key;
-  const u={tgId,username:uname,displayName:name,avatar:AVS[idx%AVS.length],color:COLS[idx],avUrl:'',points:0,followers:0,following:0,posts:0,bio:'Telegram user 🌟',isAdmin:false,createdAt:Date.now()};
+  const u={
+    tgId,username:uname,displayName:name,
+    avatar:AVS[idx%AVS.length],color:COLS[idx],
+    avUrl:tgPhoto,      // ← Telegram photo as avatar!
+    tgPhoto:tgPhoto,    // ← Save TG photo URL for sync
+    points:0,followers:0,following:0,posts:0,
+    bio:'Telegram user 🌟',isAdmin:false,createdAt:Date.now()
+  };
   await ref.set(u);await FS('referrals/FT_'+uname,uid);ls.s('uid',uid);
-  toast('🎉 ស្វាគមន៍ '+name+'!','ok');return{...u,id:uid};
+  toast('🎉 ស្វាគមន៍ '+name+'!','ok');
+  return{...u,id:uid};
 }
 async function go(){
   const inp=document.getElementById('lg-inp');const raw=inp.value.trim();
@@ -1919,14 +1947,57 @@ async function openPostFull(pid){
 // AVATAR + CROP — Facebook style
 // ══════════════════════════════════════════════
 function changeAv(){
-  document.getElementById('menu-items').innerHTML=`
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:12px">${'⭐🚀🎯💎🔥⚡🌟🎪🦁🐯🦊🐼🦅🎭🏆🎬🌙🎸🦋🍀'.split('').map(e=>`<div style="font-size:30px;cursor:pointer;padding:8px;border-radius:8px;text-align:center;background:var(--card)" onclick="setAv('${e}')">${e}</div>`).join('')}</div>
-  <div style="padding:0 12px 12px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--card);border:1px dashed var(--b2);border-radius:var(--rs);padding:12px">
-    <span style="font-size:18px">📷</span><span style="font-size:13px;color:var(--t2)">Upload & Crop Photo (ដូច Facebook)</span>
-    <input type="file" accept="image/*" style="display:none" onchange="startCrop(this)">
-  </label></div>`;
+  const el=document.getElementById('menu-items');
+  const hasTgPhoto=U?.tgPhoto;
+  el.innerHTML=`
+  <div style="padding:14px 16px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:14px;text-align:center">🖼 Profile Photo</div>
+    ${hasTgPhoto?`
+    <div onclick="syncTgPhoto()" style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg3);border-radius:12px;cursor:pointer;margin-bottom:10px;border:1px solid rgba(0,195,122,.3)">
+      <img src="${U.tgPhoto}" style="width:44px;height:44px;border-radius:50%;object-fit:cover">
+      <div>
+        <div style="font-size:13px;font-weight:700">✈️ ប្រើ Telegram Photo</div>
+        <div style="font-size:11px;color:var(--t2)">Sync ពី Telegram account</div>
+      </div>
+      <span style="margin-left:auto;color:var(--g);font-size:18px">→</span>
+    </div>`:''}
+    <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">ជ្រើស Avatar</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px">
+      ${'⭐🚀🎯💎🔥⚡🌟🎪🦁🐯🦊🐼🦅🎭🏆🎬🌙🎸🦋🍀'.split('').map(e=>`<div style="font-size:28px;cursor:pointer;padding:8px;border-radius:10px;text-align:center;background:var(--card)" onclick="setAv('${e}')">${e}</div>`).join('')}
+    </div>
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--card);border:1px dashed var(--b2);border-radius:12px;padding:12px">
+      <span style="font-size:22px">📷</span>
+      <span style="font-size:13px;font-weight:600">Upload Photo ផ្ទាល់ខ្លួន</span>
+      <input type="file" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+    </label>
+  </div>`;
   openSheet('menu-ov');
 }
+
+async function syncTgPhoto(){
+  if(!U?.tgPhoto){toast('⚠️ គ្មាន Telegram Photo','err');return;}
+  await FU('users/'+U.id,{avUrl:U.tgPhoto});
+  U.avUrl=U.tgPhoto;
+  closeSheet('menu-ov');
+  renderMyProf();
+  toast('✅ Sync Telegram Photo!','ok');
+}
+
+async function uploadAvatar(inp){
+  const f=inp.files[0];if(!f)return;
+  const mb=f.size/1024/1024;
+  if(mb>4){toast('⚠️ Photo ≤ 4MB','err');return;}
+  toast('📤 Upload...','inf');
+  try{
+    const compressed=await compressImage(f,400,0.85);
+    const b64=await toB64(compressed);
+    await FU('users/'+U.id,{avUrl:b64,tgPhoto:''});
+    U.avUrl=b64;U.tgPhoto='';
+    closeSheet('menu-ov');renderMyProf();
+    toast('✅ Photo ប្ដូរ!','ok');
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
 async function setAv(e){await FU('users/'+U.id,{avatar:e,avUrl:''});U.avatar=e;U.avUrl='';closeSheet('menu-ov');renderMyProf();toast('✅ Avatar ប្ដូរ!','ok');}
 function startCrop(inp){
   const f=inp.files[0];if(!f)return;closeSheet('menu-ov');
