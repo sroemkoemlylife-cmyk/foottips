@@ -852,46 +852,58 @@ function launch(){
   setTimeout(()=>loadAdCache().then(()=>{}),2000);
   setTimeout(syncWR,4000);
   initPTR();
-  // Telegram back button → NAV stack
+  // Telegram back button → NAV stack only
   try{window.Telegram?.WebApp?.BackButton?.onClick(()=>NAV.pop());}catch(e){}
-  // Android hardware back
-  window.addEventListener('popstate',()=>NAV.pop());
+  // NOTE: No popstate listener — conflicts with Telegram WebApp navigation
   // ── Handle shared post deep link ──
   setTimeout(()=>handleDeepLink(),800);
 }
 
+let _dlHandled=false;
 async function handleDeepLink(){
+  if(_dlHandled)return;  // Only run once
   try{
-    // Telegram Mini App passes startapp= as start_param
-    const sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||
-             new URLSearchParams(window.location.hash.replace('#','?')).get('startapp')||
-             new URLSearchParams(window.location.search).get('startapp')||
-             new URLSearchParams(window.location.search).get('start')||'';
+    // Get start_param from Telegram WebApp (set by bot when user clicks link)
+    const sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||'';
     if(!sp)return;
+    _dlHandled=true;
     if(sp.startsWith('post_')){
-      const pid=sp.slice(5);
+      const pid=sp.replace('post_','');
       if(!pid)return;
-      // Wait for posts to load, then open
+      // Wait for feed to load then show post
       let tries=0;
       const tryOpen=async()=>{
-        const post=allPosts[pid]||(await FG('posts/'+pid));
+        tries++;
+        // Load post from Firebase directly
+        let post=allPosts[pid];
+        if(!post){
+          const raw=await FG('posts/'+pid);
+          if(raw){post={...raw,id:pid};allPosts[pid]=post;}
+        }
         if(post){
-          // Add to allPosts cache
-          if(!allPosts[pid])allPosts[pid]={...post,id:pid};
-          // Add to AU cache if needed
+          // Load author if needed
           if(post.userId&&!AU[post.userId]){
             const u=await FG('users/'+post.userId);
             if(u)AU[post.userId]=u;
           }
+          // Show post full view
           openPostFull(pid);
-        }else if(tries<5){
-          tries++;
-          setTimeout(tryOpen,600);
+          // Highlight post in feed
+          setTimeout(()=>{
+            const el=document.getElementById('pc-'+pid);
+            if(el){el.scrollIntoView({behavior:'smooth',block:'center'});
+              el.style.transition='box-shadow .3s';
+              el.style.boxShadow='0 0 0 2px var(--g)';
+              setTimeout(()=>el.style.boxShadow='',2000);
+            }
+          },600);
+        }else if(tries<6){
+          setTimeout(tryOpen,700);
         }
       };
-      tryOpen();
+      setTimeout(tryOpen,1000);
     }
-  }catch(e){console.log('deeplink:',e.message);}
+  }catch(e){console.log('deeplink err:',e.message);}
 }
 
 // ══════════════════════════════════════════════
@@ -1265,7 +1277,7 @@ function shareToTG(pid){
   const post=allPosts[pid]||{};
   const title=post.matchHome?`⚽ ${post.matchHome} vs ${post.matchAway} — 🎯${post.prediction||''}`:
     post.linkTitle||post.caption||'FootTips Tip';
-  const appLink=`https://t.me/${BOT}/foottips168?startapp=post_${pid}`;
+  const appLink=`https://t.me/${BOT}?start=post_${pid}`;
   const shareText=encodeURIComponent(`${title}
 
 👉 ចុចចូល FootTips App`);
@@ -1274,8 +1286,7 @@ function shareToTG(pid){
   closeSheet('menu-ov');
 }
 function copyShareLink(pid){
-  // Use startapp= for Mini App deep link (correct format)
-  const url=`https://t.me/${BOT}/foottips168?startapp=post_${pid}`;
+  const url=`https://t.me/${BOT}?start=post_${pid}`;
   if(navigator.clipboard){
     navigator.clipboard.writeText(url).then(()=>toast('✅ Link copied!','ok')).catch(()=>{
       legacyCopy(url);toast('✅ Link copied!','ok');
@@ -1290,7 +1301,7 @@ function legacyCopy(text){
   document.execCommand('copy');document.body.removeChild(t);
 }
 function shareNative(pid,title){
-  const url=`https://t.me/${BOT}/foottips168?startapp=post_${pid}`;
+  const url=`https://t.me/${BOT}?start=post_${pid}`;
   if(navigator.share){
     navigator.share({title:'FootTips',text:title+' | FootTips',url}).catch(()=>{});
   }else copyShareLink(pid);
