@@ -861,49 +861,40 @@ function launch(){
 
 let _dlHandled=false;
 async function handleDeepLink(){
-  if(_dlHandled)return;  // Only run once
+  if(_dlHandled)return;
   try{
-    // Get start_param from Telegram WebApp (set by bot when user clicks link)
-    const sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||'';
-    if(!sp)return;
+    // Read from URL hash: foottips/#post_ID (simplest, no redirect)
+    // OR from Telegram start_param
+    const hash=window.location.hash||'';
+    const sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||
+             new URLSearchParams(window.location.search).get('start')||'';
+    const raw=hash.startsWith('#post_')?hash.slice(1):
+              sp.startsWith('post_')?sp:'';
+    if(!raw)return;
     _dlHandled=true;
-    if(sp.startsWith('post_')){
-      const pid=sp.replace('post_','');
-      if(!pid)return;
-      // Wait for feed to load then show post
-      let tries=0;
-      const tryOpen=async()=>{
-        tries++;
-        // Load post from Firebase directly
-        let post=allPosts[pid];
-        if(!post){
-          const raw=await FG('posts/'+pid);
-          if(raw){post={...raw,id:pid};allPosts[pid]=post;}
+    const pid=raw.replace('post_','');
+    if(!pid)return;
+    // Wait for app to load then open post
+    let tries=0;
+    const tryOpen=async()=>{
+      tries++;
+      let post=allPosts[pid];
+      if(!post){
+        const raw2=await FG('posts/'+pid);
+        if(raw2){post={...raw2,id:pid};allPosts[pid]=post;}
+      }
+      if(post){
+        if(post.userId&&!AU[post.userId]){
+          const u=await FG('users/'+post.userId);
+          if(u)AU[post.userId]=u;
         }
-        if(post){
-          // Load author if needed
-          if(post.userId&&!AU[post.userId]){
-            const u=await FG('users/'+post.userId);
-            if(u)AU[post.userId]=u;
-          }
-          // Show post full view
-          openPostFull(pid);
-          // Highlight post in feed
-          setTimeout(()=>{
-            const el=document.getElementById('pc-'+pid);
-            if(el){el.scrollIntoView({behavior:'smooth',block:'center'});
-              el.style.transition='box-shadow .3s';
-              el.style.boxShadow='0 0 0 2px var(--g)';
-              setTimeout(()=>el.style.boxShadow='',2000);
-            }
-          },600);
-        }else if(tries<6){
-          setTimeout(tryOpen,700);
-        }
-      };
-      setTimeout(tryOpen,1000);
-    }
-  }catch(e){console.log('deeplink err:',e.message);}
+        openPostFull(pid);
+      }else if(tries<8){
+        setTimeout(tryOpen,500);
+      }
+    };
+    setTimeout(tryOpen,1200);
+  }catch(e){console.log('deeplink:',e.message);}
 }
 
 // ══════════════════════════════════════════════
@@ -1275,22 +1266,26 @@ function doShare(pid,text){
 }
 function shareToTG(pid){
   const post=allPosts[pid]||{};
-  const title=post.matchHome?`⚽ ${post.matchHome} vs ${post.matchAway} — 🎯${post.prediction||''}`:
-    post.linkTitle||post.caption||'FootTips Tip';
-  const appLink=`https://t.me/${BOT}?start=post_${pid}`;
-  const shareText=encodeURIComponent(`${title}
-
-👉 ចុចចូល FootTips App`);
-  const shareUrl=encodeURIComponent(appLink);
-  window.open(`https://t.me/share/url?url=${shareUrl}&text=${shareText}`,'_blank');
+  const title=post.matchHome
+    ?'⚽ '+post.matchHome+' vs '+post.matchAway+(post.prediction?' — 🎯'+post.prediction:'')
+    :(post.linkTitle||post.caption||'FootTips Tip').slice(0,80);
+  // GitHub Pages direct link — NO redirect loop!
+  const link='https://sroemkoemlylife-cmyk.github.io/foottips/#post_'+pid;
+  const text=encodeURIComponent(title+' | FootTips');
+  const url=encodeURIComponent(link);
+  try{
+    window.Telegram?.WebApp?.openTelegramLink('https://t.me/share/url?url='+url+'&text='+text);
+  }catch(e){
+    window.open('https://t.me/share/url?url='+url+'&text='+text,'_blank');
+  }
   closeSheet('menu-ov');
-}
-function copyShareLink(pid){
-  const url=`https://t.me/${BOT}?start=post_${pid}`;
+}function copyShareLink(pid){
+  // Simple direct link — works in any browser/Telegram
+  const url='https://sroemkoemlylife-cmyk.github.io/foottips/#post_'+pid;
   if(navigator.clipboard){
-    navigator.clipboard.writeText(url).then(()=>toast('✅ Link copied!','ok')).catch(()=>{
-      legacyCopy(url);toast('✅ Link copied!','ok');
-    });
+    navigator.clipboard.writeText(url)
+      .then(()=>toast('✅ Link copied!','ok'))
+      .catch(()=>{legacyCopy(url);toast('✅ Link copied!','ok');});
   }else{legacyCopy(url);toast('✅ Link copied!','ok');}
   closeSheet('menu-ov');
 }
