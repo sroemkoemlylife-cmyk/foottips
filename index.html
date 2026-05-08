@@ -325,6 +325,10 @@ body{display:flex;flex-direction:column;}
 #sov{position:fixed;inset:0;background:var(--bg);z-index:90;display:none;flex-direction:column;}
 .rc{margin:0 12px 12px;background:var(--card);border:1px solid var(--b2);border-radius:var(--r);padding:14px;}
 .rl{font-size:12px;color:var(--g);background:var(--bg);padding:8px 10px;border-radius:var(--rs);border:1px solid var(--b);word-break:break-all;margin:6px 0 8px;}
+/* ── SETTINGS DRAWER override ── */
+#set-dr{position:fixed;top:0;right:0;bottom:0;width:min(320px,92vw);background:var(--bg2);z-index:85;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);overflow-y:auto;border-left:1px solid var(--b);}
+/* ── TIP PREDICTION ── */
+.t-pred{display:inline-block;background:var(--gg);color:var(--g);border:1px solid rgba(0,195,122,.25);padding:4px 12px;border-radius:20px;font-size:13px;font-weight:600;}
 </style>
 </head>
 <body>
@@ -430,7 +434,7 @@ body{display:flex;flex-direction:column;}
 </div>
 
 <!-- SETTINGS -->
-<div id="set-dr" style="position:fixed;inset:0;background:var(--bg);z-index:82;transform:translateX(100%);transition:transform .25s;overflow-y:auto;">
+<div id="set-dr">
   <div class="cwtb"><div class="bk" onclick="closeSets()">←</div><div style="flex:1;font-size:14px;font-weight:600">⚙️ ការកំណត់</div></div>
   <div id="set-c"></div>
 </div>
@@ -637,8 +641,14 @@ body{display:flex;flex-direction:column;}
 // FIREBASE
 // ══════════════════════════════════════════════
 firebase.initializeApp({
-  apiKey:"AIzaSyPlaceholderKeyForFootTips",
-  databaseURL:"https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app"
+  apiKey:"AIzaSyCEczHywPsTVSi-qaiwrrE36nvNBN6pflg",
+  authDomain:"foottips-4bfc6.firebaseapp.com",
+  databaseURL:"https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"foottips-4bfc6",
+  storageBucket:"foottips-4bfc6.firebasestorage.app",
+  messagingSenderId:"395940518361",
+  appId:"1:395940518361:web:c560ec8ba23af0a45ee1c8",
+  measurementId:"G-LVETHFREC4"
 });
 const db=firebase.database();
 const FG=p=>db.ref(p).once('value').then(s=>s.val());
@@ -2061,7 +2071,8 @@ async function openPostFull(pid){
       <div style="width:1px;background:var(--b)"></div>
       <button class="pab" onclick="doShare('${pid}','')" style="flex:1;padding:10px"><span>↗️</span><span style="margin-left:4px">Share</span></button>
     </div>
-  </div>`;
+  </div>
+  `;
   document.body.appendChild(ov);
 }
 
@@ -2085,12 +2096,12 @@ function changeAv(){
     </div>`:''}
     <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">ជ្រើស Avatar</div>
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px">
-      ${'⭐🚀🎯💎🔥⚡🌟🎪🦁🐯🦊🐼🦅🎭🏆🎬🌙🎸🦋🍀'.split('').map(e=>`<div style="font-size:28px;cursor:pointer;padding:8px;border-radius:10px;text-align:center;background:var(--card)" onclick="setAv('${e}')">${e}</div>`).join('')}
+      ${('⭐🚀🎯💎🔥⚡🌟🎪🦁🐯🦊🐼🦅🎭🏆🎬🌙🎸🦋🍀').split('').map(e=>`<div style="font-size:28px;cursor:pointer;padding:8px;border-radius:10px;text-align:center;background:var(--card)" onclick="setAv('${e}')">${e}</div>`).join('')}
     </div>
     <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--card);border:1px dashed var(--b2);border-radius:12px;padding:12px">
       <span style="font-size:22px">📷</span>
       <span style="font-size:13px;font-weight:600">Upload Photo ផ្ទាល់ខ្លួន</span>
-      <input type="file" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+      <input type="file" accept="image/*" style="display:none;" onchange="uploadAvatar(this)" />
     </label>
   </div>`;
   openSheet('menu-ov');
@@ -2230,8 +2241,7 @@ async function showIns(){
   const s=await db.ref('posts').orderByChild('userId').equalTo(U.id).once('value');
   const ps=s.val()?Object.values(s.val()):[];
   const tv=ps.reduce((a,p)=>a+Object.keys(p.views||{}).length,0);
-  document.getElementById('menu-items').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px">${[['👁 Views',tv],['❤️ Likes',ps.reduce((a,p)=>a+(p.likes||0),0)],['💬 Comments',ps.reduce((a,p)=>a+(p.comments||0),0)],['📝 Posts',ps.length],['👥 Followers',U.followers||0],['⭐ Stars',U.avgStars||'N/A']].map(([l,v])=>`<div style="background:var(--card);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--g)">${v}</div><div style="font-size:11px;color:var(--t2);margin-top:2px">${l}</div></div>`).join('')}</div>
-  <div style="padding:0 12px 12px"><button class="btn-o" onclick="closeSheet('menu-ov')">បិទ</button></div>`;
+  document.getElementById('menu-items').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px">${[['👁 Views',tv],['❤️ Likes',ps.reduce((a,p)=>a+(p.likes||0),0)],['💬 Comments',ps.reduce((a,p)=>a+(p.comments||0),0)],['📝 Posts',ps.length],['👥 Followers',U.followers||0],['⭐ Stars',U.avgStars||'N/A']].map(([l,v])=>`<div style="background:var(--card);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--g)">${v}</div><div style="font-size:11px;color:var(--t2);margin-top:2px">${l}</div></div>`).join('')}</div><div style="padding:0 12px 12px"><button class="btn-o" onclick="closeSheet('menu-ov')">បិទ</button></div>`;
   openSheet('menu-ov');
 }
 async function createGrp(){const n=prompt('ឈ្មោះ Group:');if(!n?.trim())return;await FP('groups',{name:n.trim(),ownerId:U.id,members:{[U.id]:true},createdAt:Date.now()});toast('👥 Group "'+n+'" បង្កើត!','ok');}
