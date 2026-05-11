@@ -1,4 +1,3 @@
-  if(btn){const ic=btn.querySelector('span:first-child');if(ic){ic.style.transition='transform .2s cubic-bezier(.34,1.56,.64,1)';ic.style.transform='scale(1.4)';setTimeout(()=>ic.style.transform='',200);}spawnRipple(btn,'rgba(255,75,110,.18)');}
 <!DOCTYPE html>
 <html lang="km">
 <head>
@@ -1253,6 +1252,7 @@ async function clickAd(adId,pts){
 // LIKE — local update, no reload
 // ══════════════════════════════════════════════
 async function togLike(pid,ownerId,btn){
+  if(btn){const ic=btn.querySelector('span:first-child');if(ic){ic.style.transition='transform .2s cubic-bezier(.34,1.56,.64,1)';ic.style.transform='scale(1.4)';setTimeout(()=>{ic.style.transform='';},200);}spawnRipple(btn,'rgba(255,75,110,.18)');}
   const lk=btn.classList.contains('lk');const liked=!lk;
   if(!U.likedPosts)U.likedPosts={};
   const cnt=btn.children[1];const cur=parseInt(cnt.textContent)||0;
