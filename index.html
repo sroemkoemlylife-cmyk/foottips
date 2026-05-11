@@ -83,7 +83,7 @@ body{display:flex;flex-direction:column;}
 .tip-chip{-webkit-tap-highlight-color:transparent;}
 /* Card press */
 .pc{-webkit-tap-highlight-color:transparent;}
-.pc:active{background:rgba(255,255,255,.01);}
+
 
 
 /* ── FIRE LIKE EFFECT ── */
@@ -92,10 +92,16 @@ body{display:flex;flex-direction:column;}
   0%{transform:translateY(0) scale(1);opacity:1;}
   100%{transform:translateY(-80px) scale(.3) rotate(20deg);opacity:0;}
 }
-.heart-pop{animation:heartPop .35s cubic-bezier(.34,1.56,.64,1) forwards;}
+.heart-pop{
+  animation:heartPop .35s cubic-bezier(.34,1.56,.64,1) forwards;
+  display:inline-block;
+  will-change:transform;
+  transform-origin:center;
+  contain:layout style;
+}
 @keyframes heartPop{
   0%{transform:scale(1);}
-  50%{transform:scale(1.5);}
+  50%{transform:scale(1.6);}
   100%{transform:scale(1);}
 }
 
@@ -170,7 +176,7 @@ body{display:flex;flex-direction:column;}
 .tip-status-won{display:inline-flex;align-items:center;gap:4px;background:rgba(0,195,122,.12);color:var(--g);border:1px solid rgba(0,195,122,.3);padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;}
 .tip-status-lost{display:inline-flex;align-items:center;gap:4px;background:rgba(255,75,110,.1);color:var(--red);border:1px solid rgba(255,75,110,.25);padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;}
 .tip-status-pend{display:inline-flex;align-items:center;gap:4px;background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.25);padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;}
-.pc-acts{display:flex;padding-top:8px;border-top:1px solid var(--b);margin-top:2px;}
+.pc-acts{display:flex;padding-top:8px;border-top:1px solid var(--b);margin-top:2px;contain:layout;}
 .pab{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 2px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:var(--font);background:none;border:none;border-radius:10px;transition:all .15s;}
 .pab:active{transform:scale(.85);background:var(--bg3);}
 .pab.lk{color:var(--red);}
@@ -1005,7 +1011,13 @@ function fireEffect(btn){
   }
   // Heart pop
   const ic=btn.querySelector('span:first-child');
-  if(ic){ic.classList.remove('heart-pop');void ic.offsetWidth;ic.classList.add('heart-pop');setTimeout(()=>ic.classList.remove('heart-pop'),400);}
+  if(ic){
+    ic.style.display='inline-block';
+    ic.classList.remove('heart-pop');
+    void ic.offsetWidth;
+    ic.classList.add('heart-pop');
+    setTimeout(()=>ic.classList.remove('heart-pop'),400);
+  }
 }
 
 function spawnRipple(el,color){
