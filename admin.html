@@ -1129,21 +1129,36 @@ async function pSave(){
   const btn=document.getElementById('p-save-btn');
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
   try{
-    // Use REST API with secret — works without Firebase Auth
-    const FB_URL='https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app';
-    const SECRET='q0QMz0lUFQn0qDyRDo4OxzwuMqNkwMAPUjKq6Mfq';
-    const data={url:url.trim(),title:title.trim(),desc:desc.trim(),active:true,updatedAt:Date.now()};
-    const res=await fetch(FB_URL+'/settings/promo.json?auth='+SECRET,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(data)
-    });
-    if(!res.ok)throw new Error('HTTP '+res.status);
+    // Save as special promo post in 'posts' path (same as CEO tips - works!)
+    // First delete old promo posts
+    const snap=await db.ref('posts').orderByChild('isPromo').equalTo(true).once('value');
+    const old=snap.val();
+    if(old){
+      await Promise.all(Object.keys(old).map(k=>db.ref('posts/'+k).remove()));
+    }
+    // Create new promo post
+    const post={
+      userId: aUID||'admin',
+      caption: title.trim(),
+      linkUrl: url.trim(),
+      linkTitle: title.trim(),
+      linkDesc: desc.trim(),
+      isLink: true,
+      isCEO: true,
+      isPromo: true,
+      status: 'promo',
+      likes:0, comments:0, shares:0,
+      createdAt: Date.now(),
+      views:{}
+    };
+    const ref=await db.ref('posts').push(post);
+    AP[ref.key]={...post,id:ref.key};
     tok('✅ Promo Live ហើយ!');
     if(msg){msg.textContent='✅ Live! User ឃើញ Card ក្នុង Feed';msg.style.color='var(--g)';}
     pLoadLive();
   }catch(e){
     terr('❌ '+e.message);
+    console.error('pSave error:',e);
     if(msg){msg.textContent='❌ '+e.message;msg.style.color='var(--red)';}
   }
   if(btn){btn.disabled=false;btn.textContent='💾 Save & Publish';}
@@ -1151,12 +1166,11 @@ async function pSave(){
 
 async function pClear(){
   if(!confirm('Clear Promo?'))return;
-  const FB_URL='https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app';
-  const SECRET='q0QMz0lUFQn0qDyRDo4OxzwuMqNkwMAPUjKq6Mfq';
-  await fetch(FB_URL+'/settings/promo.json?auth='+SECRET,{
-    method:'PUT',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({active:false})
-  });
+  const snap=await db.ref('posts').orderByChild('isPromo').equalTo(true).once('value');
+  const old=snap.val();
+  if(old){
+    await Promise.all(Object.keys(old).map(k=>db.ref('posts/'+k).remove()));
+  }
   ['p-url','p-title','p-desc'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
@@ -1173,22 +1187,21 @@ async function pLoadLive(){
   if(!el)return;
   el.innerHTML='Loading...';
   try{
-    const FB_URL='https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app';
-    const SECRET='q0QMz0lUFQn0qDyRDo4OxzwuMqNkwMAPUjKq6Mfq';
-    const res=await fetch(FB_URL+'/settings/promo.json?auth='+SECRET);
-    const p=await res.json();
-    if(!p||!p.active){
+    const snap=await db.ref('posts').orderByChild('isPromo').equalTo(true).limitToLast(1).once('value');
+    const data=snap.val();
+    const p=data?Object.values(data)[0]:null;
+    if(!p){
       el.innerHTML='<div style="color:var(--t3)">⭕ គ្មាន Promo Active</div>';
       return;
     }
     el.innerHTML=
       '<div style="background:linear-gradient(135deg,#0D1B2A,#1B2838);border-radius:12px;padding:14px;border:1px solid rgba(255,160,0,.25)">'
-      +'<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">'+p.title+'</div>'
-      +(p.desc?'<div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:8px">'+p.desc+'</div>':'')
-      +'<div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:10px">'+p.url+'</div>'
+      +'<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">'+(p.linkTitle||p.caption||'—')+'</div>'
+      +(p.desc?'<div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:8px">'+(p.linkDesc||'')+'</div>':'')
+      +'<div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:10px">'+(p.linkUrl||'')+'</div>'
       +'<div style="display:flex;gap:8px;align-items:center">'
         +'<span class="badge bg">✅ Active</span>'
-        +'<span style="font-size:11px;color:var(--t2)">'+new Date(p.updatedAt||0).toLocaleDateString('km-KH')+'</span>'
+        +'<span style="font-size:11px;color:var(--t2)">'+new Date(p.createdAt||0).toLocaleDateString('km-KH')+'</span>'
       +'</div></div>';
     // Pre-fill form if empty
     const ue=document.getElementById('p-url');
@@ -1196,7 +1209,7 @@ async function pLoadLive(){
     const de=document.getElementById('p-desc');
     if(ue&&!ue.value)ue.value=p.url;
     if(te&&!te.value)te.value=p.title;
-    if(de&&!de.value)de.value=p.desc||'';
+    if(de&&!de.value)de.value=p.linkDesc||'';
     pPreview();
   }catch(e){
     el.innerHTML='<span style="color:var(--red)">❌ '+e.message+'</span>';
