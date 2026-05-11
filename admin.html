@@ -451,7 +451,7 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
           </div>
         </div>
         <div style="display:flex;gap:10px">
-          <button class="btn btn-g" style="flex:1;padding:12px" onclick="savePromoLink()">💾 Save & Publish</button>
+          <button id="promo-save-btn" class="btn btn-g" style="flex:1;padding:12px" onclick="savePromoLink()">💾 Save & Publish</button>
           <button class="btn btn-r" style="padding:12px 16px" onclick="clearPromoLink()">🗑 Clear</button>
         </div>
         <div id="promo-status" style="margin-top:10px;font-size:12px;color:var(--t2);text-align:center"></div>
@@ -557,6 +557,8 @@ function goTab(id,el){
   if(id==='posts')renderPosts();
   if(id==='users')renderUsers();
   if(id==='lead')renderLead();
+  if(id==='promo')initPromoPage();
+  if(id==='ptslog')resetPtsLog();
 }
 
 // ══ CHIPS ══
@@ -1093,83 +1095,107 @@ async function banUser(uid,banned){
   toast(banned?'🚫 Banned':'✅ Unbanned');renderUsers();
 }
 // ══ PROMO LINK ══
+function initPromoPage(){
+  // Attach input listeners
+  ['promo-url','promo-title','promo-desc'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.oninput=updatePromoPreview;
+  });
+  loadLivePromo();
+}
+
 function updatePromoPreview(){
-  const url=document.getElementById('promo-url').value.trim();
-  const title=document.getElementById('promo-title').value.trim();
-  const desc=document.getElementById('promo-desc').value.trim();
+  const url=(document.getElementById('promo-url')?.value||'').trim();
+  const title=(document.getElementById('promo-title')?.value||'').trim();
   const box=document.getElementById('promo-preview');
-  if(!url&&!title){box.style.display='none';return;}
+  if(!box) return;
+  if(!url && !title){box.style.display='none';return;}
   box.style.display='block';
-  document.getElementById('promo-prev-title').textContent=title||'ចំណងជើង...';
-  document.getElementById('promo-prev-desc').textContent=desc||'';
-  document.getElementById('promo-prev-btn').textContent=title||'ចុះឈ្មោះឥឡូវ';
+  const t=document.getElementById('promo-prev-title');
+  const d=document.getElementById('promo-prev-desc');
+  const b=document.getElementById('promo-prev-btn');
+  if(t) t.textContent=title||'ចំណងជើង...';
+  if(d) d.textContent=(document.getElementById('promo-desc')?.value||'');
+  if(b) b.textContent=title||'ចុះឈ្មោះឥឡូវ';
 }
 
 async function savePromoLink(){
-  const url=document.getElementById('promo-url').value.trim();
-  const title=document.getElementById('promo-title').value.trim();
-  const desc=document.getElementById('promo-desc').value.trim();
-  if(!url){terr('⚠️ ដាក់ Link URL');return;}
-  if(!title){terr('⚠️ ដាក់ ចំណងជើង');return;}
-  const btn=document.querySelector('[onclick="savePromoLink()"]');
-  if(btn){btn.disabled=true;btn.textContent='💾 Saving...';}
+  const url=(document.getElementById('promo-url')?.value||'').trim();
+  const title=(document.getElementById('promo-title')?.value||'').trim();
+  const desc=(document.getElementById('promo-desc')?.value||'').trim();
+  if(!url){terr('⚠️ ដាក់ Link URL ជាមុន');return;}
+  if(!title){terr('⚠️ ដាក់ ចំណងជើង Button ជាមុន');return;}
+  const btn=document.getElementById('promo-save-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving...';}
   try{
-    await db.ref('settings/promo').set({url,title,desc,active:true,updatedAt:Date.now()});
-    tok('✅ Promo Link Save ហើយ!');
+    await db.ref('settings/promo').set({
+      url, title, desc,
+      active: true,
+      updatedAt: Date.now()
+    });
+    tok('✅ Promo Save & Live ហើយ!');
     const st=document.getElementById('promo-status');
     if(st){st.textContent='✅ Live — User ឃើញ Card ក្នុង Feed!';st.style.color='var(--g)';}
     loadLivePromo();
   }catch(e){
-    terr('❌ Error: '+e.message);
-    console.error('savePromo:',e);
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent='💾 Save & Publish';}
+    terr('❌ Save failed: '+e.message);
+    console.error(e);
   }
+  if(btn){btn.disabled=false;btn.innerHTML='💾 Save & Publish';}
 }
 
 async function clearPromoLink(){
-  if(!confirm('Clear Promo Link?'))return;
-  await db.ref('settings/promo').set({active:false});
-  document.getElementById('promo-url').value='';
-  document.getElementById('promo-title').value='';
-  document.getElementById('promo-desc').value='';
-  document.getElementById('promo-preview').style.display='none';
-  document.getElementById('promo-status').textContent='⭕ Promo បិទហើយ';
-  document.getElementById('promo-status').style.color='var(--t2)';
+  if(!confirm('Clear Promo? User មិនឃើញទៀត')) return;
+  await db.ref('settings/promo/active').set(false);
+  ['promo-url','promo-title','promo-desc'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value='';
+  });
+  const box=document.getElementById('promo-preview');
+  if(box) box.style.display='none';
+  const st=document.getElementById('promo-status');
+  if(st){st.textContent='⭕ Promo បិទ';st.style.color='var(--t2)';}
   tok('Promo cleared');
   loadLivePromo();
 }
 
 async function loadLivePromo(){
-  // Attach input listeners each time page opens
-  ['promo-url','promo-title','promo-desc'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el)el.oninput=updatePromoPreview;
-  });
   const el=document.getElementById('promo-live');
-  if(!el)return;
-  const snap=await db.ref('settings/promo').once('value');
-  const promo=snap.val();
-  if(!promo||!promo.active){
-    el.innerHTML='<div style="padding:10px;color:var(--t3)">⭕ គ្មាន Promo Active</div>';
-    return;
+  if(!el) return;
+  el.innerHTML='<div style="padding:12px;color:var(--t3)">Loading...</div>';
+  try{
+    const snap=await db.ref('settings/promo').once('value');
+    const p=snap.val();
+    if(!p||!p.active||!p.url){
+      el.innerHTML='<div style="padding:12px;color:var(--t3)">⭕ គ្មាន Promo Active</div>';
+      return;
+    }
+    // Show live promo preview
+    el.innerHTML=
+      '<div style="background:linear-gradient(135deg,#0D1B2A,#1B2838);border:1px solid rgba(255,160,0,.3);border-radius:12px;padding:14px;margin:4px">'
+      +'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px">🔗 '+p.url+'</div>'
+      +'<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">'+p.title+'</div>'
+      +(p.desc?'<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px">'+p.desc+'</div>':'')
+      +'<div style="display:flex;align-items:center;gap:8px">'
+        +'<span class="badge bg">✅ Active</span>'
+        +'<span style="font-size:11px;color:var(--t2)">Updated: '+new Date(p.updatedAt||0).toLocaleString('km-KH')+'</span>'
+      +'</div>'
+      +'</div>';
+    // Pre-fill form
+    const urlEl=document.getElementById('promo-url');
+    const titleEl=document.getElementById('promo-title');
+    const descEl=document.getElementById('promo-desc');
+    if(urlEl && !urlEl.value) urlEl.value=p.url||'';
+    if(titleEl && !titleEl.value) titleEl.value=p.title||'';
+    if(descEl && !descEl.value) descEl.value=p.desc||'';
+    updatePromoPreview();
+  }catch(e){
+    el.innerHTML='<div style="padding:12px;color:var(--red)">❌ '+e.message+'</div>';
+    console.error(e);
   }
-  el.innerHTML=
-    '<div style="background:linear-gradient(135deg,#0D1B2A,#1B2838);border:1px solid rgba(255,160,0,.3);border-radius:12px;padding:14px">'
-    +'<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">'+promo.title+'</div>'
-    +(promo.desc?'<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px">'+promo.desc+'</div>':'')
-    +'<div style="font-size:11px;color:var(--t2);margin-bottom:8px">🔗 '+promo.url+'</div>'
-    +'<span class="badge bg">✅ Active</span>'
-    +'</div>';
-
-  // Load into form fields
-  document.getElementById('promo-url').value=promo.url||'';
-  document.getElementById('promo-title').value=promo.title||'';
-  document.getElementById('promo-desc').value=promo.desc||'';
-  updatePromoPreview();
 }
 
-// ══ ADMIN POINTS LOG ══
+// ══ ADMIN POINTS LOG ══// ══ ADMIN POINTS LOG ══
 let _ptsUid=null;
 async function searchPtsUser(q){
   if(!q){document.getElementById('pts-user-result').style.display='none';return;}
@@ -1244,6 +1270,15 @@ async function loadPtsLog(uid){
       +'</div>';
     }).join('')
     +'</div>';
+}
+
+function resetPtsLog(){
+  const el=document.getElementById('pts-admin-list');
+  if(el)el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">ជ្រើស User ដើម្បីមើល Points Log</div>';
+  const ur=document.getElementById('pts-user-result');
+  if(ur)ur.style.display='none';
+  const inp=document.getElementById('pts-uid-inp');
+  if(inp)inp.value='';
 }
 
 function renderLead(){
