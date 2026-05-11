@@ -105,6 +105,12 @@ body{display:flex;flex-direction:column;}
   100%{transform:scale(1);}
 }
 
+/* ── PROMO CARD ── */
+.promo-card{background:linear-gradient(135deg,#0D1B2A,#1B2838);border:1px solid rgba(255,160,0,.3);border-radius:16px;overflow:hidden;margin:8px 0;position:relative;}
+.promo-badge{position:absolute;top:10px;right:10px;background:#ff7800;color:#fff;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;}
+.promo-btn{display:block;width:100%;padding:12px;background:linear-gradient(135deg,#ff7800,#ff9f00);color:#fff;font-size:14px;font-weight:800;border:none;border-radius:10px;cursor:pointer;text-align:center;text-decoration:none;-webkit-tap-highlight-color:transparent;}
+.promo-btn:active{opacity:.85;}
+
 /* ── PTR ── */
 #ptr-bar{position:sticky;top:0;left:0;right:0;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:10;flex-shrink:0;}
 #ptr-inner{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g);font-weight:600;opacity:0;transition:opacity .15s;}
@@ -855,6 +861,11 @@ async function loginTg(tgUser){
     bio:'Telegram user 🌟',isAdmin:false,createdAt:Date.now()
   };
   await ref.set(u);await FS('referrals/FT_'+uname,uid);ls.s('uid',uid);
+  // Notify bot to send welcome message
+  await FS('welcome_queue/'+tgId,{
+    uid,tgId,name,username:uname,
+    tgPhoto,createdAt:Date.now(),sent:false
+  });
   toast('🎉 ស្វាគមន៍ '+name+'!','ok');
   return{...u,id:uid};
 }
@@ -1025,6 +1036,37 @@ function fireEffect(btn){
   }
 }
 
+function promoCardH(){
+  return [
+    '<div class="promo-card">',
+      '<span class="promo-badge">🔥 HOT OFFER</span>',
+      '<div style="padding:16px 16px 12px">',
+        // Logo + title row
+        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">',
+          '<div style="width:48px;height:48px;border-radius:12px;background:rgba(255,120,0,.15);border:1.5px solid rgba(255,120,0,.4);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">⚽</div>',
+          '<div>',
+            '<div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:2px">ចុះឈ្មោះ — ទទួល Bonus!</div>',
+            '<div style="font-size:11px;color:rgba(255,255,255,.6)">Bet365 · 1xBet · Sports Platform</div>',
+          '</div>',
+        '</div>',
+        // Features row
+        '<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">',
+          '<span style="background:rgba(0,195,122,.12);color:#00C37A;border:1px solid rgba(0,195,122,.3);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700">✅ Free Register</span>',
+          '<span style="background:rgba(255,120,0,.12);color:#ff9f00;border:1px solid rgba(255,120,0,.3);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700">🎁 Welcome Bonus</span>',
+          '<span style="background:rgba(75,139,255,.12);color:#4B8BFF;border:1px solid rgba(75,139,255,.3);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700">⚡ ងាយស្រួល</span>',
+        '</div>',
+        // CTA Button
+        '<a href="https://suiejdsloi.xyz/?aff=AAA" target="_blank" class="promo-btn" onclick="trackPromoClick()">',
+          '🎯 ចុះឈ្មោះឥឡូវ — ទទួល Bonus!',
+        '</a>',
+      '</div>',
+    '</div>'
+  ].join('');
+}
+function trackPromoClick(){
+  if(U?.id) FU('users/'+U.id,{lastPromoClick:Date.now()});
+}
+
 function spawnRipple(el,color){
   const r=document.createElement('span');
   r.className='ni-ripple';
@@ -1097,6 +1139,7 @@ function renderFeed(data){
   posts.forEach((p,i)=>{
     html+=postH(p,ml);
     if((i+1)%4===0){const a=getAd();if(a)html+=adH(a);}
+    if((i+1)%5===0)html+=promoCardH();
     // Track view
     if(!(p.views||{})[U.id])FU('posts/'+p.id+'/views',{[U.id]:true});
   });
