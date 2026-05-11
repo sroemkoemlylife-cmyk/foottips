@@ -883,7 +883,9 @@ async function go(){
     await ref.set(nu);await FS('referrals/FT_'+uname,uid);u={...nu,id:uid};
     // Referral
     const sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||'';
-    if(sp.startsWith('ref_')){const rn=sp.slice(4);const rs=await db.ref('users').orderByChild('username').equalTo(rn).once('value');const rd=rs.val();if(rd){const ruid=Object.keys(rd)[0];const rp=(await FG('users/'+ruid+'/points'))||0;await FS('users/'+ruid+'/points',rp+30);sendNotif(ruid,'milestone',raw+' ចូលដោយ Link! +30pts',null,null);}}
+    if(sp.startsWith('ref_')){const rn=sp.slice(4);const rs=await db.ref('users').orderByChild('username').equalTo(rn).once('value');const rd=rs.val();if(rd){const ruid=Object.keys(rd)[0];const rp=(await FG('users/'+ruid+'/points'))||0;await FS('users/'+ruid+'/points',rp+30);
+              logPoints(ruid,30,'referral','👥 Referral — '+raw+' ចូលដោយ Link!');
+              sendNotif(ruid,'milestone',raw+' ចូលដោយ Link! +30pts',null,null);}}
   }
   U=u;ls.s('uid',uid);document.getElementById('login').style.display='none';
   toast('🎉 ស្វាគមន៍ '+U.displayName+'!','ok');launch();
@@ -1094,6 +1096,14 @@ function promoCardH(){
       '</div>',
     '</div>'
   ].join('');
+}
+
+// ── POINTS LOGGER ──
+async function logPoints(uid, pts, source, desc){
+  try{
+    const entry={pts,source,desc,ts:Date.now()};
+    await db.ref('points_log/'+uid).push(entry);
+  }catch(e){console.log('logPoints err:',e.message);}
 }
 
 function spawnRipple(el,color){
@@ -1364,6 +1374,7 @@ async function clickAd(adId,pts){
   if(!U.adClicks)U.adClicks={};U.adClicks[adId]=true;
   const cur=(await FG('users/'+U.id+'/points'))||0;
   await FS('users/'+U.id+'/points',cur+pts);
+  logPoints(U.id,pts,'prediction','🎯 ការទស្សន៍ទាយត្រឹមត្រូវ +'+pts+'pts');
   await FU('users/'+U.id,{['adClicks/'+adId]:true});
   U.points=cur+pts;document.getElementById('tp-n').textContent=Math.floor(U.points);
   toast('💰 +'+pts+' pts!','ok');
@@ -1386,6 +1397,7 @@ async function togLike(pid,ownerId,btn){
   if(liked&&ownerId!==U.id){
     const op=(AU[ownerId]?.points)||0;const m=isVer(AU[ownerId])?0.2:0.1;
     FS('users/'+ownerId+'/points',op+m);if(AU[ownerId])AU[ownerId].points=op+m;
+    logPoints(ownerId,m,'like','❤️ Like ពី '+( U.displayName||'User'));
     sendNotif(ownerId,'like',U.displayName+' ចុច Like ❤️',U.id,pid);
   }
 }
@@ -1778,6 +1790,7 @@ async function submitCmt(){
       const oid=allPosts[curTip]?.userId;
       if(oid&&oid!==U.id){
         db.ref('users/'+oid+'/points').transaction(p=>(p||0)+0.2);
+        logPoints(oid,0.2,'comment','💬 Comment ពី '+(U.displayName||'User'));
         sendNotif(oid,'comment',U.displayName+': '+text.slice(0,30),U.id,curTip);
       }
     }
@@ -2176,7 +2189,7 @@ function profH(u,posts,isMe,wr,won,settled){
     <div class="ps"><div class="psn">${u.followers||0}</div><div class="psl">Followers</div></div>
     <div class="ps"><div class="psn">${u.following||0}</div><div class="psl">Following</div></div>
     <div class="ps"><div class="psn">${u.posts||0}</div><div class="psl">Posts</div></div>
-    <div class="ps"><div class="psn" style="color:var(--gold)">${Math.floor(u.points||0)}</div><div class="psl">pts</div></div>
+    <div class=${isMe?'<div class="ps" onclick="openPtsHistory()" style="cursor:pointer">':'<div class="ps">'}<div class="psn" style="color:var(--gold)">${Math.floor(u.points||0)}</div><div class="psl">pts${isMe?" 📋":""}</div></div>
   </div>
   ${isMe?`<div class="rc"><div style="font-size:13px;font-weight:600;margin-bottom:4px">🔗 Link ណែនាំ (+30 pts)</div><div class="rl">${ref}</div><button class="btn-o" onclick="navigator.clipboard?.writeText('${ref}').then(()=>toast('📋 Copy!','ok'))">📋 Copy</button></div>`:''}
   <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase">📝 Posts</div>
@@ -2406,6 +2419,72 @@ function openSets(){
     <div class="sr" onclick="doLogout()" style="color:var(--red)"><span class="si">🚪</span><span class="sl" style="color:var(--red)">ចេញ</span><span class="sv" style="color:var(--red)">→</span></div>
   </div></div>`;
 }
+async function openPtsHistory(){
+  const ov=document.getElementById('pts-ov');
+  ov.style.display='flex';
+  NAV.push('pts',closePtsHistory);
+  document.getElementById('pts-total').textContent=Math.floor(U.points||0)+' pts';
+  document.getElementById('pts-list').innerHTML='<div style="text-align:center;padding:30px"><span class="spin"></span></div>';
+  document.getElementById('pts-summary').innerHTML='';
+
+  const logs=await FG('points_log/'+U.id);
+  if(!logs){
+    document.getElementById('pts-list').innerHTML='<div style="text-align:center;padding:40px;color:var(--t3)"><div style="font-size:40px;margin-bottom:10px">📋</div><div>មិនទាន់មានប្រវត្តិ</div></div>';
+    return;
+  }
+
+  const entries=Object.values(logs).sort((a,b)=>b.ts-a.ts);
+
+  // Summary by source
+  const summary={like:0,comment:0,prediction:0,referral:0,tip:0,other:0};
+  entries.forEach(e=>{
+    const s=e.source||'other';
+    summary[s]=(summary[s]||0)+(e.pts||0);
+  });
+
+  const summaryItems=[
+    {ic:'❤️',label:'Likes',key:'like',col:'var(--red)'},
+    {ic:'💬',label:'Comments',key:'comment',col:'var(--blue)'},
+    {ic:'🎯',label:'Tips',key:'prediction',col:'var(--g)'},
+    {ic:'👥',label:'Referral',key:'referral',col:'var(--gold)'},
+    {ic:'✅',label:'Won Tips',key:'tip',col:'#00C37A'},
+    {ic:'⭐',label:'Other',key:'other',col:'var(--t2)'},
+  ];
+  document.getElementById('pts-summary').innerHTML=summaryItems.map(s=>
+    '<div style="background:var(--card);border:1px solid var(--b);border-radius:12px;padding:12px;text-align:center">'
+    +'<div style="font-size:20px;margin-bottom:4px">'+s.ic+'</div>'
+    +'<div style="font-size:14px;font-weight:800;color:'+s.col+'">'+((summary[s.key]||0).toFixed(1))+'</div>'
+    +'<div style="font-size:10px;color:var(--t2);margin-top:2px">'+s.label+'</div>'
+    +'</div>'
+  ).join('');
+
+  // Source icon map
+  const srcIc={like:'❤️',comment:'💬',prediction:'🎯',referral:'👥',tip:'✅',other:'⭐'};
+  const srcCol={like:'var(--red)',comment:'var(--blue)',prediction:'var(--g)',referral:'var(--gold)',tip:'#00C37A',other:'var(--t2)'};
+
+  document.getElementById('pts-list').innerHTML=
+    '<div style="padding:0 14px">'
+    +entries.map(e=>{
+      const ic=srcIc[e.source]||'⭐';
+      const col=srcCol[e.source]||'var(--t2)';
+      const d=new Date(e.ts);
+      const dateStr=d.toLocaleDateString('km-KH',{month:'short',day:'numeric'});
+      const timeStr=d.toLocaleTimeString('km-KH',{hour:'2-digit',minute:'2-digit'});
+      return '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--b)">'
+        +'<div style="width:40px;height:40px;border-radius:50%;background:'+col+'18;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">'+ic+'</div>'
+        +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:13px;font-weight:600;margin-bottom:2px">'+( e.desc||'Points')+'</div>'
+          +'<div style="font-size:11px;color:var(--t2)">'+dateStr+' · '+timeStr+'</div>'
+        +'</div>'
+        +'<div style="font-size:14px;font-weight:800;color:'+(e.pts>0?'var(--g)':'var(--red)')+'">+'+(e.pts||0).toFixed(1)+'</div>'
+      +'</div>';
+    }).join('')
+    +'</div>';
+}
+function closePtsHistory(){
+  document.getElementById('pts-ov').style.display='none';
+}
+
 function closeSets(){
   document.getElementById('set-dr').style.transform='translateX(100%)';
   NAV.pop();
@@ -2466,6 +2545,19 @@ function doSearch(q){
 }
 </script>
 
+
+<!-- POINTS HISTORY OVERLAY -->
+<div id="pts-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:110;overflow-y:auto;flex-direction:column">
+  <div style="position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--b);padding:11px 14px;display:flex;align-items:center;gap:10px;z-index:1">
+    <div onclick="closePtsHistory()" style="font-size:22px;cursor:pointer;color:var(--g);padding:2px 6px">←</div>
+    <div style="font-size:15px;font-weight:700">📋 ប្រវត្តិពិន្ទុ</div>
+    <div style="margin-left:auto;font-size:13px;font-weight:700;color:var(--gold)" id="pts-total"></div>
+  </div>
+  <!-- Summary cards -->
+  <div id="pts-summary" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px"></div>
+  <!-- Log list -->
+  <div id="pts-list" style="padding:0 0 24px"></div>
+</div>
 
 </body>
 </html>
