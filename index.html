@@ -470,8 +470,13 @@ body{display:flex;flex-direction:column;}
 </div>
 
 <!-- SETTINGS -->
-<div id="set-dr" style="position:fixed;inset:0;background:var(--bg);z-index:82;transform:translateX(100%);transition:transform .25s;overflow-y:auto;">
-  <div class="cwtb"><div class="bk" onclick="closeSets()">←</div><div style="flex:1;font-size:14px;font-weight:600">⚙️ ការកំណត់</div></div>
+<div id="set-dr" style="position:fixed;inset:0;background:var(--bg);z-index:82;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;">
+  <div class="cwtb" style="background:var(--bg2);border-bottom:1px solid var(--b)">
+  <div class="bk" onclick="closeSets()" style="display:flex;align-items:center;gap:6px;color:var(--g);font-weight:600;font-size:14px">
+    <span style="font-size:20px">←</span>
+  </div>
+  <div style="flex:1;font-size:15px;font-weight:700">⚙️ ការកំណត់</div>
+</div>
   <div id="set-c"></div>
 </div>
 
@@ -2294,6 +2299,8 @@ async function markAllRead(){const d=await FG('notifications/'+U.id);if(!d)retur
 // ══════════════════════════════════════════════
 function openSets(){
   const me=AU[U.id]||U;const f=me.followers||0;
+  document.getElementById('set-dr').style.transform='translateX(0)';
+  NAV.push('sets',closeSets);  // ← register back button
   document.getElementById('set-c').innerHTML=`
   <div class="set-s"><div class="set-title">Profile</div><div class="set-card">
     <div class="sr"><span class="si">${me.avUrl?'📷':me.avatar||'⚽'}</span><span class="sl">${me.displayName}</span><span class="sv">@${me.username}</span></div>
@@ -2309,9 +2316,11 @@ function openSets(){
     <div class="sr" onclick="closeSets();nav('notif')"><span class="si">🔔</span><span class="sl">ការជូនដំណឹង</span><span class="sv">→</span></div>
     <div class="sr" onclick="doLogout()" style="color:var(--red)"><span class="si">🚪</span><span class="sl" style="color:var(--red)">ចេញ</span><span class="sv" style="color:var(--red)">→</span></div>
   </div></div>`;
-  document.getElementById('set-dr').style.transform='translateX(0)';
 }
-function closeSets(){document.getElementById('set-dr').style.transform='';}
+function closeSets(){
+  document.getElementById('set-dr').style.transform='translateX(100%)';
+  NAV.pop();
+}
 async function chgName(){const n=prompt('ឈ្មោះថ្មី:',U.displayName);if(!n?.trim())return;await FU('users/'+U.id,{displayName:n.trim()});U.displayName=n.trim();toast('✅','ok');renderMyProf();}
 async function chgBio(){const b=prompt('Bio:',U.bio||'');if(b===null)return;await FU('users/'+U.id,{bio:b.trim()});U.bio=b.trim();toast('✅','ok');renderMyProf();}
 function doLogout(){if(!confirm('ចេញ?'))return;ls.s('uid',null);db.goOffline();location.reload();}
