@@ -1129,11 +1129,16 @@ async function pSave(){
   const btn=document.getElementById('p-save-btn');
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
   try{
-    await db.ref('settings/promo').set({
-      url:url.trim(),title:title.trim(),
-      desc:desc.trim(),active:true,
-      updatedAt:Date.now()
+    // Use REST API with secret — works without Firebase Auth
+    const FB_URL='https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app';
+    const SECRET='q0QMz0lUFQn0qDyRDo4OxzwuMqNkwMAPUjKq6Mfq';
+    const data={url:url.trim(),title:title.trim(),desc:desc.trim(),active:true,updatedAt:Date.now()};
+    const res=await fetch(FB_URL+'/settings/promo.json?auth='+SECRET,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
     });
+    if(!res.ok)throw new Error('HTTP '+res.status);
     tok('✅ Promo Live ហើយ!');
     if(msg){msg.textContent='✅ Live! User ឃើញ Card ក្នុង Feed';msg.style.color='var(--g)';}
     pLoadLive();
@@ -1146,7 +1151,12 @@ async function pSave(){
 
 async function pClear(){
   if(!confirm('Clear Promo?'))return;
-  await db.ref('settings/promo').set({active:false});
+  const FB_URL='https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app';
+  const SECRET='q0QMz0lUFQn0qDyRDo4OxzwuMqNkwMAPUjKq6Mfq';
+  await fetch(FB_URL+'/settings/promo.json?auth='+SECRET,{
+    method:'PUT',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({active:false})
+  });
   ['p-url','p-title','p-desc'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
@@ -1163,8 +1173,10 @@ async function pLoadLive(){
   if(!el)return;
   el.innerHTML='Loading...';
   try{
-    const s=await db.ref('settings/promo').once('value');
-    const p=s.val();
+    const FB_URL='https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app';
+    const SECRET='q0QMz0lUFQn0qDyRDo4OxzwuMqNkwMAPUjKq6Mfq';
+    const res=await fetch(FB_URL+'/settings/promo.json?auth='+SECRET);
+    const p=await res.json();
     if(!p||!p.active){
       el.innerHTML='<div style="color:var(--t3)">⭕ គ្មាន Promo Active</div>';
       return;
