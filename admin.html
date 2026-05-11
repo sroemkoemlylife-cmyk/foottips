@@ -1162,22 +1162,33 @@ async function loadLivePromo(){
 let _ptsUid=null;
 async function searchPtsUser(q){
   if(!q){document.getElementById('pts-user-result').style.display='none';return;}
-  const users=Object.entries(AU).filter(([k,v])=>
+  const matches=Object.entries(AU).filter(([k,v])=>
     (v.displayName||'').toLowerCase().includes(q.toLowerCase())||
     (v.username||'').toLowerCase().includes(q.toLowerCase())
   ).slice(0,5);
-  if(!users.length){document.getElementById('pts-user-result').style.display='none';return;}
-  const [uid,u]=users[0];
+  if(!matches.length){document.getElementById('pts-user-result').style.display='none';return;}
+  const [uid,u]=matches[0];
   _ptsUid=uid;
   document.getElementById('pts-user-result').style.display='block';
-  document.getElementById('pts-user-info').innerHTML=
-    '<div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="loadPtsLog(''+uid+'')">'
-    +'<div style="width:36px;height:36px;border-radius:50%;background:'+(u.color||'#00C37A')+'22;color:'+(u.color||'#00C37A')+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">'+(u.displayName||'?')[0]+'</div>'
-    +'<div><div style="font-size:13px;font-weight:700">'+(u.displayName||'—')+'</div>'
-    +'<div style="font-size:11px;color:var(--t2)">@'+(u.username||'—')+' · '+Math.floor(u.points||0)+' pts</div></div>'
-    +'<button class="btn btn-g btn-sm" style="margin-left:auto">មើល Log →</button>'
-    +'</div>';
+  // Build user info without inline onclick
+  const el=document.getElementById('pts-user-info');
+  el.innerHTML='';
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;align-items:center;gap:10px';
+  const av=document.createElement('div');
+  av.style.cssText='width:36px;height:36px;border-radius:50%;background:'+(u.color||'#00C37A')+'22;color:'+(u.color||'#00C37A')+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0';
+  av.textContent=(u.displayName||'?')[0];
+  const info=document.createElement('div');
+  info.innerHTML='<div style="font-size:13px;font-weight:700">'+(u.displayName||'—')+'</div><div style="font-size:11px;color:var(--t2)">@'+(u.username||'—')+' · '+Math.floor(u.points||0)+' pts</div>';
+  const btn=document.createElement('button');
+  btn.className='btn btn-g btn-sm';
+  btn.style.marginLeft='auto';
+  btn.textContent='មើល Log →';
+  btn.onclick=()=>loadPtsLog(uid);
+  row.appendChild(av);row.appendChild(info);row.appendChild(btn);
+  el.appendChild(row);
 }
+
 
 async function loadPtsLog(uid){
   const u=AU[uid]||{};
