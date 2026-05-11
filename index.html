@@ -1,3 +1,4 @@
+  if(btn){const ic=btn.querySelector('span:first-child');if(ic){ic.style.transition='transform .2s cubic-bezier(.34,1.56,.64,1)';ic.style.transform='scale(1.4)';setTimeout(()=>ic.style.transform='',200);}spawnRipple(btn,'rgba(255,75,110,.18)');}
 <!DOCTYPE html>
 <html lang="km">
 <head>
@@ -56,14 +57,38 @@ body{display:flex;flex-direction:column;}
 .pages{flex:1;overflow:hidden;position:relative;}
 .pg{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;opacity:0;pointer-events:none;transform:translateX(20px);transition:opacity .2s,transform .2s;padding-bottom:calc(72px + var(--sb));}
 .pg.act{opacity:1;pointer-events:auto;transform:translateX(0);}
-.bnav{display:flex;background:var(--bg2);border-top:1px solid var(--b);padding:4px 0;padding-bottom:max(4px,var(--sb));flex-shrink:0;}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;cursor:pointer;position:relative;}
-.ni-ic{font-size:20px;transition:transform .15s;}
-.ni-lb{font-size:10px;color:var(--t3);font-weight:500;transition:color .15s;}
-.ni.act .ni-lb{color:var(--g);}
-.ni.act .ni-ic{transform:scale(1.12);}
+.bnav{display:flex;background:var(--bg2);border-top:1px solid var(--b);padding:4px 0;padding-bottom:max(4px,var(--sb));flex-shrink:0;position:relative;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0 4px;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent;user-select:none;}
+.ni-ic{font-size:22px;transition:transform .2s cubic-bezier(.34,1.56,.64,1);display:block;line-height:1;}
+.ni-lb{font-size:10px;color:var(--t3);font-weight:500;transition:color .2s,opacity .2s;letter-spacing:.2px;}
+.ni.act .ni-lb{color:var(--g);font-weight:700;}
+.ni.act .ni-ic{transform:scale(1.2);}
+/* Active pill indicator */
+.ni.act::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:32px;height:3px;background:var(--g);border-radius:0 0 3px 3px;animation:navPill .2s ease;}
+@keyframes navPill{from{width:0;opacity:0}to{width:32px;opacity:1}}
+/* Ripple */
+.ni-ripple{position:absolute;border-radius:50%;background:rgba(0,195,122,.25);transform:scale(0);animation:rippleAnim .45s ease-out forwards;pointer-events:none;}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0;}}
+/* Icon bounce on tap */
+.ni.tapped .ni-ic{animation:iconBounce .3s cubic-bezier(.34,1.56,.64,1);}
+@keyframes iconBounce{0%{transform:scale(1)}40%{transform:scale(.75)}100%{transform:scale(1.2)}}
 .nbadge{position:absolute;top:1px;right:calc(50% - 18px);background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 3px;}
 .nbadge.on{display:flex;}
+
+/* ── BUTTON TAP EFFECTS ── */
+.pab{position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;}
+.btn,.btn-o,.send-btn{-webkit-tap-highlight-color:transparent;}
+/* Tab pills (home/predict tabs) */
+.ftab{position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;}
+.ftab::after{content:'';position:absolute;inset:0;background:var(--g);opacity:0;border-radius:inherit;transition:opacity .15s;}
+.ftab:active::after{opacity:.12;}
+/* Chip press effect */
+.tip-chip{-webkit-tap-highlight-color:transparent;}
+/* Card press */
+.pc{-webkit-tap-highlight-color:transparent;}
+.pc:active{background:rgba(255,255,255,.01);}
+/* Post action buttons */
+.pab:active{transform:scale(.88)!important;transition:transform .1s;}
 
 /* ── PTR ── */
 #ptr-bar{position:sticky;top:0;left:0;right:0;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:10;flex-shrink:0;}
@@ -240,7 +265,7 @@ body{display:flex;flex-direction:column;}
 .ci{flex:1;background:none;border:none;outline:none;font-family:var(--font);font-size:14px;color:var(--t);resize:none;max-height:100px;line-height:1.5;padding:6px 0;align-self:flex-end;}
 .ci::placeholder{color:var(--t3);}
 .ci-ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;background:none;border:none;color:var(--t2);flex-shrink:0;}
-.send-btn{width:40px;height:40px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border:none;background:var(--g);color:#000;transition:transform .1s;}
+.send-btn{width:40px;height:40px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border:none;background:var(--g);color:#000;transition:transform .15s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;overflow:hidden;position:relative;}.send-btn:active{transform:scale(.88)!important;}
 .send-btn:active{transform:scale(.88);}
 .rec-btn{background:var(--red)!important;color:#fff!important;}
 
@@ -952,11 +977,31 @@ function initPTR(){
 // ══════════════════════════════════════════════
 // NAV
 // ══════════════════════════════════════════════
+function spawnRipple(el,color){
+  const r=document.createElement('span');
+  r.className='ni-ripple';
+  if(color)r.style.background=color;
+  const sz=Math.max(el.offsetWidth,el.offsetHeight)*1.6;
+  const rect=el.getBoundingClientRect();
+  r.style.width=r.style.height=sz+'px';
+  r.style.left=(el.offsetWidth/2-sz/2)+'px';
+  r.style.top=(el.offsetHeight/2-sz/2)+'px';
+  el.appendChild(r);
+  setTimeout(()=>r.remove(),500);
+}
 function nav(p){
   document.querySelectorAll('.pg').forEach(x=>x.classList.remove('act'));
   document.querySelectorAll('.ni').forEach(x=>x.classList.remove('act'));
   document.getElementById('pg-'+p)?.classList.add('act');
-  document.getElementById('ni-'+p)?.classList.add('act');
+  const ni=document.getElementById('ni-'+p);
+  if(ni){
+    ni.classList.add('act');
+    ni.classList.remove('tapped');
+    void ni.offsetWidth;
+    ni.classList.add('tapped');
+    setTimeout(()=>ni.classList.remove('tapped'),350);
+    spawnRipple(ni);
+  }
   document.getElementById('fab').style.display=p==='home'?'flex':'none';
   if(p==='prof')renderMyProf();
   if(p==='notif')loadNotifs();
