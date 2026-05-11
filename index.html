@@ -2189,7 +2189,7 @@ function profH(u,posts,isMe,wr,won,settled){
     <div class="ps"><div class="psn">${u.followers||0}</div><div class="psl">Followers</div></div>
     <div class="ps"><div class="psn">${u.following||0}</div><div class="psl">Following</div></div>
     <div class="ps"><div class="psn">${u.posts||0}</div><div class="psl">Posts</div></div>
-    <div class=${isMe?'<div class="ps" onclick="openPtsHistory()" style="cursor:pointer">':'<div class="ps">'}<div class="psn" style="color:var(--gold)">${Math.floor(u.points||0)}</div><div class="psl">pts${isMe?" 📋":""}</div></div>
+    <div class="ps" ${isMe?'onclick="openPtsHistory()" style="cursor:pointer"':''}><div class="psn" style="color:var(--gold)">${Math.floor(u.points||0)}</div><div class="psl">pts${isMe?' 📋':''}</div></div><div class="psl">pts${isMe?" 📋":""}</div></div>
   </div>
   ${isMe?`<div class="rc"><div style="font-size:13px;font-weight:600;margin-bottom:4px">🔗 Link ណែនាំ (+30 pts)</div><div class="rl">${ref}</div><button class="btn-o" onclick="navigator.clipboard?.writeText('${ref}').then(()=>toast('📋 Copy!','ok'))">📋 Copy</button></div>`:''}
   <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase">📝 Posts</div>
@@ -2421,7 +2421,7 @@ function openSets(){
 }
 async function openPtsHistory(){
   const ov=document.getElementById('pts-ov');
-  ov.style.display='flex';
+  ov.style.display='block';
   NAV.push('pts',closePtsHistory);
   document.getElementById('pts-total').textContent=Math.floor(U.points||0)+' pts';
   document.getElementById('pts-list').innerHTML='<div style="text-align:center;padding:30px"><span class="spin"></span></div>';
@@ -2547,7 +2547,7 @@ function doSearch(q){
 
 
 <!-- POINTS HISTORY OVERLAY -->
-<div id="pts-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:110;overflow-y:auto;flex-direction:column">
+<div id="pts-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:110;overflow-y:auto">
   <div style="position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--b);padding:11px 14px;display:flex;align-items:center;gap:10px;z-index:1">
     <div onclick="closePtsHistory()" style="font-size:22px;cursor:pointer;color:var(--g);padding:2px 6px">←</div>
     <div style="font-size:15px;font-weight:700">📋 ប្រវត្តិពិន្ទុ</div>
