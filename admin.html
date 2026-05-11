@@ -126,6 +126,7 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
     <div class="tab" onclick="goTab('users',this)">👥 Users</div>
     <div class="tab" onclick="goTab('lead',this)">🏆 Leaderboard</div>
     <div class="tab" onclick="goTab('promo',this)">🔗 Promo Link</div>
+    <div class="tab" onclick="goTab('ptslog',this)">📋 Points Log</div>
   </div>
 
   <!-- DASHBOARD -->
@@ -461,6 +462,23 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
     <div class="card">
       <div class="ch"><div class="ct">📊 Current Live Promo</div></div>
       <div id="promo-live" class="cb" style="color:var(--t2);font-size:13px">Loading...</div>
+    </div>
+  </div>
+
+  <!-- POINTS LOG -->
+  <div class="pg" id="pg-ptslog">
+    <div class="card">
+      <div class="ch">
+        <div class="ct">📋 Points History</div>
+        <input id="pts-uid-inp" placeholder="ស្វែងរក Username..." oninput="searchPtsUser(this.value)"
+          style="width:180px;font-size:12px;padding:6px 10px">
+      </div>
+      <div id="pts-user-result" style="padding:12px 16px;border-bottom:1px solid var(--b);display:none">
+        <div style="font-size:12px;color:var(--t2);margin-bottom:8px">User:</div>
+        <div id="pts-user-info"></div>
+      </div>
+      <div id="pts-admin-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px;border-bottom:1px solid var(--b)"></div>
+      <div id="pts-admin-list"><div style="padding:20px;text-align:center;color:var(--t3)">ជ្រើស User ដើម្បីមើល Points Log</div></div>
     </div>
   </div>
 
@@ -935,6 +953,16 @@ async function setStatus(pid,status){
         if(s>0)await FU('users/'+p.userId,{winRate:Math.round(w/s*100),wonTips:w,settledTips:s});
       }
     }catch(e){}
+    // Log points for each user who predicted correctly
+    try{
+      const preds=await FG('predictions');
+      if(preds){for(const[uid,days]of Object.entries(preds)){for(const[,ms]of Object.entries(days)){
+        if(ms[pid]){
+          const logEntry={pts:10,source:'tip',desc:'✅ Tips ឈ្នះ — '+( AP[pid]?.matchHome||'')+' vs '+(AP[pid]?.matchAway||''),ts:Date.now()};
+          await db.ref('points_log/'+uid).push(logEntry);
+        }
+      }}}
+    }catch(e){}
     toast('✅ Won! +10pts awarded');
   }else toast(status==='lost'?'❌ Lost updated':'✅ Updated');
   renderDash();renderCEO();renderResults();
@@ -1128,6 +1156,72 @@ async function loadLivePromo(){
   document.getElementById('promo-title').value=promo.title||'';
   document.getElementById('promo-desc').value=promo.desc||'';
   updatePromoPreview();
+}
+
+// ══ ADMIN POINTS LOG ══
+let _ptsUid=null;
+async function searchPtsUser(q){
+  if(!q){document.getElementById('pts-user-result').style.display='none';return;}
+  const users=Object.entries(AU).filter(([k,v])=>
+    (v.displayName||'').toLowerCase().includes(q.toLowerCase())||
+    (v.username||'').toLowerCase().includes(q.toLowerCase())
+  ).slice(0,5);
+  if(!users.length){document.getElementById('pts-user-result').style.display='none';return;}
+  const [uid,u]=users[0];
+  _ptsUid=uid;
+  document.getElementById('pts-user-result').style.display='block';
+  document.getElementById('pts-user-info').innerHTML=
+    '<div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="loadPtsLog(''+uid+'')">'
+    +'<div style="width:36px;height:36px;border-radius:50%;background:'+(u.color||'#00C37A')+'22;color:'+(u.color||'#00C37A')+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">'+(u.displayName||'?')[0]+'</div>'
+    +'<div><div style="font-size:13px;font-weight:700">'+(u.displayName||'—')+'</div>'
+    +'<div style="font-size:11px;color:var(--t2)">@'+(u.username||'—')+' · '+Math.floor(u.points||0)+' pts</div></div>'
+    +'<button class="btn btn-g btn-sm" style="margin-left:auto">មើល Log →</button>'
+    +'</div>';
+}
+
+async function loadPtsLog(uid){
+  const u=AU[uid]||{};
+  document.getElementById('pts-admin-list').innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
+
+  const logs=await FG('points_log/'+uid);
+  if(!logs){
+    document.getElementById('pts-admin-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន Points Log</div>';
+    return;
+  }
+  const entries=Object.values(logs).sort((a,b)=>b.ts-a.ts);
+
+  // Summary
+  const sum={like:0,comment:0,prediction:0,referral:0,tip:0,other:0};
+  entries.forEach(e=>{const s=e.source||'other';sum[s]=(sum[s]||0)+(e.pts||0);});
+  const cols={like:'var(--red)',comment:'var(--blue)',prediction:'var(--g)',referral:'var(--gold)',tip:'#00C37A',other:'var(--t2)'};
+  const ics={like:'❤️',comment:'💬',prediction:'🎯',referral:'👥',tip:'✅',other:'⭐'};
+  document.getElementById('pts-admin-summary').innerHTML=
+    Object.entries(sum).map(([k,v])=>
+      '<div style="background:var(--bg3);border-radius:10px;padding:10px;text-align:center">'
+      +'<div style="font-size:16px">'+(ics[k]||'⭐')+'</div>'
+      +'<div style="font-size:13px;font-weight:800;color:'+(cols[k]||'var(--t2)')+'">'+v.toFixed(1)+'</div>'
+      +'<div style="font-size:10px;color:var(--t2)">'+k+'</div>'
+      +'</div>'
+    ).join('');
+
+  // List
+  document.getElementById('pts-admin-list').innerHTML=
+    '<div style="padding:0 4px">'
+    +'<div style="padding:10px 12px;font-size:12px;color:var(--t2);border-bottom:1px solid var(--b)">'
+      +'Total '+(entries.length)+' entries · '+Math.floor(u.points||0)+' pts total'
+    +'</div>'
+    +entries.map(e=>{
+      const d=new Date(e.ts);
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--b)">'
+        +'<div style="font-size:18px">'+(ics[e.source]||'⭐')+'</div>'
+        +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:13px;font-weight:600">'+(e.desc||e.source||'—')+'</div>'
+          +'<div style="font-size:11px;color:var(--t2)">'+d.toLocaleString('km-KH')+'</div>'
+        +'</div>'
+        +'<div style="font-size:14px;font-weight:800;color:var(--g)">+'+(e.pts||0).toFixed(1)+'</div>'
+      +'</div>';
+    }).join('')
+    +'</div>';
 }
 
 function renderLead(){
