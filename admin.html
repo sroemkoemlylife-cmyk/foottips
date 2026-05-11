@@ -125,6 +125,7 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
     <div class="tab" onclick="goTab('posts',this)">📝 Posts</div>
     <div class="tab" onclick="goTab('users',this)">👥 Users</div>
     <div class="tab" onclick="goTab('lead',this)">🏆 Leaderboard</div>
+    <div class="tab" onclick="goTab('promo',this)">🔗 Promo Link</div>
   </div>
 
   <!-- DASHBOARD -->
@@ -420,6 +421,46 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
       <table><thead><tr>
         <th>User</th><th>Points</th><th>Win Rate</th><th>Status</th><th>Action</th>
       </tr></thead><tbody id="users-tb"></tbody></table>
+    </div>
+  </div>
+
+  <!-- PROMO LINK -->
+  <div class="pg" id="pg-promo">
+    <div class="card">
+      <div class="ch"><div class="ct">🔗 Promo / Affiliate Link</div></div>
+      <div class="cb">
+        <div class="fg">
+          <div class="fl">🔗 Link ចុះឈ្មោះ</div>
+          <input id="promo-url" placeholder="https://suiejdsloi.xyz/?aff=AAA" style="font-size:13px">
+        </div>
+        <div class="fg">
+          <div class="fl">📌 ចំណងជើង Button</div>
+          <input id="promo-title" placeholder="🎯 ចុះឈ្មោះឥឡូវ — ទទួល Bonus!">
+        </div>
+        <div class="fg">
+          <div class="fl">📝 ការពិពណ៌នា</div>
+          <input id="promo-desc" placeholder="Free Register · Welcome Bonus · ងាយស្រួល">
+        </div>
+        <div class="fg">
+          <div class="fl">👁 Preview</div>
+          <div id="promo-preview" style="background:linear-gradient(135deg,#0D1B2A,#1B2838);border:1px solid rgba(255,160,0,.3);border-radius:14px;padding:16px;display:none">
+            <div id="promo-prev-title" style="font-size:15px;font-weight:800;color:#fff;margin-bottom:8px"></div>
+            <div id="promo-prev-desc" style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px"></div>
+            <div id="promo-prev-btn" style="background:linear-gradient(135deg,#ff7800,#ff9f00);color:#fff;padding:11px;border-radius:10px;text-align:center;font-size:13px;font-weight:800"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-g" style="flex:1;padding:12px" onclick="savePromoLink()">💾 Save & Publish</button>
+          <button class="btn btn-r" style="padding:12px 16px" onclick="clearPromoLink()">🗑 Clear</button>
+        </div>
+        <div id="promo-status" style="margin-top:10px;font-size:12px;color:var(--t2);text-align:center"></div>
+      </div>
+    </div>
+
+    <!-- Current Live Promo -->
+    <div class="card">
+      <div class="ch"><div class="ct">📊 Current Live Promo</div></div>
+      <div id="promo-live" class="cb" style="color:var(--t2);font-size:13px">Loading...</div>
     </div>
   </div>
 
@@ -1023,6 +1064,72 @@ async function banUser(uid,banned){
   await FU('users/'+uid,{banned});if(AU[uid])AU[uid].banned=banned;
   toast(banned?'🚫 Banned':'✅ Unbanned');renderUsers();
 }
+// ══ PROMO LINK ══
+document.getElementById('promo-url')?.addEventListener('input', updatePromoPreview);
+document.getElementById('promo-title')?.addEventListener('input', updatePromoPreview);
+document.getElementById('promo-desc')?.addEventListener('input', updatePromoPreview);
+
+function updatePromoPreview(){
+  const url=document.getElementById('promo-url').value.trim();
+  const title=document.getElementById('promo-title').value.trim();
+  const desc=document.getElementById('promo-desc').value.trim();
+  const box=document.getElementById('promo-preview');
+  if(!url&&!title){box.style.display='none';return;}
+  box.style.display='block';
+  document.getElementById('promo-prev-title').textContent=title||'ចំណងជើង...';
+  document.getElementById('promo-prev-desc').textContent=desc||'';
+  document.getElementById('promo-prev-btn').textContent=title||'ចុះឈ្មោះឥឡូវ';
+}
+
+async function savePromoLink(){
+  const url=document.getElementById('promo-url').value.trim();
+  const title=document.getElementById('promo-title').value.trim();
+  const desc=document.getElementById('promo-desc').value.trim();
+  if(!url){terr('⚠️ ដាក់ Link URL');return;}
+  if(!title){terr('⚠️ ដាក់ ចំណងជើង');return;}
+  await FS('settings/promo',{url,title,desc,active:true,updatedAt:Date.now()});
+  tok('✅ Promo Link Save ហើយ!');
+  document.getElementById('promo-status').textContent='✅ Live ហើយ — User ឃើញ Card ក្នុង Feed!';
+  document.getElementById('promo-status').style.color='var(--g)';
+  loadLivePromo();
+}
+
+async function clearPromoLink(){
+  if(!confirm('Clear Promo Link?'))return;
+  await FS('settings/promo',{active:false});
+  document.getElementById('promo-url').value='';
+  document.getElementById('promo-title').value='';
+  document.getElementById('promo-desc').value='';
+  document.getElementById('promo-preview').style.display='none';
+  document.getElementById('promo-status').textContent='⭕ Promo បិទហើយ';
+  document.getElementById('promo-status').style.color='var(--t2)';
+  tok('Promo cleared');
+  loadLivePromo();
+}
+
+async function loadLivePromo(){
+  const el=document.getElementById('promo-live');
+  if(!el)return;
+  const promo=await FG('settings/promo');
+  if(!promo||!promo.active){
+    el.innerHTML='<div style="padding:10px;color:var(--t3)">⭕ គ្មាន Promo Active</div>';
+    return;
+  }
+  el.innerHTML=
+    '<div style="background:linear-gradient(135deg,#0D1B2A,#1B2838);border:1px solid rgba(255,160,0,.3);border-radius:12px;padding:14px">'
+    +'<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">'+promo.title+'</div>'
+    +(promo.desc?'<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px">'+promo.desc+'</div>':'')
+    +'<div style="font-size:11px;color:var(--t2);margin-bottom:8px">🔗 '+promo.url+'</div>'
+    +'<span class="badge bg">✅ Active</span>'
+    +'</div>';
+
+  // Load into form fields
+  document.getElementById('promo-url').value=promo.url||'';
+  document.getElementById('promo-title').value=promo.title||'';
+  document.getElementById('promo-desc').value=promo.desc||'';
+  updatePromoPreview();
+}
+
 function renderLead(){
   const users=Object.values(AU).filter(u=>u.points>0)
     .sort((a,b)=>(b.points||0)-(a.points||0)).slice(0,50);
