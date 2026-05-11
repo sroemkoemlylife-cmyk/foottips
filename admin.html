@@ -1093,10 +1093,6 @@ async function banUser(uid,banned){
   toast(banned?'🚫 Banned':'✅ Unbanned');renderUsers();
 }
 // ══ PROMO LINK ══
-document.getElementById('promo-url')?.addEventListener('input', updatePromoPreview);
-document.getElementById('promo-title')?.addEventListener('input', updatePromoPreview);
-document.getElementById('promo-desc')?.addEventListener('input', updatePromoPreview);
-
 function updatePromoPreview(){
   const url=document.getElementById('promo-url').value.trim();
   const title=document.getElementById('promo-title').value.trim();
@@ -1115,16 +1111,25 @@ async function savePromoLink(){
   const desc=document.getElementById('promo-desc').value.trim();
   if(!url){terr('⚠️ ដាក់ Link URL');return;}
   if(!title){terr('⚠️ ដាក់ ចំណងជើង');return;}
-  await FS('settings/promo',{url,title,desc,active:true,updatedAt:Date.now()});
-  tok('✅ Promo Link Save ហើយ!');
-  document.getElementById('promo-status').textContent='✅ Live ហើយ — User ឃើញ Card ក្នុង Feed!';
-  document.getElementById('promo-status').style.color='var(--g)';
-  loadLivePromo();
+  const btn=document.querySelector('[onclick="savePromoLink()"]');
+  if(btn){btn.disabled=true;btn.textContent='💾 Saving...';}
+  try{
+    await db.ref('settings/promo').set({url,title,desc,active:true,updatedAt:Date.now()});
+    tok('✅ Promo Link Save ហើយ!');
+    const st=document.getElementById('promo-status');
+    if(st){st.textContent='✅ Live — User ឃើញ Card ក្នុង Feed!';st.style.color='var(--g)';}
+    loadLivePromo();
+  }catch(e){
+    terr('❌ Error: '+e.message);
+    console.error('savePromo:',e);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='💾 Save & Publish';}
+  }
 }
 
 async function clearPromoLink(){
   if(!confirm('Clear Promo Link?'))return;
-  await FS('settings/promo',{active:false});
+  await db.ref('settings/promo').set({active:false});
   document.getElementById('promo-url').value='';
   document.getElementById('promo-title').value='';
   document.getElementById('promo-desc').value='';
@@ -1136,9 +1141,15 @@ async function clearPromoLink(){
 }
 
 async function loadLivePromo(){
+  // Attach input listeners each time page opens
+  ['promo-url','promo-title','promo-desc'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.oninput=updatePromoPreview;
+  });
   const el=document.getElementById('promo-live');
   if(!el)return;
-  const promo=await FG('settings/promo');
+  const snap=await db.ref('settings/promo').once('value');
+  const promo=snap.val();
   if(!promo||!promo.active){
     el.innerHTML='<div style="padding:10px;color:var(--t3)">⭕ គ្មាន Promo Active</div>';
     return;
