@@ -427,61 +427,69 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
 
   <!-- PROMO LINK -->
   <div class="pg" id="pg-promo">
-    <div class="card">
+    <div class="card" style="margin-bottom:14px">
       <div class="ch"><div class="ct">🔗 Promo / Affiliate Link</div></div>
       <div class="cb">
+
+        <!-- Link URL -->
         <div class="fg">
-          <div class="fl">🔗 Link ចុះឈ្មោះ</div>
-          <input id="promo-url" placeholder="https://suiejdsloi.xyz/?aff=AAA" style="font-size:13px">
+          <div class="fl">🔗 Link URL</div>
+          <input type="url" id="p-url" placeholder="https://example.com/?aff=ABC"
+            oninput="pPreview()">
         </div>
+
+        <!-- Button Title -->
         <div class="fg">
           <div class="fl">📌 ចំណងជើង Button</div>
-          <input id="promo-title" placeholder="🎯 ចុះឈ្មោះឥឡូវ — ទទួល Bonus!">
+          <input id="p-title" placeholder="🎯 ចុះឈ្មោះឥឡូវ — ទទួល Bonus!"
+            oninput="pPreview()">
         </div>
+
+        <!-- Description -->
         <div class="fg">
           <div class="fl">📝 ការពិពណ៌នា</div>
-          <input id="promo-desc" placeholder="Free Register · Welcome Bonus · ងាយស្រួល">
+          <input id="p-desc" placeholder="Free Register · Welcome Bonus"
+            oninput="pPreview()">
         </div>
-        <div class="fg">
-          <div class="fl">👁 Preview</div>
-          <div id="promo-preview" style="background:linear-gradient(135deg,#0D1B2A,#1B2838);border:1px solid rgba(255,160,0,.3);border-radius:14px;padding:16px;display:none">
-            <div id="promo-prev-title" style="font-size:15px;font-weight:800;color:#fff;margin-bottom:8px"></div>
-            <div id="promo-prev-desc" style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px"></div>
-            <div id="promo-prev-btn" style="background:linear-gradient(135deg,#ff7800,#ff9f00);color:#fff;padding:11px;border-radius:10px;text-align:center;font-size:13px;font-weight:800"></div>
+
+        <!-- Live Preview -->
+        <div id="p-preview" style="display:none;margin-bottom:14px;
+          background:linear-gradient(135deg,#0D1B2A,#1B2838);
+          border:1px solid rgba(255,160,0,.3);border-radius:14px;padding:16px">
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px">👁 PREVIEW</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,120,0,.2);
+              display:flex;align-items:center;justify-content:center;font-size:22px">⚽</div>
+            <div>
+              <div id="p-prev-title" style="font-size:14px;font-weight:800;color:#fff"></div>
+              <div id="p-prev-desc" style="font-size:12px;color:rgba(255,255,255,.5)"></div>
+            </div>
           </div>
+          <div id="p-prev-btn" style="background:linear-gradient(135deg,#ff7800,#ff9f00);
+            color:#fff;padding:11px;border-radius:10px;text-align:center;
+            font-size:13px;font-weight:800"></div>
         </div>
+
+        <!-- Buttons -->
         <div style="display:flex;gap:10px">
-          <button id="promo-save-btn" class="btn btn-g" style="flex:1;padding:12px" onclick="savePromoLink()">💾 Save & Publish</button>
-          <button class="btn btn-r" style="padding:12px 16px" onclick="clearPromoLink()">🗑 Clear</button>
+          <button id="p-save-btn" class="btn btn-g" style="flex:1;padding:13px;font-size:14px"
+            onclick="pSave()">💾 Save & Publish</button>
+          <button class="btn btn-r" style="padding:13px 16px;font-size:14px"
+            onclick="pClear()">🗑</button>
         </div>
-        <div id="promo-status" style="margin-top:10px;font-size:12px;color:var(--t2);text-align:center"></div>
+
+        <div id="p-msg" style="margin-top:10px;font-size:12px;text-align:center"></div>
       </div>
     </div>
 
-    <!-- Current Live Promo -->
+    <!-- Current Live -->
     <div class="card">
-      <div class="ch"><div class="ct">📊 Current Live Promo</div></div>
-      <div id="promo-live" class="cb" style="color:var(--t2);font-size:13px">Loading...</div>
+      <div class="ch"><div class="ct">📡 Current Live Promo</div></div>
+      <div id="p-live" style="padding:14px;color:var(--t2);font-size:13px">Loading...</div>
     </div>
   </div>
 
-  <!-- POINTS LOG -->
-  <div class="pg" id="pg-ptslog">
-    <div class="card">
-      <div class="ch">
-        <div class="ct">📋 Points History</div>
-        <input id="pts-uid-inp" placeholder="ស្វែងរក Username..." oninput="searchPtsUser(this.value)"
-          style="width:180px;font-size:12px;padding:6px 10px">
-      </div>
-      <div id="pts-user-result" style="padding:12px 16px;border-bottom:1px solid var(--b);display:none">
-        <div style="font-size:12px;color:var(--t2);margin-bottom:8px">User:</div>
-        <div id="pts-user-info"></div>
-      </div>
-      <div id="pts-admin-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px;border-bottom:1px solid var(--b)"></div>
-      <div id="pts-admin-list"><div style="padding:20px;text-align:center;color:var(--t3)">ជ្រើស User ដើម្បីមើល Points Log</div></div>
-    </div>
-  </div>
-
+  <!-- LEADERBOARD -->
   <!-- LEADERBOARD -->
   <div class="pg" id="pg-lead">
     <div class="card">
@@ -1095,107 +1103,97 @@ async function banUser(uid,banned){
   toast(banned?'🚫 Banned':'✅ Unbanned');renderUsers();
 }
 // ══ PROMO LINK ══
-function initPromoPage(){
-  // Attach input listeners
-  ['promo-url','promo-title','promo-desc'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.oninput=updatePromoPreview;
-  });
-  loadLivePromo();
-}
-
-function updatePromoPreview(){
-  const url=(document.getElementById('promo-url')?.value||'').trim();
-  const title=(document.getElementById('promo-title')?.value||'').trim();
-  const box=document.getElementById('promo-preview');
-  if(!box) return;
-  if(!url && !title){box.style.display='none';return;}
+function pPreview(){
+  const url=(document.getElementById('p-url')||{}).value||'';
+  const title=(document.getElementById('p-title')||{}).value||'';
+  const desc=(document.getElementById('p-desc')||{}).value||'';
+  const box=document.getElementById('p-preview');
+  if(!box)return;
+  if(!url.trim()&&!title.trim()){box.style.display='none';return;}
   box.style.display='block';
-  const t=document.getElementById('promo-prev-title');
-  const d=document.getElementById('promo-prev-desc');
-  const b=document.getElementById('promo-prev-btn');
-  if(t) t.textContent=title||'ចំណងជើង...';
-  if(d) d.textContent=(document.getElementById('promo-desc')?.value||'');
-  if(b) b.textContent=title||'ចុះឈ្មោះឥឡូវ';
+  const pt=document.getElementById('p-prev-title');
+  const pd=document.getElementById('p-prev-desc');
+  const pb=document.getElementById('p-prev-btn');
+  if(pt)pt.textContent=title||'ចំណងជើង...';
+  if(pd)pd.textContent=desc;
+  if(pb)pb.textContent=title||'ចុះឈ្មោះឥឡូវ';
 }
 
-async function savePromoLink(){
-  const url=(document.getElementById('promo-url')?.value||'').trim();
-  const title=(document.getElementById('promo-title')?.value||'').trim();
-  const desc=(document.getElementById('promo-desc')?.value||'').trim();
-  if(!url){terr('⚠️ ដាក់ Link URL ជាមុន');return;}
-  if(!title){terr('⚠️ ដាក់ ចំណងជើង Button ជាមុន');return;}
-  const btn=document.getElementById('promo-save-btn');
-  if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving...';}
+async function pSave(){
+  const url=(document.getElementById('p-url')||{}).value||'';
+  const title=(document.getElementById('p-title')||{}).value||'';
+  const desc=(document.getElementById('p-desc')||{}).value||'';
+  const msg=document.getElementById('p-msg');
+  if(!url.trim()){terr('⚠️ ដាក់ Link URL');return;}
+  if(!title.trim()){terr('⚠️ ដាក់ ចំណងជើង');return;}
+  const btn=document.getElementById('p-save-btn');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
   try{
     await db.ref('settings/promo').set({
-      url, title, desc,
-      active: true,
-      updatedAt: Date.now()
+      url:url.trim(),title:title.trim(),
+      desc:desc.trim(),active:true,
+      updatedAt:Date.now()
     });
-    tok('✅ Promo Save & Live ហើយ!');
-    const st=document.getElementById('promo-status');
-    if(st){st.textContent='✅ Live — User ឃើញ Card ក្នុង Feed!';st.style.color='var(--g)';}
-    loadLivePromo();
+    tok('✅ Promo Live ហើយ!');
+    if(msg){msg.textContent='✅ Live! User ឃើញ Card ក្នុង Feed';msg.style.color='var(--g)';}
+    pLoadLive();
   }catch(e){
-    terr('❌ Save failed: '+e.message);
-    console.error(e);
+    terr('❌ '+e.message);
+    if(msg){msg.textContent='❌ '+e.message;msg.style.color='var(--red)';}
   }
-  if(btn){btn.disabled=false;btn.innerHTML='💾 Save & Publish';}
+  if(btn){btn.disabled=false;btn.textContent='💾 Save & Publish';}
 }
 
-async function clearPromoLink(){
-  if(!confirm('Clear Promo? User មិនឃើញទៀត')) return;
-  await db.ref('settings/promo/active').set(false);
-  ['promo-url','promo-title','promo-desc'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.value='';
+async function pClear(){
+  if(!confirm('Clear Promo?'))return;
+  await db.ref('settings/promo').set({active:false});
+  ['p-url','p-title','p-desc'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
   });
-  const box=document.getElementById('promo-preview');
-  if(box) box.style.display='none';
-  const st=document.getElementById('promo-status');
-  if(st){st.textContent='⭕ Promo បិទ';st.style.color='var(--t2)';}
+  const box=document.getElementById('p-preview');
+  if(box)box.style.display='none';
+  const msg=document.getElementById('p-msg');
+  if(msg){msg.textContent='⭕ Promo បិទ';msg.style.color='var(--t2)';}
   tok('Promo cleared');
-  loadLivePromo();
+  pLoadLive();
 }
 
-async function loadLivePromo(){
-  const el=document.getElementById('promo-live');
-  if(!el) return;
-  el.innerHTML='<div style="padding:12px;color:var(--t3)">Loading...</div>';
+async function pLoadLive(){
+  const el=document.getElementById('p-live');
+  if(!el)return;
+  el.innerHTML='Loading...';
   try{
-    const snap=await db.ref('settings/promo').once('value');
-    const p=snap.val();
-    if(!p||!p.active||!p.url){
-      el.innerHTML='<div style="padding:12px;color:var(--t3)">⭕ គ្មាន Promo Active</div>';
+    const s=await db.ref('settings/promo').once('value');
+    const p=s.val();
+    if(!p||!p.active){
+      el.innerHTML='<div style="color:var(--t3)">⭕ គ្មាន Promo Active</div>';
       return;
     }
-    // Show live promo preview
     el.innerHTML=
-      '<div style="background:linear-gradient(135deg,#0D1B2A,#1B2838);border:1px solid rgba(255,160,0,.3);border-radius:12px;padding:14px;margin:4px">'
-      +'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px">🔗 '+p.url+'</div>'
+      '<div style="background:linear-gradient(135deg,#0D1B2A,#1B2838);border-radius:12px;padding:14px;border:1px solid rgba(255,160,0,.25)">'
       +'<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">'+p.title+'</div>'
-      +(p.desc?'<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px">'+p.desc+'</div>':'')
-      +'<div style="display:flex;align-items:center;gap:8px">'
+      +(p.desc?'<div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:8px">'+p.desc+'</div>':'')
+      +'<div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:10px">'+p.url+'</div>'
+      +'<div style="display:flex;gap:8px;align-items:center">'
         +'<span class="badge bg">✅ Active</span>'
-        +'<span style="font-size:11px;color:var(--t2)">Updated: '+new Date(p.updatedAt||0).toLocaleString('km-KH')+'</span>'
-      +'</div>'
-      +'</div>';
-    // Pre-fill form
-    const urlEl=document.getElementById('promo-url');
-    const titleEl=document.getElementById('promo-title');
-    const descEl=document.getElementById('promo-desc');
-    if(urlEl && !urlEl.value) urlEl.value=p.url||'';
-    if(titleEl && !titleEl.value) titleEl.value=p.title||'';
-    if(descEl && !descEl.value) descEl.value=p.desc||'';
-    updatePromoPreview();
+        +'<span style="font-size:11px;color:var(--t2)">'+new Date(p.updatedAt||0).toLocaleDateString('km-KH')+'</span>'
+      +'</div></div>';
+    // Pre-fill form if empty
+    const ue=document.getElementById('p-url');
+    const te=document.getElementById('p-title');
+    const de=document.getElementById('p-desc');
+    if(ue&&!ue.value)ue.value=p.url;
+    if(te&&!te.value)te.value=p.title;
+    if(de&&!de.value)de.value=p.desc||'';
+    pPreview();
   }catch(e){
-    el.innerHTML='<div style="padding:12px;color:var(--red)">❌ '+e.message+'</div>';
-    console.error(e);
+    el.innerHTML='<span style="color:var(--red)">❌ '+e.message+'</span>';
   }
 }
 
-// ══ ADMIN POINTS LOG ══// ══ ADMIN POINTS LOG ══
+function initPromoPage(){pLoadLive();}
+
+// ══ ADMIN POINTS LOG ══// ══ ADMIN POINTS LOG ══// ══ ADMIN POINTS LOG ══
 let _ptsUid=null;
 async function searchPtsUser(q){
   if(!q){document.getElementById('pts-user-result').style.display='none';return;}
