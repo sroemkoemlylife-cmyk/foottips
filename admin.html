@@ -566,8 +566,30 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
 
         <!-- Choices -->
         <div class="fg">
-          <div class="fl">📊 ជម្រើស (comma separated)</div>
-          <input id="pm-choices" placeholder="Home Win, Draw, Away Win" oninput="pmPreview()" style="font-size:13px">
+          <div class="fl">📊 ប្រភេទការទស្សន៍ទាយ</div>
+          <!-- Quick presets -->
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+            <button type="button" onclick="pmSetChoices('result')"
+              style="padding:6px 12px;background:var(--bg3);border:1.5px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">
+              ⚽ លទ្ធផល (1X2)
+            </button>
+            <button type="button" onclick="pmSetChoices('goals')"
+              style="padding:6px 12px;background:var(--bg3);border:1.5px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">
+              🎯 គ្រាប់បាល់ (Over/Under)
+            </button>
+            <button type="button" onclick="pmSetChoices('both')"
+              style="padding:6px 12px;background:var(--bg3);border:1.5px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">
+              🔥 ទាំងពីរ (1X2 + Goals)
+            </button>
+          </div>
+          <!-- Manual input -->
+          <div style="font-size:11px;color:var(--t2);margin-bottom:6px">✏️ ឬដាក់ custom choices (comma separated)</div>
+          <input id="pm-choices" placeholder="Home Win, Draw, Away Win, Over 2.5..." oninput="pmPreview()" style="font-size:13px">
+        </div>
+        <!-- Selected type display -->
+        <div id="pm-choice-preview" style="display:none;margin-bottom:4px">
+          <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px">ជម្រើស User ទស្សន៍ទាយ:</div>
+          <div id="pm-choice-chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
         </div>
         <div class="fg">
           <div class="fl">📝 ការ​ពណ៌នា (optional)</div>
@@ -672,8 +694,30 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
 
         <!-- Choices -->
         <div class="fg">
-          <div class="fl">📊 ជម្រើស (comma separated)</div>
-          <input id="pm-choices" placeholder="Home Win, Draw, Away Win" oninput="pmPreview()" style="font-size:13px">
+          <div class="fl">📊 ប្រភេទការទស្សន៍ទាយ</div>
+          <!-- Quick presets -->
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+            <button type="button" onclick="pmSetChoices('result')"
+              style="padding:6px 12px;background:var(--bg3);border:1.5px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">
+              ⚽ លទ្ធផល (1X2)
+            </button>
+            <button type="button" onclick="pmSetChoices('goals')"
+              style="padding:6px 12px;background:var(--bg3);border:1.5px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">
+              🎯 គ្រាប់បាល់ (Over/Under)
+            </button>
+            <button type="button" onclick="pmSetChoices('both')"
+              style="padding:6px 12px;background:var(--bg3);border:1.5px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">
+              🔥 ទាំងពីរ (1X2 + Goals)
+            </button>
+          </div>
+          <!-- Manual input -->
+          <div style="font-size:11px;color:var(--t2);margin-bottom:6px">✏️ ឬដាក់ custom choices (comma separated)</div>
+          <input id="pm-choices" placeholder="Home Win, Draw, Away Win, Over 2.5..." oninput="pmPreview()" style="font-size:13px">
+        </div>
+        <!-- Selected type display -->
+        <div id="pm-choice-preview" style="display:none;margin-bottom:4px">
+          <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px">ជម្រើស User ទស្សន៍ទាយ:</div>
+          <div id="pm-choice-chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
         </div>
         <div class="fg">
           <div class="fl">📝 ការ​ពណ៌នា (optional)</div>
@@ -1605,6 +1649,18 @@ async function rejectWd(postId,uid,pts){
 // ══ PREDICTION MATCHES ══
 let pmData={home:'',away:'',league:'',date:'',time:'',choices:[],pts:10};
 
+function pmSetChoices(type){
+  const inp = document.getElementById('pm-choices');
+  if(type === 'result'){
+    inp.value = 'ម្ចាស់ (Home Win), ស្មើ (Draw), ភ្ញៀវ (Away Win)';
+  } else if(type === 'goals'){
+    inp.value = 'Over 2.5 ⬆️, Under 2.5 ⬇️, Over 3.5 ⬆️, Under 3.5 ⬇️';
+  } else if(type === 'both'){
+    inp.value = 'ម្ចាស់ (Home), ស្មើ (Draw), ភ្ញៀវ (Away), Over 2.5, Under 2.5';
+  }
+  pmPreview();
+}
+
 function pmPreview(){
   const home=(document.getElementById('pm-home').value||'').trim();
   const away=(document.getElementById('pm-away').value||'').trim();
@@ -1618,11 +1674,24 @@ function pmPreview(){
   if(!home&&!away){if(box)box.style.display='none';return;}
   if(box)box.style.display='block';
   const dateStr=date?new Date(date).toLocaleDateString('km-KH',{weekday:'short',month:'short',day:'numeric'}):'';
+  // Update choice chips display
+  const cpBox = document.getElementById('pm-choice-preview');
+  const cpChips = document.getElementById('pm-choice-chips');
+  if(cpBox && cpChips){
+    if(choices.length){
+      cpBox.style.display='block';
+      cpChips.innerHTML = choices.map(ch =>
+        '<span style="padding:5px 12px;background:rgba(0,195,122,.1);border:1.5px solid rgba(0,195,122,.3);border-radius:20px;font-size:12px;font-weight:700;color:var(--g)">'+ch+'</span>'
+      ).join('');
+    } else {
+      cpBox.style.display='none';
+    }
+  }
   const choiceHTML=choices.length
     ?'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'+
-      choices.map(ch=>'<div style="flex:1;min-width:80px;padding:10px 6px;background:rgba(0,195,122,.08);border:1.5px solid rgba(0,195,122,.25);border-radius:10px;text-align:center;cursor:pointer"><div style="font-size:13px;font-weight:700;color:#fff">'+ch+'</div></div>').join('')+
+      choices.map(ch=>'<div style="flex:1;min-width:80px;padding:10px 6px;background:rgba(0,195,122,.08);border:1.5px solid rgba(0,195,122,.25);border-radius:10px;text-align:center;cursor:pointer"><div style="font-size:12px;font-weight:700;color:#fff">'+ch+'</div></div>').join('')+
       '</div>'
-    :'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">ដាក់ choices ខាងលើ</div>';
+    :'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">ជ្រើស ឬ ដាក់ choices</div>';
   content.innerHTML=
     '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:8px">'+league+'</div>'
     +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
