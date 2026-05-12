@@ -1098,7 +1098,7 @@ function promoCardH(){
 async function logPoints(uid, pts, source, desc){
   try{
     const entry={pts,source,desc,ts:Date.now()};
-    await db.ref('points_log/'+uid).push(entry);
+    await db.ref('users/'+uid+'/plog').push(entry);
   }catch(e){console.log('logPoints err:',e.message);}
 }
 
@@ -2423,7 +2423,7 @@ async function openPtsHistory(){
   document.getElementById('pts-list').innerHTML='<div style="text-align:center;padding:30px"><span class="spin"></span></div>';
   document.getElementById('pts-summary').innerHTML='';
 
-  const logs=await FG('points_log/'+U.id);
+  const logs=await FG('users/'+U.id+'/plog');
   if(!logs){
     document.getElementById('pts-list').innerHTML='<div style="text-align:center;padding:40px;color:var(--t3)"><div style="font-size:40px;margin-bottom:10px">📋</div><div>មិនទាន់មានប្រវត្តិ</div></div>';
     return;
