@@ -916,7 +916,10 @@ function launch(){
     const n=s.val()?Object.keys(s.val()).length:0;
     document.getElementById('ndot').classList.toggle('on',n>0);
   });
-  loadMatches();loadNotifs();renderMyProf();updateWT();setInterval(updateWT,60000);
+  loadMatches();loadNotifs();renderMyProf();updateWT();
+  setInterval(updateWT,60000);
+  // Auto-close check every 1 minute
+  setInterval(loadMatches,60000);
   setTimeout(()=>loadAdCache().then(()=>{}),2000);
   setTimeout(syncWR,4000);
   initPTR();
@@ -1842,16 +1845,40 @@ async function submitStar(){if(!curStar){toast('⚠️ ជ្រើស Stars','e
 // ══════════════════════════════════════════════
 // MATCHES
 // ══════════════════════════════════════════════
+async function autoCloseMatches(matches){
+  // Auto-close matches that start within 5 minutes
+  const now=Date.now();
+  for(const m of matches){
+    if(m.status!=='open'||!m.date||!m.time)continue;
+    try{
+      const [hh,mm]=(m.time||'00:00').split(':').map(Number);
+      const kickoff=new Date(m.date);
+      kickoff.setHours(hh,mm,0,0);
+      const diff=kickoff.getTime()-now;
+      // Close if kickoff is within 5 min or already past
+      if(diff<5*60*1000){
+        await db.ref('matches/'+m.id+'/status').set('closed');
+        console.log('Auto-closed:',m.home,'vs',m.away);
+      }
+    }catch(e){/* skip */}
+  }
+}
+
 async function loadMatches(){
-  const data=await FG('matches');
+  const snap=await db.ref('matches').once('value');
+  const data=snap.val();
   const el=document.getElementById('matches');
   if(!data){
     el.innerHTML='<div class="empty"><div class="empty-ic">⚽</div><div class="empty-h">គ្មានការប្រកួត</div></div>';
     return;
   }
-  const matches=Object.entries(data)
-    .filter(([k,v])=>v.status==='open')
-    .map(([k,v])=>({...v,id:k}))
+  // Get ALL matches to auto-close
+  const allMatches=Object.entries(data).map(([k,v])=>({...v,id:k}));
+  // Auto-close matches 5 min before kickoff (don't await — run in background)
+  autoCloseMatches(allMatches).catch(()=>{});
+  // Only show open matches to user
+  const matches=allMatches
+    .filter(m=>m.status==='open')
     .sort((a,b)=>((a.date||'')+(a.time||'')).localeCompare((b.date||'')+(b.time||'')));
   const myPreds=await FG('predictions/'+U.id)||{};
   const total=matches.length;
