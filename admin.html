@@ -515,20 +515,35 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
       <div class="ch"><div class="ct">➕ បន្ថែមមែនការប្រកួត</div></div>
       <div class="cb">
 
-        <!-- Teams Row -->
-        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;margin-bottom:14px">
+        <!-- Teams Row — same as CEO tips -->
+        <div class="match-row" style="margin-bottom:14px">
           <div>
-            <div class="fl">🏠 ក្រុមមេ</div>
-            <input id="pm-home" placeholder="Man City, Barcelona..." oninput="pmPreview()" style="font-size:14px;font-weight:600">
+            <div class="fl">ក្រុមមេ</div>
+            <button class="team-sel" id="pm-btn-h" onclick="pmActivatePicker('home')">
+              <div class="ts-logo" id="pm-lg-h"><span style="font-size:34px">🏠</span></div>
+              <div class="ts-name" id="pm-nm-h">ចុចជ្រើស</div>
+            </button>
           </div>
-          <div style="text-align:center;padding-bottom:8px">
-            <div style="font-size:18px;font-weight:900;color:var(--t3)">VS</div>
-          </div>
+          <div class="vs-c">VS<br><span style="font-size:10px" id="pm-vs-t">—</span></div>
           <div>
-            <div class="fl">✈️ ក្រុមភ្ញៀវ</div>
-            <input id="pm-away" placeholder="Liverpool, Real Madrid..." oninput="pmPreview()" style="font-size:14px;font-weight:600">
+            <div class="fl">ក្រុមភ្ញៀវ</div>
+            <button class="team-sel" id="pm-btn-a" onclick="pmActivatePicker('away')">
+              <div class="ts-logo" id="pm-lg-a"><span style="font-size:34px">✈️</span></div>
+              <div class="ts-name" id="pm-nm-a">ចុចជ្រើស</div>
+            </button>
           </div>
         </div>
+        <!-- Team Search for prediction -->
+        <div id="pm-tsearch" style="display:none" class="tsearch-wrap">
+          <div class="tsearch-head" id="pm-ts-title">🔍 ស្វែងរក ក្រុម</div>
+          <input id="pm-ts-inp" class="tsearch-inp" type="search"
+            placeholder="Arsenal, Bayern, Barcelona..."
+            oninput="pmFilterT(this.value)">
+          <div class="tlist" id="pm-t-list"></div>
+        </div>
+        <!-- Hidden inputs to store values -->
+        <input id="pm-home" type="hidden" value="">
+        <input id="pm-away" type="hidden" value="">
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
           <div>
@@ -602,9 +617,7 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
           <div id="pm-prev-content"></div>
         </div>
 
-        <button class="btn btn-g" style="width:100%;padding:14px;font-size:15px" onclick="pmSubmit()">
-          ➕ Post ការប្រកួត
-        </button>
+        <button id="pm-post-btn" class="btn btn-g" style="width:100%;padding:14px;font-size:15px" onclick="pmSubmit()">➕ Post ការប្រកួត</button>
       </div>
     </div>
 
@@ -643,20 +656,35 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
       <div class="ch"><div class="ct">➕ បន្ថែមមែនការប្រកួត</div></div>
       <div class="cb">
 
-        <!-- Teams Row -->
-        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;margin-bottom:14px">
+        <!-- Teams Row — same as CEO tips -->
+        <div class="match-row" style="margin-bottom:14px">
           <div>
-            <div class="fl">🏠 ក្រុមមេ</div>
-            <input id="pm-home" placeholder="Man City, Barcelona..." oninput="pmPreview()" style="font-size:14px;font-weight:600">
+            <div class="fl">ក្រុមមេ</div>
+            <button class="team-sel" id="pm-btn-h" onclick="pmActivatePicker('home')">
+              <div class="ts-logo" id="pm-lg-h"><span style="font-size:34px">🏠</span></div>
+              <div class="ts-name" id="pm-nm-h">ចុចជ្រើស</div>
+            </button>
           </div>
-          <div style="text-align:center;padding-bottom:8px">
-            <div style="font-size:18px;font-weight:900;color:var(--t3)">VS</div>
-          </div>
+          <div class="vs-c">VS<br><span style="font-size:10px" id="pm-vs-t">—</span></div>
           <div>
-            <div class="fl">✈️ ក្រុមភ្ញៀវ</div>
-            <input id="pm-away" placeholder="Liverpool, Real Madrid..." oninput="pmPreview()" style="font-size:14px;font-weight:600">
+            <div class="fl">ក្រុមភ្ញៀវ</div>
+            <button class="team-sel" id="pm-btn-a" onclick="pmActivatePicker('away')">
+              <div class="ts-logo" id="pm-lg-a"><span style="font-size:34px">✈️</span></div>
+              <div class="ts-name" id="pm-nm-a">ចុចជ្រើស</div>
+            </button>
           </div>
         </div>
+        <!-- Team Search for prediction -->
+        <div id="pm-tsearch" style="display:none" class="tsearch-wrap">
+          <div class="tsearch-head" id="pm-ts-title">🔍 ស្វែងរក ក្រុម</div>
+          <input id="pm-ts-inp" class="tsearch-inp" type="search"
+            placeholder="Arsenal, Bayern, Barcelona..."
+            oninput="pmFilterT(this.value)">
+          <div class="tlist" id="pm-t-list"></div>
+        </div>
+        <!-- Hidden inputs to store values -->
+        <input id="pm-home" type="hidden" value="">
+        <input id="pm-away" type="hidden" value="">
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
           <div>
@@ -730,9 +758,7 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
           <div id="pm-prev-content"></div>
         </div>
 
-        <button class="btn btn-g" style="width:100%;padding:14px;font-size:15px" onclick="pmSubmit()">
-          ➕ Post ការប្រកួត
-        </button>
+        <button id="pm-post-btn" class="btn btn-g" style="width:100%;padding:14px;font-size:15px" onclick="pmSubmit()">➕ Post ការប្រកួត</button>
       </div>
     </div>
 
@@ -1649,6 +1675,47 @@ async function rejectWd(postId,uid,pts){
 // ══ PREDICTION MATCHES ══
 let pmData={home:'',away:'',league:'',date:'',time:'',choices:[],pts:10};
 
+let _pmSide='';
+function pmActivatePicker(side){
+  _pmSide=side;
+  const box=document.getElementById('pm-tsearch');
+  const title=document.getElementById('pm-ts-title');
+  const inp=document.getElementById('pm-ts-inp');
+  if(box){box.style.display='block';}
+  if(title)title.textContent=side==='home'?'🏠 ក្រុមមេ':'✈️ ក្រុមភ្ញៀវ';
+  if(inp){inp.value='';inp.focus();}
+  pmFilterT('');
+}
+function pmPickTeam(name,logo){
+  const side=_pmSide;
+  const nm=document.getElementById('pm-nm-'+side[0]);
+  const lg=document.getElementById('pm-lg-'+side[0]);
+  const inp=document.getElementById('pm-'+side);
+  if(nm)nm.textContent=name;
+  if(lg){const im=document.createElement('img');im.src=logo;im.style.cssText='max-width:44px;max-height:44px;object-fit:contain';im.onerror=function(){this.style.display='none';};lg.innerHTML='';lg.appendChild(im);}
+  if(inp){inp.value=name;inp.dataset={};inp.setAttribute('data-logo',logo);}
+  const box=document.getElementById('pm-tsearch');
+  if(box)box.style.display='none';
+  pmPreview();
+}
+function pmFilterT(q){
+  const list=document.getElementById('pm-t-list');
+  if(!list)return;
+  const res=q?TEAMS.filter(t=>t.name.toLowerCase().includes(q.toLowerCase())).slice(0,20):TEAMS.slice(0,30);
+  list.innerHTML='';
+  res.forEach(t=>{
+    const div=document.createElement('div');
+    div.className='titem';
+    div.onclick=()=>pmPickTeam(t.name,t.logo);
+    const img=document.createElement('img');
+    img.src=t.logo;img.style.cssText='width:28px;height:28px;object-fit:contain';
+    img.onerror=function(){this.style.opacity='0';};
+    const span=document.createElement('span');
+    span.textContent=t.name;
+    div.appendChild(img);div.appendChild(span);
+    list.appendChild(div);
+  });
+}
 function pmSetChoices(type){
   const inp = document.getElementById('pm-choices');
   if(type === 'result'){
@@ -1662,8 +1729,11 @@ function pmSetChoices(type){
 }
 
 function pmPreview(){
-  const home=(document.getElementById('pm-home').value||'').trim();
-  const away=(document.getElementById('pm-away').value||'').trim();
+  const home=(document.getElementById('pm-nm-h').textContent||'').trim();
+  const away=(document.getElementById('pm-nm-a').textContent||'').trim();
+  if(home==='ចុចជ្រើស'||!home||away==='ចុចជ្រើស'||!away){
+    const box=document.getElementById('pm-preview');if(box)box.style.display='none';
+  }
   const league=document.getElementById('pm-league').value||'';
   const time=(document.getElementById('pm-time').value||'').trim();
   const date=(document.getElementById('pm-date').value||'').trim();
@@ -1706,8 +1776,11 @@ function pmPreview(){
 }
 
 async function pmSubmit(){
-  const home=(document.getElementById('pm-home').value||'').trim();
-  const away=(document.getElementById('pm-away').value||'').trim();
+  const home=(document.getElementById('pm-nm-h').textContent||'').trim();
+  const away=(document.getElementById('pm-nm-a').textContent||'').trim();
+  if(home==='ចុចជ្រើស'||!home||away==='ចុចជ្រើស'||!away){
+    const box=document.getElementById('pm-preview');if(box)box.style.display='none';
+  }
   const league=document.getElementById('pm-league').value||'';
   const date=(document.getElementById('pm-date').value||'').trim();
   const time=(document.getElementById('pm-time').value||'').trim();
@@ -1718,28 +1791,37 @@ async function pmSubmit(){
   if(!home||!away){terr('⚠️ ដាក់ ក្រុមមេ + ភ្ញៀវ');return;}
   if(!choices.length){terr('⚠️ ដាក់ ជម្រើស យ៉ាងតិច ១');return;}
   if(!date&&!time){terr('⚠️ ដាក់ ថ្ងៃ ឬ ម៉ោង');return;}
-  const btn=event.target;
-  btn.disabled=true;btn.textContent='⏳ Posting...';
+  const btn=document.getElementById('pm-post-btn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Posting...';}
   try{
+    const hLogo=document.getElementById('pm-lg-h').querySelector('img')?.src||'';
+    const aLogo=document.getElementById('pm-lg-a').querySelector('img')?.src||'';
     await db.ref('matches').push({
       home, away, league, date, time, pts,
+      homelogo:hLogo, awaylogo:aLogo,
       desc, choices,
       status:'open',
       createdAt:Date.now(),
-      predictions:{},
       result:null
     });
     tok('✅ ប្រកួតបន្ថែម!');
-    document.getElementById('pm-home').value='';
-    document.getElementById('pm-away').value='';
+    document.getElementById('pm-nm-h').textContent='ចុចជ្រើស';
+    document.getElementById('pm-lg-h').innerHTML='<span style="font-size:34px">🏠</span>';
+    document.getElementById('pm-nm-a').textContent='ចុចជ្រើស';
+    document.getElementById('pm-lg-a').innerHTML='<span style="font-size:34px">✈️</span>';
     document.getElementById('pm-time').value='';
     document.getElementById('pm-date').value='';
     document.getElementById('pm-choices').value='';
     document.getElementById('pm-desc').value='';
+    document.getElementById('pm-choice-preview').style.display='none';
     document.getElementById('pm-preview').style.display='none';
+    pmPreview();
     pmLoad();
-  }catch(e){terr('❌ '+e.message);}
-  btn.disabled=false;btn.textContent='➕ Post ការប្រកួត';
+  }catch(e){
+    terr('❌ '+(e.message||'Error'));
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='➕ Post ការប្រកួត';}
+  }
 }
 
 async function pmLoad(){
