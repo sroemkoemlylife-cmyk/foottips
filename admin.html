@@ -1344,46 +1344,45 @@ async function loadWithdrawals(){
   if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
   const filter=document.getElementById('wd-filter')?.value||'pending';
-  const snap=await db.ref('withdrawals').once('value');
-  const data=snap.val();
+  const data=await FG('posts');
   if(!data){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មានសំណើ</div>';return;}
-  let items=Object.entries(data).map(([k,v])=>({...v,id:k}));
-  if(filter!=='all')items=items.filter(w=>w.status===filter);
+  let items=Object.entries(data)
+    .filter(([k,v])=>v.isWithdraw)
+    .map(([k,v])=>({...v,postId:k}));
+  if(filter!=='all')items=items.filter(w=>w.wdStatus===filter);
   items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  if(!items.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មានសំណើ ('+filter+')</div>';return;}
+  if(!items.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">គ្មានសំណើ ('+filter+')</div>';return;}
   el.innerHTML='';
   items.forEach(w=>{
     const div=document.createElement('div');
     div.style.cssText='padding:14px 16px;border-bottom:1px solid var(--b)';
     const d=new Date(w.createdAt||0).toLocaleString('km-KH');
-    const stBadge=w.status==='approved'?'badge bg':w.status==='rejected'?'badge br':'badge by';
-    const stTxt=w.status==='approved'?'✅ Approved':w.status==='rejected'?'❌ Rejected':'⏳ Pending';
+    const st=w.wdStatus==='approved'?'✅ Approved':w.wdStatus==='rejected'?'❌ Rejected':'⏳ Pending';
+    const bc=w.wdStatus==='approved'?'badge bg':w.wdStatus==='rejected'?'badge br':'badge by';
     div.innerHTML=
-      '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:'+(w.status==='pending'?'10':'0')+'px">'
+      '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:'+(w.wdStatus==='pending'?10:0)+'px">'
         +'<div style="width:42px;height:42px;border-radius:50%;background:rgba(0,195,122,.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">💰</div>'
         +'<div style="flex:1">'
-          +'<div style="font-size:14px;font-weight:700">'+(w.displayName||'User')+' (@'+(w.username||'')+')</div>'
-          +'<div style="font-size:13px;color:var(--gold);font-weight:700;margin:2px 0">$'+(w.usd||0)+' ('+(w.pts||0)+' pts)</div>'
-          +'<div style="font-size:12px;color:var(--t2)">📱 '+(w.method||'')+': '+(w.account||'')+'</div>'
-          +'<div style="font-size:12px;color:var(--t2)">👤 '+(w.name||'')+'</div>'
-          +'<div style="font-size:11px;color:var(--t3);margin-top:2px">'+d+'</div>'
-          +(w.note?'<div style="font-size:12px;color:var(--red)">📝 '+w.note+'</div>':'')
+          +'<div style="font-size:14px;font-weight:700">'+(w.wdName||'User')+' (@'+(w.wdUsername||'')+')</div>'
+          +'<div style="font-size:13px;color:var(--gold);font-weight:700;margin:2px 0">$'+(w.wdUsd||0)+' ('+(w.wdPts||0)+' pts)</div>'
+          +'<div style="font-size:12px;color:var(--t2)">📱 '+(w.wdMethod||'')+': '+(w.wdAccount||'')+'</div>'
+          +'<div style="font-size:12px;color:var(--t2)">👤 '+(w.wdOwner||'')+'</div>'
+          +'<div style="font-size:11px;color:var(--t3)">'+d+'</div>'
         +'</div>'
-        +'<span class="'+stBadge+'">'+stTxt+'</span>'
+        +'<span class="'+bc+'">'+st+'</span>'
       +'</div>';
-    if(w.status==='pending'){
+    if(w.wdStatus==='pending'){
       const row=document.createElement('div');
       row.style.cssText='display:flex;gap:8px';
       const ab=document.createElement('button');
       ab.className='btn btn-g';ab.style.cssText='flex:1;padding:8px;font-size:13px';
       ab.textContent='✅ Approve';
-      ab.onclick=()=>approveWd(w.id,w.uid,w.usd,w.pts);
+      ab.onclick=()=>approveWd(w.postId,w.wdUid,w.wdUsd,w.wdPts);
       const rb=document.createElement('button');
       rb.className='btn btn-r';rb.style.cssText='flex:1;padding:8px;font-size:13px';
       rb.textContent='❌ Reject';
-      rb.onclick=()=>rejectWd(w.id,w.uid,w.pts);
-      row.appendChild(ab);row.appendChild(rb);
-      div.appendChild(row);
+      rb.onclick=()=>rejectWd(w.postId,w.wdUid,w.wdPts);
+      row.appendChild(ab);row.appendChild(rb);div.appendChild(row);
     }
     el.appendChild(div);
   });
