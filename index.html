@@ -2904,35 +2904,99 @@ async function wdSubmit(){
 
 
 async function wdLoadHistory(){
-  var el=document.getElementById('wd-history');if(!el)return;
-  el.innerHTML='<div style="padding:16px;text-align:center"><span class="spin"></span></div>';
+  var el=document.getElementById('wd-history');
+  if(!el)return;
+  el.innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
   try{
-    // Read from posts where isWithdraw=true and wdUid=U.id
-    var snap=await db.ref('posts').orderByChild('wdUid').equalTo(U.id).once('value');
+    // Read from withdrawals path (permanent history)
+    var snap=await db.ref('withdrawals').orderByChild('uid').equalTo(U.id).once('value');
     var data=snap.val();
-    if(!data){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន</div>';return;}
-    var items=Object.entries(data)
-      .filter(function(e){return e[1].isWithdraw;})
-      .map(function(e){return Object.assign({postId:e[0]},e[1]);});
-    if(!items.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន</div>';return;}
+
+    // Fallback: read from posts
+    if(!data){
+      var snap2=await db.ref('posts').once('value');
+      var pdata=snap2.val();
+      if(pdata){
+        data={};
+        Object.entries(pdata).forEach(function(kv){
+          if(kv[1].isWithdraw&&kv[1].wdUid===U.id){
+            data[kv[0]]={
+              uid:kv[1].wdUid,displayName:kv[1].wdName,
+              pts:kv[1].wdPts,usd:kv[1].wdUsd,
+              method:kv[1].wdMethod,account:kv[1].wdAccount,name:kv[1].wdOwner,
+              status:kv[1].wdStatus||'pending',
+              createdAt:kv[1].createdAt,note:kv[1].wdNote||''
+            };
+          }
+        });
+      }
+    }
+
+    if(!data||!Object.keys(data).length){
+      el.innerHTML=[
+        '<div style="padding:40px 20px;text-align:center">',
+          '<div style="font-size:48px;margin-bottom:12px;opacity:.4">💸</div>',
+          '<div style="font-size:14px;font-weight:600;color:var(--t2)">មិនទាន់មានប្រវត្តិ</div>',
+          '<div style="font-size:12px;color:var(--t3);margin-top:6px">ប្រវត្តិដកប្រាក់នឹងបង្ហាញនៅទីនេះ</div>',
+        '</div>'
+      ].join('');
+      return;
+    }
+
+    var items=Object.entries(data).map(function(e){return Object.assign({id:e[0]},e[1]);});
     items.sort(function(a,b){return b.createdAt-a.createdAt;});
+
     el.innerHTML=items.map(function(w){
-      var d=new Date(w.createdAt).toLocaleDateString('km-KH');
-      var status=w.wdStatus||'pending';
-      var sc=status==='approved'?'color:var(--g)':status==='rejected'?'color:var(--red)':'color:var(--gold)';
-      var st=status==='approved'?'✅ Approved':status==='rejected'?'❌ Rejected':'⏳ Pending';
-      return '<div style="padding:13px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px">'
-        +'<div style="font-size:20px">💰</div>'
-        +'<div style="flex:1">'
-          +'<div style="font-size:13px;font-weight:700">$'+w.wdUsd+' ('+w.wdPts+' pts)</div>'
-          +'<div style="font-size:11px;color:var(--t2)">'+w.wdMethod+' · '+w.wdAccount+' · '+d+'</div>'
-          +(w.wdNote?'<div style="font-size:11px;color:var(--red)">📝 '+w.wdNote+'</div>':'')
-        +'</div>'
-        +'<span style="font-size:11px;font-weight:700;'+sc+'">'+st+'</span>'
-      +'</div>';
+      var status=w.status||'pending';
+      var isApproved=status==='approved';
+      var isRejected=status==='rejected';
+      var d=new Date(w.createdAt);
+      var dateStr=d.toLocaleDateString('km-KH',{day:'numeric',month:'short',year:'numeric'});
+      var timeStr=d.toLocaleTimeString('km-KH',{hour:'2-digit',minute:'2-digit'});
+
+      var stBg=isApproved?'rgba(0,195,122,.1)':isRejected?'rgba(255,75,110,.08)':'rgba(245,200,66,.08)';
+      var stBorder=isApproved?'rgba(0,195,122,.25)':isRejected?'rgba(255,75,110,.2)':'rgba(245,200,66,.2)';
+      var stColor=isApproved?'var(--g)':isRejected?'var(--red)':'var(--gold)';
+      var stIcon=isApproved?'✅':isRejected?'❌':'⏳';
+      var stTxt=isApproved?'Approved':isRejected?'Rejected':'Pending';
+
+      var bankIc=w.method==='ABA'?'🏦':w.method==='ACLEDA'?'🏦':w.method==='Wing'?'✈️':'📱';
+
+      return [
+        '<div style="padding:16px;border-bottom:1px solid var(--b)">',
+          // Top row: amount + status badge
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">',
+            '<div>',
+              '<div style="font-size:22px;font-weight:800;color:var(--t)">$'+w.usd+'</div>',
+              '<div style="font-size:12px;color:var(--t2)">'+w.pts+' pts</div>',
+            '</div>',
+            '<span style="padding:5px 12px;background:'+stBg+';border:1px solid '+stBorder+';border-radius:20px;font-size:12px;font-weight:700;color:'+stColor+'">'+stIcon+' '+stTxt+'</span>',
+          '</div>',
+          // Bank info
+          '<div style="background:var(--bg3);border-radius:12px;padding:12px;margin-bottom:10px">',
+            '<div style="display:flex;align-items:center;gap:10px">',
+              '<div style="width:36px;height:36px;border-radius:10px;background:rgba(75,139,255,.1);display:flex;align-items:center;justify-content:center;font-size:18px">'+bankIc+'</div>',
+              '<div>',
+                '<div style="font-size:13px;font-weight:700">'+w.method+'</div>',
+                '<div style="font-size:12px;color:var(--t2)">'+w.account+'</div>',
+                '<div style="font-size:11px;color:var(--t3)">'+w.name+'</div>',
+              '</div>',
+            '</div>',
+          '</div>',
+          // Date
+          '<div style="display:flex;align-items:center;justify-content:space-between">',
+            '<div style="font-size:11px;color:var(--t3)">📅 '+dateStr+' · '+timeStr+'</div>',
+            (w.note?'<div style="font-size:11px;color:var(--red)">'+w.note+'</div>':''),
+          '</div>',
+        '</div>'
+      ].join('');
     }).join('');
-  }catch(e){el.innerHTML='<div style="padding:14px;color:var(--t3)">Error: '+e.message+'</div>';}
+  }catch(e){
+    el.innerHTML='<div style="padding:14px;text-align:center;color:var(--t3)">❌ '+e.message+'</div>';
+    console.error('wdLoadHistory:',e);
+  }
 }
+
 
 
 </script>
