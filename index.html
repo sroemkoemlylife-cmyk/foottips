@@ -1155,7 +1155,7 @@ function loadFeed(){
 function renderFeed(data){
   const el=document.getElementById('feed');
   if(!data||!Object.keys(data).length){el.innerHTML='<div class="empty"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន Posts</div><div class="empty-s">ចុច ＋ ចែករំលែក!</div></div>';return;}
-  let posts=Object.entries(data).map(([k,v])=>({...v,id:k})).filter(p=>!p.isPromo);
+  let posts=Object.entries(data).map(([k,v])=>({...v,id:k})).filter(p=>!p.isPromo&&!p.isWithdraw);
   const now=Date.now();
   if(feedTab==='hot'){
     posts.sort((a,b)=>{
@@ -2067,7 +2067,7 @@ async function toggleVoice(){
 async function renderMyProf(){
   const me=AU[U.id]||U;U={...U,...me};document.getElementById('tp-n').textContent=Math.floor(U.points||0);
   const snap=await db.ref('posts').orderByChild('userId').equalTo(U.id).once('value');
-  const pd=snap.val()||{};const posts=Object.entries(pd).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+  const pd=snap.val()||{};const posts=Object.entries(pd).map(([k,v])=>({...v,id:k})).filter(p=>!p.isWithdraw).sort((a,b)=>b.createdAt-a.createdAt);
   const won=posts.filter(p=>p.status==='won').length;const settled=posts.filter(p=>p.status==='won'||p.status==='lost').length;
   const wr=settled>0?Math.round((won/settled)*100):null;
   document.getElementById('prof-c').innerHTML=profH({...U,id:U.id},posts,true,wr,won,settled);
@@ -2091,7 +2091,7 @@ async function viewProf(uid){
   // Click delegation for profile posts
   scroll.onclick=e=>{const pc=e.target.closest('.prof-pc');if(pc&&pc.dataset.pid)openPostFull(pc.dataset.pid);};
   const snap=await db.ref('posts').orderByChild('userId').equalTo(uid).once('value');
-  const pd=snap.val()||{};const posts=Object.entries(pd).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+  const pd=snap.val()||{};const posts=Object.entries(pd).map(([k,v])=>({...v,id:k})).filter(p=>!p.isWithdraw).sort((a,b)=>b.createdAt-a.createdAt);
   const won=posts.filter(p=>p.status==='won').length;const settled=posts.filter(p=>p.status==='won'||p.status==='lost').length;
   const wr=settled>0?Math.round((won/settled)*100):null;
   scroll.innerHTML=profH({...u,id:uid},posts,false,wr,won,settled);
@@ -2199,7 +2199,7 @@ function profH(u,posts,isMe,wr,won,settled){
   </div>
   ${isMe?`<div class="rc"><div style="font-size:13px;font-weight:600;margin-bottom:4px">🔗 Link ណែនាំ (+30 pts)</div><div class="rl">${ref}</div><button class="btn-o" onclick="navigator.clipboard?.writeText('${ref}').then(()=>toast('📋 Copy!','ok'))">📋 Copy</button></div>`:''}
   <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase">📝 Posts</div>
-  ${posts.length?posts.map(p=>profPostCard(p,u)).join(''):'<div class="empty" style="padding:20px"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន Post</div></div>'}`;
+  ${posts.length?posts.filter(function(p){return !p.isWithdraw;}).map(p=>profPostCard(p,u)).join(''):'<div class="empty" style="padding:20px"><div class="empty-ic">📝</div><div class="empty-h">មិនទាន់មាន Post</div></div>'}`;
 }
 function closePostFull(){
   // No animation delay — instant close to prevent stuck
