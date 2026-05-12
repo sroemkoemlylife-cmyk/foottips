@@ -968,8 +968,8 @@ async function setStatus(pid,status){
       const preds=await FG('predictions');
       if(preds){for(const[uid,days]of Object.entries(preds)){for(const[,ms]of Object.entries(days)){
         if(ms[pid]){
-          const logEntry={pts:10,source:'tip',desc:'✅ Tips ឈ្នះ — '+( AP[pid]?.matchHome||'')+' vs '+(AP[pid]?.matchAway||''),ts:Date.now()};
-          await db.ref('points_log/'+uid).push(logEntry);
+          const logEntry={pts:10,source:'tip',desc:'✅ Tips ឈ្នះ — '+(AP[pid]?.matchHome||'')+' vs '+(AP[pid]?.matchAway||''),ts:Date.now()};
+          await db.ref('users/'+uid+'/plog').push(logEntry);
         }
       }}}
     }catch(e){}
@@ -1254,7 +1254,7 @@ async function loadPtsLog(uid){
   const u=AU[uid]||{};
   document.getElementById('pts-admin-list').innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
 
-  const logs=await FG('points_log/'+uid);
+  const logs=await FG('users/'+uid+'/plog');
   if(!logs){
     document.getElementById('pts-admin-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន Points Log</div>';
     return;
