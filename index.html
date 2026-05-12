@@ -1895,14 +1895,16 @@ async function loadMatches(){
       // Teams
       +'<div style="padding:14px;display:flex;align-items:center;gap:8px">'
         +'<div style="flex:1;text-align:center">'
-          +'<div style="font-size:15px;font-weight:800;color:var(--t);margin-bottom:2px">'+m.home+'</div>'
+          +(m.homelogo?'<div style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;margin:0 auto 6px"><img src="'+m.homelogo+'" style="max-width:52px;max-height:52px;object-fit:contain"></div>':'<div style="font-size:36px;margin-bottom:6px">🏠</div>')
+          +'<div style="font-size:14px;font-weight:800;color:var(--t)">'+m.home+'</div>'
           +'<div style="font-size:10px;color:var(--t3)">ម្ចាស់ផ្ទះ</div>'
         +'</div>'
         +'<div style="text-align:center;padding:0 10px">'
           +'<div style="font-size:12px;font-weight:900;color:var(--t3)">VS</div>'
         +'</div>'
         +'<div style="flex:1;text-align:center">'
-          +'<div style="font-size:15px;font-weight:800;color:var(--t);margin-bottom:2px">'+m.away+'</div>'
+          +(m.awaylogo?'<div style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;margin:0 auto 6px"><img src="'+m.awaylogo+'" style="max-width:52px;max-height:52px;object-fit:contain"></div>':'<div style="font-size:36px;margin-bottom:6px">✈️</div>')
+          +'<div style="font-size:14px;font-weight:800;color:var(--t)">'+m.away+'</div>'
           +'<div style="font-size:10px;color:var(--t3)">ភ្ញៀវ</div>'
         +'</div>'
       +'</div>'
