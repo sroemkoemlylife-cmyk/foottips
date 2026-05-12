@@ -1843,24 +1843,58 @@ async function submitStar(){if(!curStar){toast('⚠️ ជ្រើស Stars','e
 // MATCHES
 // ══════════════════════════════════════════════
 async function loadMatches(){
-  const today=new Date().toDateString();const data=await FG('matches');
-  const tm=data?Object.entries(data).filter(([k,v])=>v.matchDate===today&&v.active!==false).map(([k,v])=>({...v,id:k})):[];
-  const mp=await FG('predictions/'+U.id+'/'+today)||{};const used=Object.keys(mp).length;
-  document.getElementById('ldots').innerHTML=[0,1,2].map(i=>`<div style="width:9px;height:9px;border-radius:50%;background:${i<used?'var(--g)':'var(--b2)'}"></div>`).join('');
-  document.getElementById('ltxt').textContent=used+'/3 ការទស្សន៍ទាយ';
+  const data=await FG('matches');
   const el=document.getElementById('matches');
-  if(!tm.length){el.innerHTML='<div class="empty"><div class="empty-ic">⚽</div><div class="empty-h">គ្មានការប្រកួតថ្ងៃនេះ</div></div>';return;}
-  el.innerHTML=tm.map(m=>{const myP=mp[m.id];const dis=used>=3&&!myP;
-    return`<div class="mc"><div class="mct"><span style="font-size:11px;font-weight:600;color:var(--t2)">🏆 ${m.league}</span><span style="font-size:11px;color:var(--t2)">⏰ ${m.time}</span></div>
-    <div style="padding:12px;display:flex;align-items:center"><div style="flex:1;text-align:center"><span style="font-size:24px;display:block;margin-bottom:3px">${m.homeIcon||'⚽'}</span><div style="font-size:12px;font-weight:600">${m.home}</div></div><div style="padding:0 10px;font-size:11px;color:var(--t2);font-weight:700">VS</div><div style="flex:1;text-align:center"><span style="font-size:24px;display:block;margin-bottom:3px">${m.awayIcon||'⚽'}</span><div style="font-size:12px;font-weight:600">${m.away}</div></div></div>
-    <div style="display:flex;gap:6px;padding:0 12px 12px">
-      <button class="pb ${myP==='home'?'sel':''} ${dis&&myP!=='home'?'dis':''}" onclick="predict('${m.id}','home')">🏠 ម្ចាស់</button>
-      <button class="pb ${myP==='draw'?'sel':''} ${dis&&myP!=='draw'?'dis':''}" onclick="predict('${m.id}','draw')">🤝 ស្មើ</button>
-      <button class="pb ${myP==='away'?'sel':''} ${dis&&myP!=='away'?'dis':''}" onclick="predict('${m.id}','away')">✈️ ភ្ញៀវ</button>
-    </div>${myP?`<div style="padding:7px 12px;font-size:11px;color:var(--g);text-align:center;border-top:1px solid var(--b)">✅ ${myP==='home'?m.home:myP==='draw'?'ស្មើ':m.away} · ⏳</div>`:''}</div>`;
+  if(!data){el.innerHTML='<div class="empty"><div class="empty-ic">⚽</div><div class="empty-h">គ្មានការប្រកួត</div></div>';return;}
+  // Get all open matches
+  const matches=Object.entries(data)
+    .filter(([k,v])=>v.status==='open')
+    .map(([k,v])=>({...v,id:k}))
+    .sort((a,b)=>(a.date||'')+(a.time||'')-(b.date||'')-(b.time||''));
+  // Get my predictions
+  const myPreds=await FG('predictions/'+U.id)||{};
+  const used=Object.keys(myPreds).length;
+  // Update dots
+  const dots=document.getElementById('ldots');
+  const txt=document.getElementById('ltxt');
+  if(dots)dots.innerHTML=[0,1,2].map(i=>'<div style="width:9px;height:9px;border-radius:50%;background:'+(i<Math.min(used,3)?'var(--g)':'var(--b2)')+'"></div>').join('');
+  if(txt)txt.textContent=Math.min(used,matches.length)+'/'+matches.length+' ការទស្សន៍ទាយ';
+  if(!matches.length){el.innerHTML='<div class="empty"><div class="empty-ic">⚽</div><div class="empty-h">គ្មានការប្រកួតកំពុងបើក</div></div>';return;}
+  el.innerHTML=matches.map(m=>{
+    const myP=myPreds[m.id];
+    const choices=m.choices||['Home Win','Draw','Away Win'];
+    const dateStr=m.date?new Date(m.date).toLocaleDateString('km-KH',{weekday:'short',month:'short',day:'numeric'}):'';
+    const choiceBtns=choices.map(ch=>{
+      const isSel=myP===ch;
+      const isDis=!!(myP&&!isSel);
+      return '<button data-mid="'+m.id+'" data-ch="'+ch+'" onclick="predict(this.dataset.mid,this.dataset.ch)" '
+        +'style="flex:1;padding:9px 4px;border-radius:10px;border:1.5px solid '+(isSel?'var(--g)':'var(--b2)')+';background:'+(isSel?'rgba(0,195,122,.15)':'var(--bg3)')+';cursor:'+(isDis?'default':'pointer')+';font-size:12px;font-weight:'+(isSel?'800':'600')+';color:'+(isSel?'var(--g)':'var(--t)')+';opacity:'+(isDis?'0.4':'1')+'" '
+        +(isDis?'disabled':'')+'>'+ch+'</button>';
+    }).join('');
+    return '<div style="background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden;margin-bottom:10px">'
+      +'<div style="padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b)">'
+        +'<span style="font-size:11px;font-weight:600;color:var(--t2)">🏆 '+m.league+'</span>'
+        +'<span style="font-size:11px;color:var(--t2)">'+(dateStr?dateStr+' ':'')+m.time+'</span>'
+      +'</div>'
+      +'<div style="padding:16px 14px;display:flex;align-items:center;gap:8px">'
+        +'<div style="flex:1;text-align:center"><div style="font-size:16px;font-weight:800;color:var(--t)">'+m.home+'</div></div>'
+        +'<div style="font-size:14px;font-weight:900;color:var(--t3);padding:0 8px">VS</div>'
+        +'<div style="flex:1;text-align:center"><div style="font-size:16px;font-weight:800;color:var(--t)">'+m.away+'</div></div>'
+      +'</div>'
+      +(m.desc?'<div style="padding:0 14px 10px;font-size:12px;color:var(--t2)">📝 '+m.desc+'</div>':'')
+      +'<div style="display:flex;gap:6px;padding:0 14px 14px">'+choiceBtns+'</div>'
+      +(myP?'<div style="padding:8px 14px;font-size:12px;color:var(--g);text-align:center;border-top:1px solid var(--b);background:rgba(0,195,122,.05)">✅ ជ្រើស: '+myP+' · 🎯 '+m.pts+' pts ប្រសិនឈ្នះ!</div>':'')
+    +'</div>';
   }).join('');
 }
-async function predict(mid,ch){const today=new Date().toDateString();const mp=await FG('predictions/'+U.id+'/'+today)||{};if(mp[mid]){toast('⚠️ ទស្សន៍ទាយរួច','inf');return;}if(Object.keys(mp).length>=3){toast('⚠️ អស់ 3 គូ!','err');return;}await FS('predictions/'+U.id+'/'+today+'/'+mid,ch);toast('🎯 +10pts!','ok');loadMatches();}
+
+async function predict(mid,choice){
+  const myPreds=await FG('predictions/'+U.id)||{};
+  if(myPreds[mid]){toast('⚠️ ទស្សន៍ទាយរួចហើយ!','inf');return;}
+  await FS('predictions/'+U.id+'/'+mid,choice);
+  toast('🎯 ជ្រើស: '+choice+'!','ok');
+  loadMatches();
+}
 
 // ══════════════════════════════════════════════
 // LEADERBOARD
