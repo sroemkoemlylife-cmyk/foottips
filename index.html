@@ -409,7 +409,7 @@ body{display:flex;flex-direction:column;}
     <div class="tlogo"><span style="font-size:20px">⚽</span><span class="tlogo-tx">FootTips</span></div>
     <div class="tsearch" onclick="openSearch()"><span style="font-size:14px;color:var(--t3)">🔍</span><span style="font-size:12px;color:var(--t3)">ស្វែងរក...</span></div>
     <div class="tnotif" onclick="nav('notif')">🔔<div class="ndot" id="ndot"></div></div>
-    <div class="tpts" onclick="showWallet()"><span class="tpts-n" id="tp-n">0</span><span style="font-size:11px;color:var(--t2)">pts</span></div>
+    <div class="tpts" onclick="openWithdraw()"><span class="tpts-n" id="tp-n">0</span><span style="font-size:11px;color:var(--t2)">pts</span></div>
   </div>
   <div class="pages">
     <!-- HOME -->
@@ -2599,29 +2599,7 @@ async function createGrp(){const n=prompt('ឈ្មោះ Group:');if(!n?.trim(
 // ══════════════════════════════════════════════
 // WALLET
 // ══════════════════════════════════════════════
-function showWallet(){
-  const pts=Math.floor((AU[U.id]||U).points||0);
-  const old=document.getElementById('w-ov');if(old)old.remove();
-  const ov=document.createElement('div');ov.id='w-ov';ov.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:85;overflow-y:auto;';
-  ov.innerHTML=`<div class="cwtb"><div class="bk" onclick="document.getElementById('w-ov').remove()">←</div><div style="flex:1;font-size:14px;font-weight:700">💳 Wallet</div></div>
-  <div style="padding:12px">
-    <div style="background:linear-gradient(135deg,#00C37A,#0090CC);border-radius:var(--r);padding:22px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden">
-      <div style="position:absolute;right:-10px;bottom:-20px;font-size:90px;opacity:.08">⚽</div>
-      <div style="font-size:12px;color:rgba(0,0,0,.6);margin-bottom:4px">Balance</div>
-      <div style="font-size:42px;font-weight:700;color:#000">${pts}</div>
-      <div style="font-size:13px;color:rgba(0,0,0,.6);margin-top:3px">≈ $${(pts/250).toFixed(2)} USD</div>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <button style="flex:1;padding:11px;border-radius:var(--rs);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;background:var(--card);color:var(--t);border:1px solid var(--b2)" onclick="toast('Coming soon!','inf')">📊 ប្រវត្តិ</button>
-      <button class="btn" style="flex:1;padding:11px" onclick="${pts>=500?`window.Telegram?.WebApp?.openTelegramLink?.('https://t.me/FootTipsSupport')||toast('📧 @FootTipsSupport','inf')`:`toast('⚠️ ត្រូវ 500+ pts','err')`}">💸 ដក</button>
-    </div>
-    <div style="background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:14px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:8px">🔄 Rate</div>
-      <div style="font-size:12px;color:var(--t2);line-height:2">250pts = $1 · ❤️=+0.1 · 💬=+0.2 · ✅=+10 · 👥=+30 · Min=500pts</div>
-    </div>
-  </div>`;
-  document.body.appendChild(ov);
-}
+
 
 // ══════════════════════════════════════════════
 // SEARCH
