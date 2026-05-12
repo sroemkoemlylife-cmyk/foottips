@@ -127,6 +127,7 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
     <div class="tab" onclick="goTab('lead',this)">🏆 Leaderboard</div>
     <div class="tab" onclick="goTab('promo',this)">🔗 Promo Link</div>
     <div class="tab" onclick="goTab('ptslog',this)">📋 Points Log</div>
+    <div class="tab" onclick="goTab('withdraw',this)">💰 Withdrawals</div>
   </div>
 
   <!-- DASHBOARD -->
@@ -489,7 +490,39 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
     </div>
   </div>
 
+  <!-- WITHDRAWALS -->
+  <div class="pg" id="pg-withdraw">
+    <div class="card">
+      <div class="ch">
+        <div class="ct">💰 Withdrawal Requests</div>
+        <select id="wd-filter" onchange="loadWithdrawals()" style="width:auto;font-size:12px;padding:6px 10px">
+          <option value="pending">⏳ Pending</option>
+          <option value="approved">✅ Approved</option>
+          <option value="rejected">❌ Rejected</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+      <div id="wd-admin-list"><div style="padding:20px;text-align:center;color:var(--t3)">Loading...</div></div>
+    </div>
+  </div>
+
   <!-- LEADERBOARD -->
+  <!-- WITHDRAWALS -->
+  <div class="pg" id="pg-withdraw">
+    <div class="card">
+      <div class="ch">
+        <div class="ct">💰 Withdrawal Requests</div>
+        <select id="wd-filter" onchange="loadWithdrawals()" style="width:auto;font-size:12px;padding:6px 10px">
+          <option value="pending">⏳ Pending</option>
+          <option value="approved">✅ Approved</option>
+          <option value="rejected">❌ Rejected</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+      <div id="wd-admin-list"><div style="padding:20px;text-align:center;color:var(--t3)">Loading...</div></div>
+    </div>
+  </div>
+
   <!-- LEADERBOARD -->
   <div class="pg" id="pg-lead">
     <div class="card">
@@ -567,6 +600,7 @@ function goTab(id,el){
   if(id==='lead')renderLead();
   if(id==='promo')initPromoPage();
   if(id==='ptslog')resetPtsLog();
+  if(id==='withdraw')loadWithdrawals();
 }
 
 // ══ CHIPS ══
@@ -1302,6 +1336,85 @@ function resetPtsLog(){
   if(ur)ur.style.display='none';
   const inp=document.getElementById('pts-uid-inp');
   if(inp)inp.value='';
+}
+
+// ══ WITHDRAWALS ══
+async function loadWithdrawals(){
+  const el=document.getElementById('wd-admin-list');
+  if(!el)return;
+  el.innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
+  const filter=document.getElementById('wd-filter')?.value||'pending';
+  let snap,data;
+  if(filter==='all'){
+    snap=await db.ref('withdrawals').orderByChild('createdAt').once('value');
+    data=snap.val();
+  }else{
+    snap=await db.ref('withdrawals').orderByChild('status').equalTo(filter).once('value');
+    data=snap.val();
+  }
+  if(!data){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មានសំណើ</div>';return;}
+  const items=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+  el.innerHTML='';
+  items.forEach(w=>{
+    const div=document.createElement('div');
+    div.style.cssText='padding:14px 16px;border-bottom:1px solid var(--b)';
+    const d=new Date(w.createdAt).toLocaleString('km-KH');
+    const stBadge=w.status==='approved'?'badge bg':w.status==='rejected'?'badge br':'badge by';
+    const stTxt=w.status==='approved'?'✅ Approved':w.status==='rejected'?'❌ Rejected':'⏳ Pending';
+    div.innerHTML=
+      '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:'+(w.status==='pending'?10:0)+'px">'
+        +'<div style="width:42px;height:42px;border-radius:50%;background:rgba(0,195,122,.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">💰</div>'
+        +'<div style="flex:1">'
+          +'<div style="font-size:14px;font-weight:700">'+(w.displayName||'User')+' (@'+(w.username||'')+')</div>'
+          +'<div style="font-size:13px;color:var(--gold);font-weight:700;margin:2px 0">$'+w.usd+' ('+w.pts+' pts)</div>'
+          +'<div style="font-size:12px;color:var(--t2)">📱 '+w.method+': '+w.account+'</div>'
+          +'<div style="font-size:12px;color:var(--t2)">👤 '+(w.name||'')+'</div>'
+          +'<div style="font-size:11px;color:var(--t3);margin-top:3px">'+d+'</div>'
+          +(w.note?'<div style="font-size:12px;color:var(--red);margin-top:4px">📝 '+w.note+'</div>':'')
+        +'</div>'
+        +'<span class="'+stBadge+'">'+stTxt+'</span>'
+      +'</div>';
+    if(w.status==='pending'){
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;gap:8px';
+      const ab=document.createElement('button');
+      ab.className='btn btn-g';ab.style.cssText='flex:1;padding:8px;font-size:13px';
+      ab.textContent='✅ Approve';ab.onclick=()=>approveWd(w.id,w.uid);
+      const rb=document.createElement('button');
+      rb.className='btn btn-r';rb.style.cssText='flex:1;padding:8px;font-size:13px';
+      rb.textContent='❌ Reject';rb.onclick=()=>rejectWd(w.id,w.uid);
+      row.appendChild(ab);row.appendChild(rb);
+      div.appendChild(row);
+    }
+    el.appendChild(div);
+  });
+}
+
+
+async function approveWd(wid,uid){
+  if(!confirm('Approve withdrawal?'))return;
+  await db.ref('withdrawals/'+wid).update({status:'approved',approvedAt:Date.now(),approvedBy:aUID||'admin'});
+  // Log
+  const snap=await db.ref('withdrawals/'+wid).once('value');
+  const w=snap.val();
+  if(w) await db.ref('users/'+uid+'/plog').push({pts:0,source:'withdraw_approved',desc:'✅ Withdrawal Approved $'+w.usd,ts:Date.now()});
+  tok('✅ Approved!');
+  loadWithdrawals();
+}
+
+async function rejectWd(wid,uid){
+  const reason=prompt('Reason for rejection (optional):','');
+  await db.ref('withdrawals/'+wid).update({status:'rejected',rejectedAt:Date.now(),note:reason||''});
+  // Refund points
+  const snap=await db.ref('withdrawals/'+wid).once('value');
+  const w=snap.val();
+  if(w&&w.pts){
+    const cur=(await FG('users/'+uid+'/points'))||0;
+    await FS('users/'+uid+'/points',cur+w.pts);
+    await db.ref('users/'+uid+'/plog').push({pts:w.pts,source:'withdraw_rejected',desc:'❌ Withdrawal Rejected — pts refunded',ts:Date.now()});
+  }
+  tok('❌ Rejected + pts refunded');
+  loadWithdrawals();
 }
 
 function renderLead(){
