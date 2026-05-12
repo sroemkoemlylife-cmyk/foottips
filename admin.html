@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FootTips Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--card:#1C2128;
+--b:rgba(255,255,255,.08);--b2:rgba(255,255,255,.14);
+--t:#E6EDF3;--t2:#8B949E;--t3:#484F58;
+--g:#00C37A;--red:#F85149;--gold:#E3B341;--blue:#58A6FF;
+--f:system-ui,-apple-system,sans-serif;}
+body{background:var(--bg);color:var(--t);font-family:var(--f);min-height:100vh;}
+input,select,textarea{background:var(--bg3);border:1.5px solid var(--b2);color:var(--t);
+font-family:var(--f);font-size:14px;padding:10px 12px;border-radius:10px;
+outline:none;width:100%;transition:border .2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--g);}
+button{cursor:pointer;font-family:var(--f);border:none;}
+.btn{padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;}
+.btn-g{background:var(--g);color:#000;}
+.btn-r{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.25);}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;}
+.bg{background:rgba(0,195,122,.1);color:var(--g);}
+.br{background:rgba(248,81,73,.1);color:var(--red);}
+.by{background:rgba(227,179,65,.1);color:var(--gold);}
+.bx{background:var(--bg3);color:var(--t3);}
+#toasts{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;color:#fff;
+animation:ti .25s;max-width:260px;}
+@keyframes ti{from{opacity:0;transform:translateY(-6px)}}
+.tabs{display:flex;gap:0;background:var(--bg2);border-bottom:1px solid var(--b);
+padding:0 16px;overflow-x:auto;}
+.tab{padding:12px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--t2);
+border-bottom:2.5px solid transparent;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.tab.on{color:var(--g);border-color:var(--g);}
+.pg{display:none;padding:16px;max-width:860px;margin:0 auto;}
+.pg.on{display:block;}
+.card{background:var(--card);border:1px solid var(--b);border-radius:12px;
+overflow:hidden;margin-bottom:16px;}
+.ch{padding:13px 16px;border-bottom:1px solid var(--b);display:flex;
+align-items:center;justify-content:space-between;}
+.ct{font-size:14px;font-weight:700;}
+.cb{padding:16px;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:560px){.stats{grid-template-columns:1fr 1fr;}}
+.stat{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:14px;}
+.sn{font-size:24px;font-weight:800;margin-bottom:3px;}
+.sl{font-size:11px;color:var(--t2);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fl{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;
+text-transform:uppercase;letter-spacing:.4px;}
+.fg{margin-bottom:12px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{padding:9px 12px;text-align:left;font-size:11px;font-weight:700;
+color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--b);}
+td{padding:9px 12px;border-bottom:1px solid var(--b);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.ti{padding:13px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;}
+.ti:last-child{border-bottom:none;}
+/* ── TEAM SELECTOR ── */
+.match-row{display:grid;grid-template-columns:1fr 44px 1fr;gap:8px;align-items:center;margin-bottom:14px;}
+.vs-c{text-align:center;font-size:14px;font-weight:800;color:var(--t3);}
+.team-sel{background:var(--bg3);border:2px solid var(--b2);border-radius:12px;
+padding:12px;text-align:center;cursor:pointer;transition:border .2s;
+width:100%;display:block;}
+.team-sel:hover,.team-sel.on{border-color:var(--g);}
+.ts-logo{height:48px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;}
+.ts-logo img{max-width:44px;max-height:44px;object-fit:contain;}
+.ts-name{font-size:11px;font-weight:700;color:var(--t2);}
+/* ── INLINE SEARCH BOX ── */
+.tsearch-wrap{background:var(--bg2);border:1.5px solid var(--g);border-radius:12px;
+padding:12px;margin-bottom:14px;}
+.tsearch-head{font-size:12px;font-weight:700;color:var(--g);margin-bottom:8px;}
+.tsearch-inp{margin-bottom:8px;}
+.tlist{max-height:220px;overflow-y:auto;border-radius:8px;}
+.trow{display:flex;align-items:center;gap:10px;padding:8px 10px;
+border-radius:8px;cursor:pointer;transition:background .1s;}
+.trow:hover{background:var(--bg3);}
+.trow img{width:32px;height:32px;object-fit:contain;flex-shrink:0;}
+.trow-n{font-size:13px;font-weight:600;}
+.trow-g{font-size:11px;color:var(--t2);}
+/* CHIPS */
+.chip{display:inline-block;padding:5px 12px;border-radius:20px;font-size:12px;
+font-weight:600;cursor:pointer;border:1.5px solid var(--b2);
+background:var(--bg3);color:var(--t2);user-select:none;margin:3px;}
+.chip.on{background:var(--g);color:#000;border-color:var(--g);}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.3);
+border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="toasts"></div>
+
+<!-- LOGIN -->
+<div id="login" style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1px solid var(--b);border-radius:16px;
+    padding:32px;width:300px;text-align:center">
+    <div style="font-size:44px;margin-bottom:12px">🛡️</div>
+    <div style="font-size:20px;font-weight:800;color:var(--g);margin-bottom:4px">FootTips Admin</div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:24px">CEO Panel · Authorized only</div>
+    <input type="password" id="pw" placeholder="Admin Password" style="margin-bottom:12px"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn btn-g" style="width:100%;padding:12px;font-size:14px"
+      onclick="doLogin()">🔐 Login</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <!-- Header -->
+  <div style="background:var(--bg2);border-bottom:1px solid var(--b);padding:10px 16px;
+    display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:15px;font-weight:800;color:var(--g)">⚽ FootTips Admin</div>
+    <button class="btn btn-r" style="padding:6px 14px;font-size:12px"
+      onclick="doLogout()">🚪 Logout</button>
+  </div>
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab on" onclick="goTab('dash',this)">📊 Dashboard</div>
+    <div class="tab" onclick="goTab('tip',this)">🎯 Post Tip</div>
+    <div class="tab" onclick="goTab('res',this)">✅ Results</div>
+    <div class="tab" onclick="goTab('posts',this)">📝 Posts</div>
+    <div class="tab" onclick="goTab('users',this)">👥 Users</div>
+    <div class="tab" onclick="goTab('lead',this)">🏆 Leaderboard</div>
+    <div class="tab" onclick="goTab('promo',this)">🔗 Promo Link</div>
+    <div class="tab" onclick="goTab('ptslog',this)">📋 Points Log</div>
+    <div class="tab" onclick="goTab('withdraw',this)">💰 Withdrawals</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="pg on" id="pg-dash">
+    <div class="stats">
+      <div class="stat"><div class="sn" style="color:var(--g)" id="s1">—</div><div class="sl">👥 Users</div></div>
+      <div class="stat"><div class="sn" style="color:var(--blue)" id="s2">—</div><div class="sl">📝 Posts</div></div>
+      <div class="stat"><div class="sn" style="color:var(--gold)" id="s3">—</div><div class="sl">🎯 CEO Tips</div></div>
+      <div class="stat"><div class="sn" style="color:var(--red)" id="s4">—</div><div class="sl">⏳ Pending</div></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">⏳ Tips Pending</div></div>
+      <div id="d-pend"></div>
+    </div>
+  </div>
+
+  <!-- POST TIP -->
+  <div class="pg" id="pg-tip">
+    <div class="card">
+      <div class="ch"><div class="ct">⚽ Match Builder</div></div>
+      <div class="cb">
+
+        <!-- Home / Away buttons -->
+        <div class="match-row">
+          <div>
+            <div class="fl">ក្រុមម្ចាស់ផ្ទះ</div>
+            <button class="team-sel" id="btn-h" onclick="activatePicker('home')">
+              <div class="ts-logo" id="lg-h"><span style="font-size:34px">🏠</span></div>
+              <div class="ts-name" id="nm-h">ចុចជ្រើស</div>
+            </button>
+          </div>
+          <div class="vs-c">VS<br><span style="font-size:10px" id="vs-t">—</span></div>
+          <div>
+            <div class="fl">ក្រុមភ្ញៀវ</div>
+            <button class="team-sel" id="btn-a" onclick="activatePicker('away')">
+              <div class="ts-logo" id="lg-a"><span style="font-size:34px">✈️</span></div>
+              <div class="ts-name" id="nm-a">ចុចជ្រើស</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- INLINE TEAM SEARCH — appears here when button clicked -->
+        <div id="tsearch" style="display:none" class="tsearch-wrap">
+          <div class="tsearch-head" id="ts-title">🔍 ស្វែងរក ក្រុម</div>
+          <input id="ts-inp" class="tsearch-inp" type="search"
+            placeholder="Arsenal, Bayern, Barcelona..."
+            oninput="filterT(this.value)">
+          <div class="tlist" id="t-list"></div>
+        </div>
+
+        <!-- League + Time -->
+        <div class="g2 fg">
+          <div>
+            <div class="fl">🏆 លីក</div>
+            <select id="t-lg" onchange="updatePreview()" style="font-size:13px">
+              <optgroup label="🌍 International">
+                <option value="World Cup 2026|🏆">🏆 FIFA World Cup 2026</option>
+                <option value="UEFA Euro|🇪🇺">🇪🇺 UEFA Euro</option>
+                <option value="Copa America|🌎">🌎 Copa America</option>
+                <option value="AFC Asian Cup|🌏">🌏 AFC Asian Cup</option>
+                <option value="AFCON|🌍">🌍 Africa Cup of Nations</option>
+                <option value="UEFA Nations League|🏅">🏅 UEFA Nations League</option>
+                <option value="International Friendly|🤝">🤝 International Friendly</option>
+              </optgroup>
+              <optgroup label="⭐ UEFA Club">
+                <option value="Champions League|⭐">⭐ Champions League</option>
+                <option value="Europa League|🟠">🟠 Europa League</option>
+                <option value="Conference League|🔵">🔵 Conference League</option>
+                <option value="Club World Cup 2025|🌐">🌐 Club World Cup 2025</option>
+              </optgroup>
+              <optgroup label="🏴󠁧󠁢󠁥󠁮󠁧󠁿 England">
+                <option value="Premier League|🏴󠁧󠁢󠁥󠁮󠁧󠁿">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</option>
+                <option value="Championship|🏴󠁧󠁢󠁥󠁮󠁧󠁿">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Championship</option>
+                <option value="FA Cup|🏴󠁧󠁢󠁥󠁮󠁧󠁿">🏴󠁧󠁢󠁥󠁮󠁧󠁿 FA Cup</option>
+                <option value="EFL Cup|🏴󠁧󠁢󠁥󠁮󠁧󠁿">🏴󠁧󠁢󠁥󠁮󠁧󠁿 EFL Cup</option>
+              </optgroup>
+              <optgroup label="🇪🇸 Spain">
+                <option value="La Liga|🇪🇸">🇪🇸 La Liga</option>
+                <option value="La Liga 2|🇪🇸">🇪🇸 La Liga 2</option>
+                <option value="Copa del Rey|🇪🇸">🇪🇸 Copa del Rey</option>
+              </optgroup>
+              <optgroup label="🇩🇪 Germany">
+                <option value="Bundesliga|🇩🇪">🇩🇪 Bundesliga</option>
+                <option value="Bundesliga 2|🇩🇪">🇩🇪 Bundesliga 2</option>
+                <option value="DFB Pokal|🇩🇪">🇩🇪 DFB Pokal</option>
+              </optgroup>
+              <optgroup label="🇮🇹 Italy">
+                <option value="Serie A|🇮🇹">🇮🇹 Serie A</option>
+                <option value="Serie B|🇮🇹">🇮🇹 Serie B</option>
+                <option value="Coppa Italia|🇮🇹">🇮🇹 Coppa Italia</option>
+              </optgroup>
+              <optgroup label="🇫🇷 France">
+                <option value="Ligue 1|🇫🇷">🇫🇷 Ligue 1</option>
+                <option value="Ligue 2|🇫🇷">🇫🇷 Ligue 2</option>
+                <option value="Coupe de France|🇫🇷">🇫🇷 Coupe de France</option>
+              </optgroup>
+              <optgroup label="🇳🇱 Netherlands">
+                <option value="Eredivisie|🇳🇱">🇳🇱 Eredivisie</option>
+              </optgroup>
+              <optgroup label="🇵🇹 Portugal">
+                <option value="Primeira Liga|🇵🇹">🇵🇹 Primeira Liga</option>
+              </optgroup>
+              <optgroup label="🇹🇷 Turkey">
+                <option value="Super Lig|🇹🇷">🇹🇷 Super Lig</option>
+              </optgroup>
+              <optgroup label="🇧🇪 Belgium">
+                <option value="Jupiler Pro League|🇧🇪">🇧🇪 Jupiler Pro League</option>
+              </optgroup>
+              <optgroup label="🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland">
+                <option value="Scottish Premiership|🏴󠁧󠁢󠁳󠁣󠁴󠁿">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scottish Premiership</option>
+              </optgroup>
+              <optgroup label="🇷🇺 Russia">
+                <option value="Russian Premier League|🇷🇺">🇷🇺 Russian Premier League</option>
+              </optgroup>
+              <optgroup label="🇺🇦 Ukraine">
+                <option value="Ukrainian Premier League|🇺🇦">🇺🇦 Ukrainian Premier League</option>
+              </optgroup>
+              <optgroup label="🇬🇷 Greece">
+                <option value="Super League Greece|🇬🇷">🇬🇷 Super League Greece</option>
+              </optgroup>
+              <optgroup label="🇨🇿 Czech">
+                <option value="Czech Liga|🇨🇿">🇨🇿 Czech Liga</option>
+              </optgroup>
+              <optgroup label="🇦🇹 Austria">
+                <option value="Austrian Bundesliga|🇦🇹">🇦🇹 Austrian Bundesliga</option>
+              </optgroup>
+              <optgroup label="🇨🇭 Switzerland">
+                <option value="Swiss Super League|🇨🇭">🇨🇭 Swiss Super League</option>
+              </optgroup>
+              <optgroup label="🇩🇰 Denmark">
+                <option value="Danish Superliga|🇩🇰">🇩🇰 Danish Superliga</option>
+              </optgroup>
+              <optgroup label="🇸🇦 Saudi Arabia">
+                <option value="Saudi Pro League|🇸🇦">🇸🇦 Saudi Pro League</option>
+              </optgroup>
+              <optgroup label="🇺🇸 USA">
+                <option value="MLS|🇺🇸">🇺🇸 MLS</option>
+              </optgroup>
+              <optgroup label="🌎 South America">
+                <option value="Copa Libertadores|🌎">🌎 Copa Libertadores</option>
+                <option value="Copa Sudamericana|🌎">🌎 Copa Sudamericana</option>
+                <option value="Brazilian Serie A|🇧🇷">🇧🇷 Brazilian Serie A</option>
+                <option value="Argentine Primera|🇦🇷">🇦🇷 Argentine Primera</option>
+              </optgroup>
+              <optgroup label="🌏 Asia">
+                <option value="AFC Champions League|🌏">🌏 AFC Champions League</option>
+                <option value="J-League|🇯🇵">🇯🇵 J-League Japan</option>
+                <option value="K-League|🇰🇷">🇰🇷 K-League Korea</option>
+                <option value="Chinese Super League|🇨🇳">🇨🇳 Chinese Super League</option>
+                <option value="Thai League|🇹🇭">🇹🇭 Thai League</option>
+                <option value="Vietnamese V-League|🇻🇳">🇻🇳 V-League Vietnam</option>
+              </optgroup>
+              <optgroup label="⚽ Other">
+                <option value="Other|⚽">⚽ Other</option>
+              </optgroup>
+            </select>
+          </div>
+          <div>
+            <div class="fl">⏰ ម៉ោង</div>
+            <input id="t-time" placeholder="22:00"
+              oninput="document.getElementById('vs-t').textContent=this.value||'—';updatePreview()">
+          </div>
+        </div>
+
+        <!-- Tip Type Chips -->
+        <div class="fg">
+          <div class="fl">🎯 ប្រភេទ Tip</div>
+          <div id="chips"></div>
+        </div>
+
+        <!-- Prediction + Odds -->
+        <div class="g2 fg">
+          <div>
+            <div class="fl">ការទស្សន៍ទាយ</div>
+            <input id="t-pred" placeholder="Over 2.5 Goals" oninput="updatePreview()">
+          </div>
+          <div>
+            <div class="fl">📊 Odds (copy ពី bookmaker)</div>
+            <input id="t-odds" type="number" step="0.01" min="1.01" placeholder="1.85" oninput="updatePreview()">
+          </div>
+        </div>
+
+        <!-- Analysis -->
+        <div class="fg">
+          <div class="fl">📝 ការវិភាគ (ខ្មែរ)</div>
+          <textarea id="t-ana" rows="3" placeholder="ពន្យល់ហេតុផល tip..." oninput="updatePreview()"></textarea>
+        </div>
+        <div class="fg">
+          <div class="fl">🔗 Link (optional) — ចុចពី Odds</div>
+          <input id="t-link" placeholder="https://... ព័ត៌មាន ឬ Live score..." oninput="updatePreview();document.getElementById('t-link-title-wrap').style.display=this.value?'block':'none'">
+        </div>
+        <div class="fg" id="t-link-title-wrap" style="display:none">
+          <div class="fl">📌 ចំណងជើង Link</div>
+          <input id="t-link-title" placeholder="ឧ. ព័ត៌មានបន្ថែម · Live Stream..." oninput="updatePreview()">
+        </div>
+
+
+        <button id="post-btn" class="btn btn-g" style="width:100%;padding:14px;font-size:15px"
+          onclick="submitTip()">📢 Post ជា CEO FootTips</button>
+      </div>
+    </div>
+
+
+    <!-- PREVIEW (outside card, no overflow clip) -->
+    <div id="preview-box" style="display:none;margin-bottom:16px;background:var(--bg2);border:1.5px solid rgba(0,195,122,.3);border-radius:14px;overflow:hidden">
+      <div style="padding:10px 14px;background:rgba(0,195,122,.06);border-bottom:1px solid rgba(0,195,122,.15);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:12px;font-weight:700;color:var(--g)">👁 Preview — Post នឹងបង្ហាញដូចនេះ</div>
+        <div style="font-size:10px;color:var(--t3)" id="prev-live">live</div>
+      </div>
+      <div style="padding:12px 14px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:36px;height:36px;border-radius:50%;background:#00C37A22;color:var(--g);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0">P</div>
+          <div>
+            <div style="font-size:13px;font-weight:700">ADMIN PANDA <span style="color:var(--blue);font-size:11px">✓</span> <span style="background:var(--gold);color:#000;font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px">CEO</span></div>
+            <div style="font-size:11px;color:var(--t2)">ឥឡូវនេះ</div>
+          </div>
+        </div>
+        <div style="background:var(--bg3);border-radius:12px;padding:12px;margin-bottom:8px">
+          <div style="font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px" id="pv-league">⭐ Champions League</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="text-align:center;flex:1">
+              <div id="pv-hlogo" style="height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:4px"><span style="font-size:28px">🏠</span></div>
+              <div style="font-size:11px;font-weight:700" id="pv-hname">ម្ចាស់ផ្ទះ</div>
+            </div>
+            <div style="text-align:center;padding:0 8px">
+              <div style="font-size:10px;color:var(--t3)" id="pv-time">—</div>
+              <div style="font-size:13px;font-weight:800;color:var(--t3)">VS</div>
+            </div>
+            <div style="text-align:center;flex:1">
+              <div id="pv-alogo" style="height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:4px"><span style="font-size:28px">✈️</span></div>
+              <div style="font-size:11px;font-weight:700" id="pv-aname">ភ្ញៀវ</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <span style="background:var(--g);color:#000;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700" id="pv-pred">Tip...</span>
+            <span style="background:rgba(75,139,255,.15);color:#4B8BFF;border:1px solid rgba(75,139,255,.3);padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700" id="pv-odds">Odds: —</span>
+            <span id="pv-link" style="display:none;align-items:center;gap:4px;background:#ff7800;color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700">🔗 Link</span>
+          </div>
+        </div>
+        <div id="pv-ana" style="display:none;font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:6px"></div>
+        <div style="display:flex;gap:0;padding-top:8px;border-top:1px solid var(--b)">
+          <div style="flex:1;text-align:center;font-size:12px;color:var(--t3)">🤍 Like</div>
+          <div style="flex:1;text-align:center;font-size:12px;color:var(--t3)">💬 Comment</div>
+          <div style="flex:1;text-align:center;font-size:12px;color:var(--t3)">↗️ Share</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent CEO Tips -->
+    <div class="card">
+      <div class="ch">
+        <div class="ct">📋 CEO Posts ថ្មីៗ</div>
+        <span style="font-size:11px;color:var(--t2)">Update Won/Lost ពេលចប់</span>
+      </div>
+      <div id="ceo-list"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="pg" id="pg-res">
+    <div class="card">
+      <div class="ch"><div class="ct">⏳ Tips Pending Result</div></div>
+      <div id="res-list"></div>
+    </div>
+  </div>
+
+  <!-- POSTS -->
+  <div class="pg" id="pg-posts">
+    <div class="card">
+      <div class="ch">
+        <div class="ct">📝 All Posts</div>
+        <select id="pf" onchange="renderPosts()" style="width:auto;font-size:12px;padding:6px 10px">
+          <option value="all">All</option>
+          <option value="pending">⏳ Pending</option>
+          <option value="won">✅ Won</option>
+          <option value="lost">❌ Lost</option>
+        </select>
+      </div>
+      <table><thead><tr>
+        <th>Match</th><th>Tip</th><th>Odds</th><th>Status</th><th>Action</th>
+      </tr></thead><tbody id="posts-tb"></tbody></table>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div class="pg" id="pg-users">
+    <div class="card">
+      <div class="ch">
+        <div class="ct">👥 Users (<span id="u-cnt">0</span>)</div>
+        <input id="u-q" placeholder="Search..." oninput="filterUsers()"
+          style="width:150px;font-size:12px;padding:6px 10px">
+      </div>
+      <table><thead><tr>
+        <th>User</th><th>Points</th><th>Win Rate</th><th>Status</th><th>Action</th>
+      </tr></thead><tbody id="users-tb"></tbody></table>
+    </div>
+  </div>
+
+  <!-- PROMO LINK -->
+  <div class="pg" id="pg-promo">
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch"><div class="ct">🔗 Promo / Affiliate Link</div></div>
+      <div class="cb">
+
+        <!-- Link URL -->
+        <div class="fg">
+          <div class="fl">🔗 Link URL</div>
+          <input type="url" id="p-url" placeholder="https://example.com/?aff=ABC"
+            oninput="pPreview()">
+        </div>
+
+        <!-- Button Title -->
+        <div class="fg">
+          <div class="fl">📌 ចំណងជើង Button</div>
+          <input id="p-title" placeholder="🎯 ចុះឈ្មោះឥឡូវ — ទទួល Bonus!"
+            oninput="pPreview()">
+        </div>
+
+        <!-- Description -->
+        <div class="fg">
+          <div class="fl">📝 ការពិពណ៌នា</div>
+          <input id="p-desc" placeholder="Free Register · Welcome Bonus"
+            oninput="pPreview()">
+        </div>
+
+        <!-- Live Preview -->
+        <div id="p-preview" style="display:none;margin-bottom:14px;
+          background:linear-gradient(135deg,#0D1B2A,#1B2838);
+          border:1px solid rgba(255,160,0,.3);border-radius:14px;padding:16px">
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px">👁 PREVIEW</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,120,0,.2);
+              display:flex;align-items:center;justify-content:center;font-size:22px">⚽</div>
+            <div>
+              <div id="p-prev-title" style="font-size:14px;font-weight:800;color:#fff"></div>
+              <div id="p-prev-desc" style="font-size:12px;color:rgba(255,255,255,.5)"></div>
+            </div>
+          </div>
+          <div id="p-prev-btn" style="background:linear-gradient(135deg,#ff7800,#ff9f00);
+            color:#fff;padding:11px;border-radius:10px;text-align:center;
+            font-size:13px;font-weight:800"></div>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display:flex;gap:10px">
+          <button id="p-save-btn" class="btn btn-g" style="flex:1;padding:13px;font-size:14px"
+            onclick="pSave()">💾 Save & Publish</button>
+          <button class="btn btn-r" style="padding:13px 16px;font-size:14px"
+            onclick="pClear()">🗑</button>
+        </div>
+
+        <div id="p-msg" style="margin-top:10px;font-size:12px;text-align:center"></div>
+      </div>
+    </div>
+
+    <!-- Current Live -->
+    <div class="card">
+      <div class="ch"><div class="ct">📡 Current Live Promo</div></div>
+      <div id="p-live" style="padding:14px;color:var(--t2);font-size:13px">Loading...</div>
+    </div>
+  </div>
+
+  <!-- WITHDRAWALS -->
+  <div class="pg" id="pg-withdraw">
+    <div class="card">
+      <div class="ch">
+        <div class="ct">💰 Withdrawal Requests</div>
+        <select id="wd-filter" onchange="loadWithdrawals()" style="width:auto;font-size:12px;padding:6px 10px">
+          <option value="pending">⏳ Pending</option>
+          <option value="approved">✅ Approved</option>
+          <option value="rejected">❌ Rejected</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+      <div id="wd-admin-list"><div style="padding:20px;text-align:center;color:var(--t3)">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <!-- WITHDRAWALS -->
+  <div class="pg" id="pg-withdraw">
+    <div class="card">
+      <div class="ch">
+        <div class="ct">💰 Withdrawal Requests</div>
+        <select id="wd-filter" onchange="loadWithdrawals()" style="width:auto;font-size:12px;padding:6px 10px">
+          <option value="pending">⏳ Pending</option>
+          <option value="approved">✅ Approved</option>
+          <option value="rejected">❌ Rejected</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+      <div id="wd-admin-list"><div style="padding:20px;text-align:center;color:var(--t3)">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="pg" id="pg-lead">
+    <div class="card">
+      <div class="ch"><div class="ct">🏆 Leaderboard</div></div>
+      <table><thead><tr><th>#</th><th>User</th><th>Points</th><th>Win Rate</th><th>Tips</th></tr></thead>
+      <tbody id="lb-tb"></tbody>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script>
+// ══ FIREBASE ══
+firebase.initializeApp({
+  apiKey:"AIzaSyPlaceholderKeyForFootTips",
+  databaseURL:"https://foottips-4bfc6-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
+const db=firebase.database();
+const FG=p=>db.ref(p).once('value').then(s=>s.val());
+const FS=(p,v)=>db.ref(p).set(v);
+const FU=(p,v)=>db.ref(p).update(v);
+const FP=(p,v)=>db.ref(p).push(v);
+const FD=p=>db.ref(p).remove();
+
+// ══ STATE ══
+const PASS='FootTips2024CEO!';
+let AP={},AU={},aUID=null;
+let hTeam=null,aTeam=null,pickerSide='home',selType='Over 2.5 Goals';
+
+// ══ TOAST ══
+function toast(m,ok=true){
+  const d=document.createElement('div');
+  d.className='toast';d.textContent=m;
+  d.style.background=ok?'#0D4429':'#4A1515';
+  d.style.border=`1px solid ${ok?'var(--g)':'var(--red)'}`;
+  document.getElementById('toasts').appendChild(d);
+  setTimeout(()=>d.remove(),3000);
+}
+
+// ══ AUTH ══
+function doLogin(){
+  if(document.getElementById('pw').value!==PASS){toast('❌ Wrong password',false);return;}
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  initApp();
+}
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login').style.display='flex';
+}
+document.getElementById('pw').onkeydown=e=>{if(e.key==='Enter')doLogin();};
+
+// ══ INIT ══
+async function initApp(){
+  initChips();
+  const[p,u]=await Promise.all([FG('posts'),FG('users')]);
+  AP=p||{};AU=u||{};
+  const a=Object.entries(AU).find(([k,v])=>v.isAdmin);
+  if(a)aUID=a[0];
+  renderDash();renderCEO();renderResults();
+}
+
+// ══ TABS ══
+function goTab(id,el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  el.classList.add('on');
+  hidePicker(); // close team search when switching tabs
+  if(id==='tip')renderCEO();
+  if(id==='res')renderResults();
+  if(id==='posts')renderPosts();
+  if(id==='users')renderUsers();
+  if(id==='lead')renderLead();
+  if(id==='promo')initPromoPage();
+  if(id==='ptslog')resetPtsLog();
+  if(id==='withdraw')loadWithdrawals();
+}
+
+// ══ CHIPS ══
+const TYPES=[
+  ['Over 1.5','Over 1.5 Goals'],['Over 2.5','Over 2.5 Goals'],
+  ['Over 3.5','Over 3.5 Goals'],['Over 4.5','Over 4.5 Goals'],
+  ['Under 1.5','Under 1.5 Goals'],['Under 2.5','Under 2.5 Goals'],
+  ['Under 3.5','Under 3.5 Goals'],['AH -0.5','Home -0.5 AH'],
+  ['AH -1.0','Home -1.0 AH'],['AH +0.5','Away +0.5 AH'],
+  ['BTTS Yes','Both Teams Score'],['Home Win','Home Win'],
+  ['Away Win','Away Win'],['Draw','Draw'],
+];
+function initChips(){
+  document.getElementById('chips').innerHTML=TYPES.map(([l,v],i)=>
+    `<span class="chip${i===1?' on':''}" onclick="pickChip('${v}',this)">${l}</span>`
+  ).join('');
+  document.getElementById('t-pred').value=TYPES[1][1];
+}
+function pickChip(v,el){
+  selType=v;
+  document.getElementById('t-pred').value=v;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  updatePreview();
+}
+
+// ══ TEAMS LIST ══
+const T=[
+  // ═══ PREMIER LEAGUE ═══
+  ['Arsenal','42','🏴 PL'],['Chelsea','49','🏴 PL'],['Liverpool','40','🏴 PL'],
+  ['Man City','50','🏴 PL'],['Man United','33','🏴 PL'],['Tottenham','47','🏴 PL'],
+  ['Newcastle','34','🏴 PL'],['Aston Villa','66','🏴 PL'],['West Ham','48','🏴 PL'],
+  ['Brighton','51','🏴 PL'],['Fulham','36','🏴 PL'],['Brentford','55','🏴 PL'],
+  ['Crystal Palace','52','🏴 PL'],['Everton','45','🏴 PL'],['Wolves','39','🏴 PL'],
+  ['Nottm Forest','65','🏴 PL'],['Leicester','46','🏴 PL'],['Southampton','41','🏴 PL'],
+  ['Burnley','44','🏴 PL'],['Sheffield Utd','62','🏴 PL'],['Luton','1359','🏴 PL'],
+  ['Ipswich','57','🏴 Championship'],['Leeds','63','🏴 Championship'],
+  ['Middlesbrough','25','🏴 Championship'],['Sunderland','724','🏴 Championship'],
+  // ═══ LA LIGA ═══
+  ['Barcelona','529','🇪🇸 La Liga'],['Real Madrid','541','🇪🇸 La Liga'],
+  ['Atletico Madrid','530','🇪🇸 La Liga'],['Sevilla','536','🇪🇸 La Liga'],
+  ['Villarreal','533','🇪🇸 La Liga'],['Real Sociedad','548','🇪🇸 La Liga'],
+  ['Athletic Bilbao','531','🇪🇸 La Liga'],['Valencia','532','🇪🇸 La Liga'],
+  ['Betis','543','🇪🇸 La Liga'],['Girona','547','🇪🇸 La Liga'],
+  ['Osasuna','727','🇪🇸 La Liga'],['Mallorca','798','🇪🇸 La Liga'],
+  ['Celta Vigo','538','🇪🇸 La Liga'],['Getafe','546','🇪🇸 La Liga'],
+  ['Cadiz','724','🇪🇸 La Liga'],['Alaves','542','🇪🇸 La Liga'],
+  ['Granada','715','🇪🇸 La Liga'],['Las Palmas','834','🇪🇸 La Liga'],
+  ['Deportivo Alaves','542','🇪🇸 La Liga'],['Rayo Vallecano','728','🇪🇸 La Liga'],
+  ['Espanyol','540','🇪🇸 La Liga'],['Real Valladolid','720','🇪🇸 La Liga'],
+  // ═══ BUNDESLIGA ═══
+  ['Bayern Munich','157','🇩🇪 Bundesliga'],['Dortmund','165','🇩🇪 Bundesliga'],
+  ['RB Leipzig','173','🇩🇪 Bundesliga'],['Leverkusen','168','🇩🇪 Bundesliga'],
+  ['Frankfurt','169','🇩🇪 Bundesliga'],['Stuttgart','172','🇩🇪 Bundesliga'],
+  ['Wolfsburg','161','🇩🇪 Bundesliga'],['Union Berlin','182','🇩🇪 Bundesliga'],
+  ['Freiburg','160','🇩🇪 Bundesliga'],['Gladbach','163','🇩🇪 Bundesliga'],
+  ['Augsburg','170','🇩🇪 Bundesliga'],['Mainz','164','🇩🇪 Bundesliga'],
+  ['Werder Bremen','162','🇩🇪 Bundesliga'],['Hoffenheim','167','🇩🇪 Bundesliga'],
+  ['Darmstadt','166','🇩🇪 Bundesliga'],['Bochum','176','🇩🇪 Bundesliga'],
+  ['Heidenheim','180','🇩🇪 Bundesliga'],['Koln','175','🇩🇪 Bundesliga'],
+  ['Hamburger SV','179','🇩🇪 Bundesliga 2'],['Schalke','174','🇩🇪 Bundesliga 2'],
+  // ═══ SERIE A ═══
+  ['Inter Milan','505','🇮🇹 Serie A'],['AC Milan','489','🇮🇹 Serie A'],
+  ['Juventus','496','🇮🇹 Serie A'],['Napoli','492','🇮🇹 Serie A'],
+  ['Roma','497','🇮🇹 Serie A'],['Lazio','487','🇮🇹 Serie A'],
+  ['Atalanta','499','🇮🇹 Serie A'],['Fiorentina','502','🇮🇹 Serie A'],
+  ['Bologna','500','🇮🇹 Serie A'],['Torino','503','🇮🇹 Serie A'],
+  ['Monza','511','🇮🇹 Serie A'],['Udinese','494','🇮🇹 Serie A'],
+  ['Sassuolo','488','🇮🇹 Serie A'],['Empoli','511','🇮🇹 Serie A'],
+  ['Cagliari','490','🇮🇹 Serie A'],['Frosinone','512','🇮🇹 Serie A'],
+  ['Genoa','495','🇮🇹 Serie A'],['Lecce','498','🇮🇹 Serie A'],
+  ['Salernitana','514','🇮🇹 Serie A'],['Hellas Verona','504','🇮🇹 Serie A'],
+  // ═══ LIGUE 1 ═══
+  ['PSG','85','🇫🇷 Ligue 1'],['Monaco','91','🇫🇷 Ligue 1'],
+  ['Lyon','80','🇫🇷 Ligue 1'],['Marseille','81','🇫🇷 Ligue 1'],
+  ['Lille','79','🇫🇷 Ligue 1'],['Nice','84','🇫🇷 Ligue 1'],
+  ['Rennes','94','🇫🇷 Ligue 1'],['Lens','116','🇫🇷 Ligue 1'],
+  ['Strasbourg','95','🇫🇷 Ligue 1'],['Montpellier','82','🇫🇷 Ligue 1'],
+  ['Nantes','83','🇫🇷 Ligue 1'],['Toulouse','96','🇫🇷 Ligue 1'],
+  ['Reims','93','🇫🇷 Ligue 1'],['Brest','113','🇫🇷 Ligue 1'],
+  ['Lorient','111','🇫🇷 Ligue 1'],['Metz','112','🇫🇷 Ligue 1'],
+  ['Clermont','1093','🇫🇷 Ligue 1'],['Le Havre','1093','🇫🇷 Ligue 1'],
+  // ═══ EREDIVISIE ═══
+  ['Ajax','194','🇳🇱 Eredivisie'],['PSV','197','🇳🇱 Eredivisie'],
+  ['Feyenoord','193','🇳🇱 Eredivisie'],['AZ Alkmaar','196','🇳🇱 Eredivisie'],
+  ['Utrecht','199','🇳🇱 Eredivisie'],['Twente','198','🇳🇱 Eredivisie'],
+  ['Vitesse','200','🇳🇱 Eredivisie'],['Groningen','201','🇳🇱 Eredivisie'],
+  // ═══ PRIMEIRA LIGA ═══
+  ['Porto','212','🇵🇹 Primeira Liga'],['Benfica','211','🇵🇹 Primeira Liga'],
+  ['Sporting CP','228','🇵🇹 Primeira Liga'],['Braga','217','🇵🇹 Primeira Liga'],
+  ['Vitoria Guimaraes','227','🇵🇹 Primeira Liga'],['Famalicao','2264','🇵🇹 Primeira Liga'],
+  // ═══ SUPER LIG ═══
+  ['Galatasaray','2016','🇹🇷 Super Lig'],['Fenerbahce','636','🇹🇷 Super Lig'],
+  ['Besiktas','635','🇹🇷 Super Lig'],['Trabzonspor','637','🇹🇷 Super Lig'],
+  ['Basaksehir','2097','🇹🇷 Super Lig'],['Konyaspor','641','🇹🇷 Super Lig'],
+  // ═══ BELGIAN PRO LEAGUE ═══
+  ['Club Brugge','341','🇧🇪 Belgium'],['Anderlecht','346','🇧🇪 Belgium'],
+  ['Gent','343','🇧🇪 Belgium'],['Standard Liege','347','🇧🇪 Belgium'],
+  ['Union Saint-Gilloise','350','🇧🇪 Belgium'],
+  // ═══ SCOTTISH PREM ═══
+  ['Celtic','256','🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland'],['Rangers','257','🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland'],
+  ['Hearts','258','🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland'],['Hibernian','260','🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland'],
+  // ═══ AUSTRIAN BUNDESLIGA ═══
+  ['RB Salzburg','322','🇦🇹 Austria'],['Rapid Vienna','324','🇦🇹 Austria'],
+  ['Austria Vienna','325','🇦🇹 Austria'],['Sturm Graz','326','🇦🇹 Austria'],
+  // ═══ GREEK SUPER LEAGUE ═══
+  ['Olympiakos','1077','🇬🇷 Greece'],['Panathinaikos','1078','🇬🇷 Greece'],
+  ['AEK Athens','1079','🇬🇷 Greece'],['PAOK','1073','🇬🇷 Greece'],
+  // ═══ CZECH LIGA ═══
+  ['Sparta Prague','398','🇨🇿 Czech'],['Slavia Prague','402','🇨🇿 Czech'],
+  // ═══ UKRAINIAN PL ═══
+  ['Shakhtar Donetsk','252','🇺🇦 Ukraine'],['Dynamo Kyiv','253','🇺🇦 Ukraine'],
+  // ═══ DANISH SUPERLIGA ═══
+  ['FC Copenhagen','399','🇩🇰 Denmark'],['Brondby','400','🇩🇰 Denmark'],
+  ['FC Midtjylland','401','🇩🇰 Denmark'],
+  // ═══ SWISS SUPER LEAGUE ═══
+  ['Young Boys','550','🇨🇭 Switzerland'],['Basel','549','🇨🇭 Switzerland'],
+  ['Zurich','551','🇨🇭 Switzerland'],
+  // ═══ SAUDI PRO LEAGUE ═══
+  ['Al-Hilal','2807','🇸🇦 Saudi Arabia'],['Al-Nassr','2802','🇸🇦 Saudi Arabia'],
+  ['Al-Ittihad','2806','🇸🇦 Saudi Arabia'],['Al-Ahli','2816','🇸🇦 Saudi Arabia'],
+  ['Al-Qadsiah','2815','🇸🇦 Saudi Arabia'],['Al-Shabab','2804','🇸🇦 Saudi Arabia'],
+  ['Al-Fateh','2808','🇸🇦 Saudi Arabia'],['Al-Ettifaq','2803','🇸🇦 Saudi Arabia'],
+  // ═══ MLS ═══
+  ['LA Galaxy','1607','🇺🇸 MLS'],['LAFC','1615','🇺🇸 MLS'],
+  ['Inter Miami','1616','🇺🇸 MLS'],['NY City FC','1608','🇺🇸 MLS'],
+  ['NY Red Bulls','1609','🇺🇸 MLS'],['Seattle Sounders','1614','🇺🇸 MLS'],
+  ['Portland Timbers','1612','🇺🇸 MLS'],['Atlanta United','1611','🇺🇸 MLS'],
+  ['Toronto FC','1613','🇺🇸 MLS'],['Chicago Fire','1606','🇺🇸 MLS'],
+  // ═══ COPA LIBERTADORES ═══
+  ['Flamengo','127','🇧🇷 Brazil'],['Palmeiras','121','🇧🇷 Brazil'],
+  ['Corinthians','131','🇧🇷 Brazil'],['Santos','128','🇧🇷 Brazil'],
+  ['Sao Paulo','126','🇧🇷 Brazil'],['Fluminense','122','🇧🇷 Brazil'],
+  ['Internacional','119','🇧🇷 Brazil'],['Gremio','120','🇧🇷 Brazil'],
+  ['Atletico Mineiro','124','🇧🇷 Brazil'],['Vasco da Gama','130','🇧🇷 Brazil'],
+  ['Boca Juniors','457','🇦🇷 Argentina'],['River Plate','458','🇦🇷 Argentina'],
+  ['Racing Club','435','🇦🇷 Argentina'],['Independiente','436','🇦🇷 Argentina'],
+  ['San Lorenzo','437','🇦🇷 Argentina'],['Huracan','440','🇦🇷 Argentina'],
+  ['Penarol','473','🇺🇾 Uruguay'],['Nacional','474','🇺🇾 Uruguay'],
+  // ═══ J-LEAGUE ═══
+  ['Urawa Reds','2635','🇯🇵 J-League'],['Gamba Osaka','2636','🇯🇵 J-League'],
+  ['Kashima Antlers','2637','🇯🇵 J-League'],['Yokohama M','2638','🇯🇵 J-League'],
+  ['Kawasaki Frontale','2639','🇯🇵 J-League'],['Vissel Kobe','2640','🇯🇵 J-League'],
+  // ═══ K-LEAGUE ═══
+  ['Jeonbuk','2652','🇰🇷 K-League'],['Ulsan','2651','🇰🇷 K-League'],
+  ['Suwon','2653','🇰🇷 K-League'],['Seoul','2654','🇰🇷 K-League'],
+  // ═══ AFC CHAMPIONS LEAGUE ═══
+  ['Al Ain','2843','🇦🇪 UAE'],['Al Jazira','2844','🇦🇪 UAE'],
+  ['Nasaf','2906','🇺🇿 Uzbekistan'],['Esteghlal','2931','🇮🇷 Iran'],
+  ['Persepolis','2932','🇮🇷 Iran'],['Sepahan','2933','🇮🇷 Iran'],
+  // ═══ WORLD CUP 2026 NATIONAL TEAMS ═══
+  ['Brazil','6','🏆 WC2026'],['Argentina','26','🏆 WC2026'],
+  ['France','2','🏆 WC2026'],['England','10','🏆 WC2026'],
+  ['Germany','25','🏆 WC2026'],['Spain','9','🏆 WC2026'],
+  ['Portugal','27','🏆 WC2026'],['Netherlands','1118','🏆 WC2026'],
+  ['Belgium','1','🏆 WC2026'],['Italy','768','🏆 WC2026'],
+  ['USA','2686','🏆 WC2026'],['Mexico','164','🏆 WC2026'],
+  ['Japan','2302','🏆 WC2026'],['S.Korea','2303','🏆 WC2026'],
+  ['Morocco','2814','🏆 WC2026'],['Senegal','2788','🏆 WC2026'],
+  ['Croatia','3','🏆 WC2026'],['Uruguay','29','🏆 WC2026'],
+  ['Colombia','31','🏆 WC2026'],['Canada','101','🏆 WC2026'],
+  ['Australia','733','🏆 WC2026'],['Poland','24','🏆 WC2026'],
+  ['Denmark','21','🏆 WC2026'],['Switzerland','15','🏆 WC2026'],
+  ['Saudi Arabia','2850','🏆 WC2026'],['Iran','2931','🏆 WC2026'],
+  ['Serbia','2632','🏆 WC2026'],['Ghana','2789','🏆 WC2026'],
+  ['Cameroon','2790','🏆 WC2026'],['Ecuador','2090','🏆 WC2026'],
+  ['Nigeria','2787','🏆 WC2026'],['Egypt','2815','🏆 WC2026'],
+  ['Algeria','2791','🏆 WC2026'],['Tunisia','2812','🏆 WC2026'],
+  ['Ivory Coast','2792','🏆 WC2026'],['Mali','2793','🏆 WC2026'],
+  ['Qatar','2855','🏆 WC2026'],['Iraq','2853','🏆 WC2026'],
+  ['UAE','2845','🏆 WC2026'],['Oman','2856','🏆 WC2026'],
+  ['Czech Republic','798','🏆 WC2026'],['Austria','776','🏆 WC2026'],
+  ['Turkey','777','🏆 WC2026'],['Ukraine','772','🏆 WC2026'],
+  ['Wales','735','🏆 WC2026'],['Scotland','1108','🏆 WC2026'],
+  ['Greece','1000','🏆 WC2026'],['Hungary','769','🏆 WC2026'],
+  ['Romania','774','🏆 WC2026'],['Slovakia','775','🏆 WC2026'],
+  ['Slovenia','771','🏆 WC2026'],['Albania','770','🏆 WC2026'],
+  ['Costa Rica','89','🏆 WC2026'],['Panama','95','🏆 WC2026'],
+  ['Honduras','93','🏆 WC2026'],['Jamaica','96','🏆 WC2026'],
+  ['Peru','2095','🏆 WC2026'],['Chile','2094','🏆 WC2026'],
+  ['Venezuela','2093','🏆 WC2026'],['Bolivia','2096','🏆 WC2026'],
+  ['Paraguay','2092','🏆 WC2026'],['New Zealand','781','🏆 WC2026'],
+  ['China','2300','🏆 WC2026'],['Vietnam','2317','🏆 WC2026'],
+  ['Thailand','2316','🏆 WC2026'],['Indonesia','2315','🏆 WC2026'],
+  ['Malaysia','2314','🏆 WC2026'],['Philippines','2313','🏆 WC2026'],
+]
+
+// ══ INLINE TEAM PICKER ══
+function activatePicker(side){
+  pickerSide=side;
+  const box=document.getElementById('tsearch');
+  const inp=document.getElementById('ts-inp');
+  const title=document.getElementById('ts-title');
+  // If already open for same side, close it
+  if(box.style.display==='block'&&box.dataset.side===side){
+    hidePicker();return;
+  }
+  box.dataset.side=side;
+  title.textContent=side==='home'?'🏠 ជ្រើស ក្រុមម្ចាស់ផ្ទះ':'✈️ ជ្រើស ក្រុមភ្ញៀវ';
+  inp.value='';
+  renderTeams('');
+  box.style.display='block';
+  inp.focus();
+  // Scroll to search box
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function hidePicker(){
+  document.getElementById('tsearch').style.display='none';
+}
+
+function renderTeams(q){
+  const list=document.getElementById('t-list');
+  const filtered=q?T.filter(t=>t[0].toLowerCase().includes(q.toLowerCase())||t[2].toLowerCase().includes(q.toLowerCase())):T;
+  if(!filtered.length){
+    list.innerHTML='<div style="padding:12px;text-align:center;color:var(--t3)">រកមិនឃើញ</div>';
+    return;
+  }
+  list.innerHTML=filtered.map(t=>`
+    <div class="trow" onclick="pickTeam('${t[0].replace(/'/g,"\\'")}','${t[1]}')">
+      <img src="https://media.api-sports.io/football/teams/${t[1]}.png"
+        width="32" height="32" style="object-fit:contain;flex-shrink:0"
+        onerror="this.style.display='none'">
+      <div>
+        <div class="trow-n">${t[0]}</div>
+        <div class="trow-g">${t[2]}</div>
+      </div>
+    </div>`).join('');
+}
+function filterT(q){renderTeams(q);}
+
+function pickTeam(name,id){
+  const logo=`https://media.api-sports.io/football/teams/${id}.png`;
+  const img=`<img src="${logo}" style="max-width:44px;max-height:44px;object-fit:contain" onerror="this.style.display='none'">`;
+  if(pickerSide==='home'){
+    hTeam={name,id,logo};
+    document.getElementById('lg-h').innerHTML=img;
+    document.getElementById('nm-h').textContent=name;
+    document.getElementById('btn-h').classList.add('on');
+  }else{
+    aTeam={name,id,logo};
+    document.getElementById('lg-a').innerHTML=img;
+    document.getElementById('nm-a').textContent=name;
+    document.getElementById('btn-a').classList.add('on');
+  }
+  hidePicker();
+  updatePreview();
+}
+
+// ══ LIVE PREVIEW ══
+function updatePreview(){
+  const box=document.getElementById('preview-box');
+  if(!box)return;
+  // Show preview once at least one team or prediction is set
+  const pred=document.getElementById('t-pred').value.trim();
+  const odds=document.getElementById('t-odds').value;
+  // Show preview when ANY field filled
+  const linkUrl2=(document.getElementById('t-link')?.value||'').trim();
+  if(!hTeam&&!aTeam&&!pred&&!odds&&!linkUrl2){box.style.display='none';return;}
+  box.style.display='block';
+
+  // League
+  const lg=document.getElementById('t-lg').value.split('|');
+  document.getElementById('pv-league').textContent=(lg[1]||'⚽')+' '+lg[0];
+
+  // Home team
+  const hl=document.getElementById('pv-hlogo');
+  const hn=document.getElementById('pv-hname');
+  if(hTeam){
+    hl.innerHTML=`<img src="${hTeam.logo}" style="max-width:44px;max-height:44px;object-fit:contain"
+      onerror="this.style.display='none'">`;
+    hn.textContent=hTeam.name;
+  }else{hl.innerHTML='<span style="font-size:30px">🏠</span>';hn.textContent='ក្រុមមម្ចាស់ផ្ទះ';}
+
+  // Away team
+  const al=document.getElementById('pv-alogo');
+  const an=document.getElementById('pv-aname');
+  if(aTeam){
+    al.innerHTML=`<img src="${aTeam.logo}" style="max-width:44px;max-height:44px;object-fit:contain"
+      onerror="this.style.display='none'">`;
+    an.textContent=aTeam.name;
+  }else{al.innerHTML='<span style="font-size:30px">✈️</span>';an.textContent='ក្រុមភ្ញៀវ';}
+
+  // Time
+  const t=document.getElementById('t-time').value;
+  document.getElementById('pv-time').textContent=t||'—';
+
+  // Prediction + Odds
+  document.getElementById('pv-pred').textContent=pred||'Tip...';
+  document.getElementById('pv-odds').textContent=odds?'Odds: '+odds:'Odds: —';
+
+  // Analysis
+  const ana=document.getElementById('t-ana').value.trim();
+  const anaEl=document.getElementById('pv-ana');
+  if(ana){anaEl.style.display='block';anaEl.textContent=ana;}
+  else anaEl.style.display='none';
+
+  // Link button
+  const linkUrl=(document.getElementById('t-link')?.value||'').trim();
+  const linkTitle=(document.getElementById('t-link-title')?.value||'').trim()||'Link';
+  const pvLink=document.getElementById('pv-link');
+  if(pvLink){
+    if(linkUrl){
+      pvLink.style.display='inline-flex';
+      pvLink.textContent='🔗 '+linkTitle;
+    }else{
+      pvLink.style.display='none';
+    }
+  }
+
+  // Live indicator pulse
+  const live=document.getElementById('prev-live');
+  live.style.color='var(--g)';
+  setTimeout(()=>{if(live)live.style.color='var(--t3)';},500);
+}
+
+// ══ SUBMIT TIP ══
+async function submitTip(){
+  if(!hTeam||!aTeam){toast('⚠️ ជ្រើស ក្រុម ទាំង ២',false);return;}
+  const pred=document.getElementById('t-pred').value.trim();
+  const odds=parseFloat(document.getElementById('t-odds').value);
+  if(!pred){toast('⚠️ ដាក់ Prediction',false);return;}
+  if(!odds||odds<1){toast('⚠️ ដាក់ Odds ពិតៗ',false);return;}
+  if(!aUID){toast('⚠️ Admin UID not found',false);return;}
+  const btn=document.getElementById('post-btn');
+  btn.innerHTML='<span class="spin"></span> Posting...';btn.disabled=true;
+  const lg=document.getElementById('t-lg').value.split('|');
+  const linkUrl=(document.getElementById('t-link').value||'').trim();
+  const linkTitle=(document.getElementById('t-link-title').value||'').trim();
+  let linkDomain='';
+  if(linkUrl){try{linkDomain=new URL(linkUrl.startsWith('http')?linkUrl:'https://'+linkUrl).hostname;}catch(e){linkDomain=linkUrl;}}
+  const post={
+    userId:aUID,
+    caption:`🔥 CEO Tip — ${hTeam.name} vs ${aTeam.name}`,
+    prediction:pred,odds,
+    league:`${lg[1]||'⚽'} ${lg[0]}`,
+    tipType:selType,
+    analysis:document.getElementById('t-ana').value.trim(),
+    matchHome:hTeam.name,matchAway:aTeam.name,
+    matchHomelogo:hTeam.logo,matchAwayLogo:aTeam.logo,
+    matchTime:document.getElementById('t-time').value,
+    linkUrl:linkUrl?(linkUrl.startsWith('http')?linkUrl:'https://'+linkUrl):'',
+    linkTitle:linkTitle||'',
+    linkDomain:linkDomain,
+    mediaUrl:'',mediaType:'',
+    likes:0,comments:0,shares:0,
+    status:'pending',views:{[aUID]:true},
+    isCEO:true,createdAt:Date.now()
+  };
+  try{
+    const ref=await FP('posts',post);
+    AP[ref.key]={...post,id:ref.key};
+    toast('✅ CEO Tip Posted!');
+    document.getElementById('preview-box').style.display='none';
+    // Reset
+    hTeam=null;aTeam=null;
+    document.getElementById('lg-h').innerHTML='<span style="font-size:34px">🏠</span>';
+    document.getElementById('nm-h').textContent='ចុចជ្រើស';
+    document.getElementById('btn-h').classList.remove('on');
+    document.getElementById('lg-a').innerHTML='<span style="font-size:34px">✈️</span>';
+    document.getElementById('nm-a').textContent='ចុចជ្រើស';
+    document.getElementById('btn-a').classList.remove('on');
+    document.getElementById('t-odds').value='';
+    document.getElementById('t-ana').value='';
+    document.getElementById('t-link').value='';
+    document.getElementById('t-link-title').value='';
+    document.getElementById('t-link-title-wrap').style.display='none';
+    renderCEO();renderDash();
+  }catch(e){toast('❌ '+e.message,false);}
+  btn.innerHTML='📢 Post ជា CEO FootTips';btn.disabled=false;
+}
+
+// ══ STATUS ══
+async function setStatus(pid,status){
+  await FU('posts/'+pid,{status});
+  if(AP[pid])AP[pid].status=status;
+  if(status==='won'){
+    try{
+      const preds=await FG('predictions');
+      if(preds){
+        for(const[uid,days]of Object.entries(preds)){
+          for(const[,ms]of Object.entries(days)){
+            if(ms[pid]){
+              const c=(await FG('users/'+uid+'/points'))||0;
+              await FS('users/'+uid+'/points',c+10);
+            }
+          }
+        }
+      }
+      // Win rate
+      const p=AP[pid];if(p?.userId){
+        const ups=Object.values(AP).filter(x=>x.userId===p.userId&&x.isCEO);
+        const w=ups.filter(x=>x.status==='won').length;
+        const s=ups.filter(x=>x.status==='won'||x.status==='lost').length;
+        if(s>0)await FU('users/'+p.userId,{winRate:Math.round(w/s*100),wonTips:w,settledTips:s});
+      }
+    }catch(e){}
+    // Log points for each user who predicted correctly
+    try{
+      const preds=await FG('predictions');
+      if(preds){for(const[uid,days]of Object.entries(preds)){for(const[,ms]of Object.entries(days)){
+        if(ms[pid]){
+          const logEntry={pts:10,source:'tip',desc:'✅ Tips ឈ្នះ — '+(AP[pid]?.matchHome||'')+' vs '+(AP[pid]?.matchAway||''),ts:Date.now()};
+          await db.ref('users/'+uid+'/plog').push(logEntry);
+        }
+      }}}
+    }catch(e){}
+    toast('✅ Won! +10pts awarded');
+  }else toast(status==='lost'?'❌ Lost updated':'✅ Updated');
+  renderDash();renderCEO();renderResults();
+}
+async function delPost(pid){
+  if(!confirm('Delete?'))return;
+  await FD('posts/'+pid);delete AP[pid];
+  toast('🗑 Deleted');renderDash();renderCEO();
+}
+
+// ══ RENDER ══
+function logoH(url){
+  if(!url)return'<span style="font-size:18px">⚽</span>';
+  return`<img src="${url}" style="width:24px;height:24px;object-fit:contain" onerror="this.style.display='none'">`;
+}
+function tipItem(p,pid,btns=false){
+  const bc={won:'bg',lost:'br',pending:'by'};
+  const bl={won:'✅ Won',lost:'❌ Lost',pending:'⏳'};
+  return`<div class="ti">
+    <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
+      ${logoH(p.matchHomelogo)}<span style="font-size:9px;color:var(--t3);margin:0 1px">vs</span>${logoH(p.matchAwayLogo)}
+    </div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+        ${p.matchHome||'—'} vs ${p.matchAway||'—'}</div>
+      <div style="font-size:11px;color:var(--t2)">${p.league||''} · ${p.prediction||''} · Odds ${p.odds||''}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      ${btns?`
+        <button onclick="setStatus('${pid}','won')" class="btn"
+          style="padding:5px 12px;font-size:12px;background:rgba(0,195,122,.12);
+          color:var(--g);border:1px solid rgba(0,195,122,.3)">✅ Won</button>
+        <button onclick="setStatus('${pid}','lost')" class="btn"
+          style="padding:5px 12px;font-size:12px;background:rgba(248,81,73,.12);
+          color:var(--red);border:1px solid rgba(248,81,73,.3)">❌ Lost</button>
+      `:`
+        <span class="badge ${bc[p.status]||'bx'}">${bl[p.status]||p.status}</span>
+        <select style="background:var(--bg3);color:var(--t);border:1px solid var(--b2);
+          border-radius:6px;padding:4px 6px;font-size:11px;font-family:var(--f)"
+          onchange="setStatus('${pid}',this.value)">
+          <option value="pending" ${p.status==='pending'?'selected':''}>⏳</option>
+          <option value="won" ${p.status==='won'?'selected':''}>✅ Won</option>
+          <option value="lost" ${p.status==='lost'?'selected':''}>❌ Lost</option>
+        </select>
+        <button onclick="delPost('${pid}')" style="background:none;border:none;
+          color:var(--t3);cursor:pointer;font-size:14px;padding:2px">🗑</button>
+      `}
+    </div>
+  </div>`;
+}
+
+function renderDash(){
+  const pv=Object.values(AP),uv=Object.values(AU);
+  const ceo=pv.filter(p=>p.isCEO),pend=ceo.filter(p=>p.status==='pending');
+  document.getElementById('s1').textContent=uv.length;
+  document.getElementById('s2').textContent=pv.length;
+  document.getElementById('s3').textContent=ceo.length;
+  document.getElementById('s4').textContent=pend.length;
+  const items=Object.entries(AP).filter(([,v])=>v.status==='pending'&&v.isCEO).slice(0,5);
+  document.getElementById('d-pend').innerHTML=items.length
+    ?items.map(([k,p])=>tipItem(p,k,true)).join('')
+    :'<div style="padding:20px;text-align:center;color:var(--t3)">✅ Tips ទាំងអស់មាន Result</div>';
+}
+function renderCEO(){
+  const items=Object.entries(AP).filter(([,v])=>v.isCEO)
+    .sort((a,b)=>b[1].createdAt-a[1].createdAt).slice(0,15);
+  document.getElementById('ceo-list').innerHTML=items.length
+    ?items.map(([k,p])=>tipItem(p,k)).join('')
+    :'<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន CEO Tips</div>';
+}
+function renderResults(){
+  const items=Object.entries(AP).filter(([,v])=>v.status==='pending'&&v.matchHome)
+    .sort((a,b)=>b[1].createdAt-a[1].createdAt);
+  document.getElementById('res-list').innerHTML=items.length
+    ?items.map(([k,p])=>tipItem(p,k,true)).join('')
+    :'<div style="padding:30px;text-align:center;color:var(--t3)">✅ Tips ទាំងអស់មាន Result</div>';
+}
+function renderPosts(){
+  const f=document.getElementById('pf').value;
+  let items=Object.entries(AP).map(([k,v])=>({...v,id:k}));
+  if(f!=='all')items=items.filter(p=>p.status===f);
+  items.sort((a,b)=>b.createdAt-a.createdAt);
+  document.getElementById('posts-tb').innerHTML=items.map(p=>`<tr>
+    <td style="font-weight:600">${p.matchHome||'—'} vs ${p.matchAway||'—'}</td>
+    <td>${p.prediction||'—'}</td><td>${p.odds||'—'}</td>
+    <td><span class="badge ${p.status==='won'?'bg':p.status==='lost'?'br':'bx'}">${p.status||'—'}</span></td>
+    <td><div style="display:flex;gap:4px">
+      <select style="background:var(--bg3);color:var(--t);border:1px solid var(--b2);
+        border-radius:6px;padding:4px;font-size:11px;font-family:var(--f)"
+        onchange="setStatus('${p.id}',this.value)">
+        <option value="pending" ${p.status==='pending'?'selected':''}>⏳</option>
+        <option value="won" ${p.status==='won'?'selected':''}>✅ Won</option>
+        <option value="lost" ${p.status==='lost'?'selected':''}>❌ Lost</option>
+      </select>
+      <button onclick="delPost('${p.id}')" class="btn btn-r"
+        style="padding:4px 8px;font-size:11px">🗑</button>
+    </div></td>
+  </tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:20px">No posts</td></tr>';
+}
+function renderUsers(){
+  const users=Object.entries(AU).map(([k,v])=>({...v,id:k}))
+    .sort((a,b)=>(b.points||0)-(a.points||0));
+  document.getElementById('u-cnt').textContent=users.length;
+  document.getElementById('users-tb').innerHTML=users.map(u=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:8px">
+      <div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;
+        background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};
+        display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">
+        ${(u.displayName||'?')[0]}</div>
+      <div><div style="font-size:13px;font-weight:600">${u.displayName||'—'}</div>
+      <div style="font-size:11px;color:var(--t2)">@${u.username||u.id?.slice(0,8)||'—'}</div></div>
+    </div></td>
+    <td style="font-weight:700;color:var(--g)">${Math.round(u.points||0).toLocaleString()}</td>
+    <td>${u.winRate!=null?u.winRate+'%':'—'}</td>
+    <td>${u.isAdmin?'<span class="badge bg">Admin</span>':'<span class="badge bx">User</span>'}</td>
+    <td><button class="btn ${u.banned?'btn-g':'btn-r'}" style="padding:5px 10px;font-size:11px"
+      onclick="banUser('${u.id}',${!u.banned})">${u.banned?'Unban':'🚫 Ban'}</button></td>
+  </tr>`).join('');
+}
+function filterUsers(){
+  const q=document.getElementById('u-q').value.toLowerCase();
+  document.querySelectorAll('#users-tb tr').forEach(r=>{
+    r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
+async function banUser(uid,banned){
+  await FU('users/'+uid,{banned});if(AU[uid])AU[uid].banned=banned;
+  toast(banned?'🚫 Banned':'✅ Unbanned');renderUsers();
+}
+// ══ PROMO LINK ══
+function pPreview(){
+  const url=(document.getElementById('p-url')||{}).value||'';
+  const title=(document.getElementById('p-title')||{}).value||'';
+  const desc=(document.getElementById('p-desc')||{}).value||'';
+  const box=document.getElementById('p-preview');
+  if(!box)return;
+  if(!url.trim()&&!title.trim()){box.style.display='none';return;}
+  box.style.display='block';
+  const pt=document.getElementById('p-prev-title');
+  const pd=document.getElementById('p-prev-desc');
+  const pb=document.getElementById('p-prev-btn');
+  if(pt)pt.textContent=title||'ចំណងជើង...';
+  if(pd)pd.textContent=desc;
+  if(pb)pb.textContent=title||'ចុះឈ្មោះឥឡូវ';
+}
+
+async function pSave(){
+  const url=(document.getElementById('p-url')||{}).value||'';
+  const title=(document.getElementById('p-title')||{}).value||'';
+  const desc=(document.getElementById('p-desc')||{}).value||'';
+  const msg=document.getElementById('p-msg');
+  if(!url.trim()){terr('⚠️ ដាក់ Link URL');return;}
+  if(!title.trim()){terr('⚠️ ដាក់ ចំណងជើង');return;}
+  const btn=document.getElementById('p-save-btn');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  try{
+    // Save as special promo post in 'posts' path (same as CEO tips - works!)
+    // First delete old promo posts
+    const snap=await db.ref('posts').orderByChild('isPromo').equalTo(true).once('value');
+    const old=snap.val();
+    if(old){
+      await Promise.all(Object.keys(old).map(k=>db.ref('posts/'+k).remove()));
+    }
+    // Create new promo post
+    const post={
+      userId: aUID||'admin',
+      caption: title.trim(),
+      linkUrl: url.trim(),
+      linkTitle: title.trim(),
+      linkDesc: desc.trim(),
+      isLink: true,
+      isCEO: true,
+      isPromo: true,
+      status: 'promo',
+      likes:0, comments:0, shares:0,
+      createdAt: Date.now(),
+      views:{}
+    };
+    const ref=await db.ref('posts').push(post);
+    AP[ref.key]={...post,id:ref.key};
+    tok('✅ Promo Live ហើយ!');
+    if(msg){msg.textContent='✅ Live! User ឃើញ Card ក្នុង Feed';msg.style.color='var(--g)';}
+    pLoadLive();
+  }catch(e){
+    terr('❌ '+e.message);
+    console.error('pSave error:',e);
+    if(msg){msg.textContent='❌ '+e.message;msg.style.color='var(--red)';}
+  }
+  if(btn){btn.disabled=false;btn.textContent='💾 Save & Publish';}
+}
+
+async function pClear(){
+  if(!confirm('Clear Promo?'))return;
+  const snap=await db.ref('posts').orderByChild('isPromo').equalTo(true).once('value');
+  const old=snap.val();
+  if(old){
+    await Promise.all(Object.keys(old).map(k=>db.ref('posts/'+k).remove()));
+  }
+  ['p-url','p-title','p-desc'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  const box=document.getElementById('p-preview');
+  if(box)box.style.display='none';
+  const msg=document.getElementById('p-msg');
+  if(msg){msg.textContent='⭕ Promo បិទ';msg.style.color='var(--t2)';}
+  tok('Promo cleared');
+  pLoadLive();
+}
+
+async function pLoadLive(){
+  const el=document.getElementById('p-live');
+  if(!el)return;
+  el.innerHTML='Loading...';
+  try{
+    const snap=await db.ref('posts').orderByChild('isPromo').equalTo(true).limitToLast(1).once('value');
+    const data=snap.val();
+    const p=data?Object.values(data)[0]:null;
+    if(!p){
+      el.innerHTML='<div style="color:var(--t3)">⭕ គ្មាន Promo Active</div>';
+      return;
+    }
+    el.innerHTML=
+      '<div style="background:linear-gradient(135deg,#0D1B2A,#1B2838);border-radius:12px;padding:14px;border:1px solid rgba(255,160,0,.25)">'
+      +'<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">'+(p.linkTitle||p.caption||'—')+'</div>'
+      +(p.desc?'<div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:8px">'+(p.linkDesc||'')+'</div>':'')
+      +'<div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:10px">'+(p.linkUrl||'')+'</div>'
+      +'<div style="display:flex;gap:8px;align-items:center">'
+        +'<span class="badge bg">✅ Active</span>'
+        +'<span style="font-size:11px;color:var(--t2)">'+new Date(p.createdAt||0).toLocaleDateString('km-KH')+'</span>'
+      +'</div></div>';
+    // Pre-fill form if empty
+    const ue=document.getElementById('p-url');
+    const te=document.getElementById('p-title');
+    const de=document.getElementById('p-desc');
+    if(ue&&!ue.value)ue.value=p.url;
+    if(te&&!te.value)te.value=p.title;
+    if(de&&!de.value)de.value=p.linkDesc||'';
+    pPreview();
+  }catch(e){
+    el.innerHTML='<span style="color:var(--red)">❌ '+e.message+'</span>';
+  }
+}
+
+function initPromoPage(){pLoadLive();}
+
+// ══ ADMIN POINTS LOG ══// ══ ADMIN POINTS LOG ══// ══ ADMIN POINTS LOG ══
+let _ptsUid=null;
+async function searchPtsUser(q){
+  if(!q){document.getElementById('pts-user-result').style.display='none';return;}
+  const matches=Object.entries(AU).filter(([k,v])=>
+    (v.displayName||'').toLowerCase().includes(q.toLowerCase())||
+    (v.username||'').toLowerCase().includes(q.toLowerCase())
+  ).slice(0,5);
+  if(!matches.length){document.getElementById('pts-user-result').style.display='none';return;}
+  const [uid,u]=matches[0];
+  _ptsUid=uid;
+  document.getElementById('pts-user-result').style.display='block';
+  // Build user info without inline onclick
+  const el=document.getElementById('pts-user-info');
+  el.innerHTML='';
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;align-items:center;gap:10px';
+  const av=document.createElement('div');
+  av.style.cssText='width:36px;height:36px;border-radius:50%;background:'+(u.color||'#00C37A')+'22;color:'+(u.color||'#00C37A')+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0';
+  av.textContent=(u.displayName||'?')[0];
+  const info=document.createElement('div');
+  info.innerHTML='<div style="font-size:13px;font-weight:700">'+(u.displayName||'—')+'</div><div style="font-size:11px;color:var(--t2)">@'+(u.username||'—')+' · '+Math.floor(u.points||0)+' pts</div>';
+  const btn=document.createElement('button');
+  btn.className='btn btn-g btn-sm';
+  btn.style.marginLeft='auto';
+  btn.textContent='មើល Log →';
+  btn.onclick=()=>loadPtsLog(uid);
+  row.appendChild(av);row.appendChild(info);row.appendChild(btn);
+  el.appendChild(row);
+}
+
+
+async function loadPtsLog(uid){
+  const u=AU[uid]||{};
+  document.getElementById('pts-admin-list').innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
+
+  const logs=await FG('users/'+uid+'/plog');
+  if(!logs){
+    document.getElementById('pts-admin-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន Points Log</div>';
+    return;
+  }
+  const entries=Object.values(logs).sort((a,b)=>b.ts-a.ts);
+
+  // Summary
+  const sum={like:0,comment:0,prediction:0,referral:0,tip:0,other:0};
+  entries.forEach(e=>{const s=e.source||'other';sum[s]=(sum[s]||0)+(e.pts||0);});
+  const cols={like:'var(--red)',comment:'var(--blue)',prediction:'var(--g)',referral:'var(--gold)',tip:'#00C37A',other:'var(--t2)'};
+  const ics={like:'❤️',comment:'💬',prediction:'🎯',referral:'👥',tip:'✅',other:'⭐'};
+  document.getElementById('pts-admin-summary').innerHTML=
+    Object.entries(sum).map(([k,v])=>
+      '<div style="background:var(--bg3);border-radius:10px;padding:10px;text-align:center">'
+      +'<div style="font-size:16px">'+(ics[k]||'⭐')+'</div>'
+      +'<div style="font-size:13px;font-weight:800;color:'+(cols[k]||'var(--t2)')+'">'+v.toFixed(1)+'</div>'
+      +'<div style="font-size:10px;color:var(--t2)">'+k+'</div>'
+      +'</div>'
+    ).join('');
+
+  // List
+  document.getElementById('pts-admin-list').innerHTML=
+    '<div style="padding:0 4px">'
+    +'<div style="padding:10px 12px;font-size:12px;color:var(--t2);border-bottom:1px solid var(--b)">'
+      +'Total '+(entries.length)+' entries · '+Math.floor(u.points||0)+' pts total'
+    +'</div>'
+    +entries.map(e=>{
+      const d=new Date(e.ts);
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--b)">'
+        +'<div style="font-size:18px">'+(ics[e.source]||'⭐')+'</div>'
+        +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:13px;font-weight:600">'+(e.desc||e.source||'—')+'</div>'
+          +'<div style="font-size:11px;color:var(--t2)">'+d.toLocaleString('km-KH')+'</div>'
+        +'</div>'
+        +'<div style="font-size:14px;font-weight:800;color:var(--g)">+'+(e.pts||0).toFixed(1)+'</div>'
+      +'</div>';
+    }).join('')
+    +'</div>';
+}
+
+function resetPtsLog(){
+  const el=document.getElementById('pts-admin-list');
+  if(el)el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">ជ្រើស User ដើម្បីមើល Points Log</div>';
+  const ur=document.getElementById('pts-user-result');
+  if(ur)ur.style.display='none';
+  const inp=document.getElementById('pts-uid-inp');
+  if(inp)inp.value='';
+}
+
+// ══ WITHDRAWALS ══
+async function loadWithdrawals(){
+  const el=document.getElementById('wd-admin-list');
+  if(!el)return;
+  el.innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
+  const filter=document.getElementById('wd-filter')?.value||'pending';
+  const snap=await db.ref('withdrawals').once('value');
+  const data=snap.val();
+  if(!data){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មានសំណើ</div>';return;}
+  let items=Object.entries(data).map(([k,v])=>({...v,id:k}));
+  if(filter!=='all')items=items.filter(w=>w.status===filter);
+  items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(!items.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មានសំណើ ('+filter+')</div>';return;}
+  el.innerHTML='';
+  items.forEach(w=>{
+    const div=document.createElement('div');
+    div.style.cssText='padding:14px 16px;border-bottom:1px solid var(--b)';
+    const d=new Date(w.createdAt||0).toLocaleString('km-KH');
+    const stBadge=w.status==='approved'?'badge bg':w.status==='rejected'?'badge br':'badge by';
+    const stTxt=w.status==='approved'?'✅ Approved':w.status==='rejected'?'❌ Rejected':'⏳ Pending';
+    div.innerHTML=
+      '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:'+(w.status==='pending'?'10':'0')+'px">'
+        +'<div style="width:42px;height:42px;border-radius:50%;background:rgba(0,195,122,.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">💰</div>'
+        +'<div style="flex:1">'
+          +'<div style="font-size:14px;font-weight:700">'+(w.displayName||'User')+' (@'+(w.username||'')+')</div>'
+          +'<div style="font-size:13px;color:var(--gold);font-weight:700;margin:2px 0">$'+(w.usd||0)+' ('+(w.pts||0)+' pts)</div>'
+          +'<div style="font-size:12px;color:var(--t2)">📱 '+(w.method||'')+': '+(w.account||'')+'</div>'
+          +'<div style="font-size:12px;color:var(--t2)">👤 '+(w.name||'')+'</div>'
+          +'<div style="font-size:11px;color:var(--t3);margin-top:2px">'+d+'</div>'
+          +(w.note?'<div style="font-size:12px;color:var(--red)">📝 '+w.note+'</div>':'')
+        +'</div>'
+        +'<span class="'+stBadge+'">'+stTxt+'</span>'
+      +'</div>';
+    if(w.status==='pending'){
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;gap:8px';
+      const ab=document.createElement('button');
+      ab.className='btn btn-g';ab.style.cssText='flex:1;padding:8px;font-size:13px';
+      ab.textContent='✅ Approve';
+      ab.onclick=()=>approveWd(w.id,w.uid,w.usd,w.pts);
+      const rb=document.createElement('button');
+      rb.className='btn btn-r';rb.style.cssText='flex:1;padding:8px;font-size:13px';
+      rb.textContent='❌ Reject';
+      rb.onclick=()=>rejectWd(w.id,w.uid,w.pts);
+      row.appendChild(ab);row.appendChild(rb);
+      div.appendChild(row);
+    }
+    el.appendChild(div);
+  });
+}
+
+
+async function approveWd(wid,uid){
+  if(!confirm('Approve withdrawal?'))return;
+  await db.ref('withdrawals/'+wid).update({status:'approved',approvedAt:Date.now(),approvedBy:aUID||'admin'});
+  // Log
+  const snap=await db.ref('withdrawals/'+wid).once('value');
+  const w=snap.val();
+  if(w) await db.ref('users/'+uid+'/plog').push({pts:0,source:'withdraw_approved',desc:'✅ Withdrawal Approved $'+w.usd,ts:Date.now()});
+  tok('✅ Approved!');
+  loadWithdrawals();
+}
+
+async function rejectWd(wid,uid){
+  const reason=prompt('Reason for rejection (optional):','');
+  await db.ref('withdrawals/'+wid).update({status:'rejected',rejectedAt:Date.now(),note:reason||''});
+  // Refund points
+  const snap=await db.ref('withdrawals/'+wid).once('value');
+  const w=snap.val();
+  if(w&&w.pts){
+    const cur=(await FG('users/'+uid+'/points'))||0;
+    await FS('users/'+uid+'/points',cur+w.pts);
+    await db.ref('users/'+uid+'/plog').push({pts:w.pts,source:'withdraw_rejected',desc:'❌ Withdrawal Rejected — pts refunded',ts:Date.now()});
+  }
+  tok('❌ Rejected + pts refunded');
+  loadWithdrawals();
+}
+
+function renderLead(){
+  const users=Object.values(AU).filter(u=>u.points>0)
+    .sort((a,b)=>(b.points||0)-(a.points||0)).slice(0,50);
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('lb-tb').innerHTML=users.map((u,i)=>`<tr>
+    <td style="font-size:16px">${medals[i]||i+1}</td>
+    <td><div style="display:flex;align-items:center;gap:8px">
+      <div style="width:26px;height:26px;border-radius:50%;
+        background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};
+        display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">
+        ${(u.displayName||'?')[0]}</div>${u.displayName||'—'}
+    </div></td>
+    <td style="font-weight:700;color:var(--g)">${Math.round(u.points||0).toLocaleString()}</td>
+    <td>${u.winRate!=null?u.winRate+'%':'—'}</td>
+    <td>${u.wonTips||0}/${u.settledTips||0}</td>
+  </tr>`).join('');
+}
+</script>
+</body>
+</html>
