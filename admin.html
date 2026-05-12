@@ -1735,14 +1735,18 @@ async function pmSubmit(){
 }
 
 
+let _pmListener=null;
 async function pmLoad(){
   const el=document.getElementById('pm-list');
   if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
-  const snap=await db.ref('matches').orderByChild('createdAt').once('value');
-  const data=snap.val();
-  if(!data){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មានការប្រកួត</div>';return;}
-  const items=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+  // Detach old listener
+  if(_pmListener){db.ref('matches').off('value',_pmListener);_pmListener=null;}
+  // Realtime listener — updates instantly when data changes
+  _pmListener=db.ref('matches').orderByChild('createdAt').on('value',snap=>{
+    const data=snap.val();
+    if(!data){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មានការប្រកួត</div>';return;}
+    const items=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
   el.innerHTML='';
   items.forEach(m=>{
     const div=document.createElement('div');
@@ -1784,6 +1788,7 @@ async function pmLoad(){
     div.appendChild(row);
     el.appendChild(div);
   });
+  }); // end realtime listener
 }
 
 async function pmSetStatus(id,status){
