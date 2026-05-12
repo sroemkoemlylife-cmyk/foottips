@@ -111,6 +111,14 @@ body{display:flex;flex-direction:column;}
 .promo-btn{display:block;width:100%;padding:12px;background:linear-gradient(135deg,#ff7800,#ff9f00);color:#fff;font-size:14px;font-weight:800;border:none;border-radius:10px;cursor:pointer;text-align:center;text-decoration:none;-webkit-tap-highlight-color:transparent;}
 .promo-btn:active{opacity:.85;}
 
+/* ── WITHDRAWAL ── */
+.wd-card{background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden;margin-bottom:12px;}
+.wd-row{padding:14px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px;}
+.wd-row:last-child{border-bottom:none;}
+.wd-status-pending{background:rgba(227,179,65,.1);color:var(--gold);border:1px solid rgba(227,179,65,.3);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.wd-status-approved{background:rgba(0,195,122,.1);color:var(--g);border:1px solid rgba(0,195,122,.3);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.wd-status-rejected{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.3);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+
 /* ── PTR ── */
 #ptr-bar{position:sticky;top:0;left:0;right:0;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:10;flex-shrink:0;}
 #ptr-inner{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g);font-weight:600;opacity:0;transition:opacity .15s;}
@@ -2172,7 +2180,8 @@ function profH(u,posts,isMe,wr,won,settled){
     ${u.avgStars?`<div style="font-size:13px;color:var(--gold);margin-bottom:8px">⭐ ${u.avgStars} (${u.starCount||0})</div>`:''}
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
       ${isMe?`
-        <button class="btn-o" style="width:auto;padding:8px 16px;font-size:12px" onclick="openSets()">⚙️ ការកំណត់</button>
+        <button class="btn-o" style="width:auto;padding:8px 16px;font-size:12px" onclick="openWithdraw()">💰 ដក​ប្រាក់</button>
+      <button class="btn-o" style="width:auto;padding:8px 16px;font-size:12px" onclick="openSets()">⚙️ ការកំណត់</button>
         ${(u.followers||0)>=50?`<button class="btn-o" style="width:auto;padding:8px 16px;font-size:12px" onclick="showIns()">📊 Insights</button>`:''}
       `:`
         <button class="${isFol?'btn-o':'btn'}" style="width:auto;padding:9px 22px;font-size:13px" id="fol-po-${u.id}" onclick="togFollow('${u.id}','${u.displayName}',this)">${isFol?'Following':'+ Follow'}</button>
@@ -2481,6 +2490,95 @@ function closePtsHistory(){
   document.getElementById('pts-ov').style.display='none';
 }
 
+// ── WITHDRAWAL ──
+let _wdMethod='';
+function openWithdraw(){
+  const ov=document.getElementById('wd-ov');
+  ov.style.display='block';
+  NAV.push('wd',closeWithdraw);
+  const pts=Math.floor(U.points||0);
+  document.getElementById('wd-pts-display').textContent=pts+' pts';
+  document.getElementById('wd-avail-pts').textContent=pts+' pts';
+  document.getElementById('wd-pts').value='';
+  document.getElementById('wd-usd').textContent='= $0.00';
+  document.getElementById('wd-account').value='';
+  document.getElementById('wd-name').value=U.displayName||'';
+  _wdMethod='';
+  document.querySelectorAll('#wd-method-btns div').forEach(d=>d.style.borderColor='var(--b)');
+  loadWdHistory();
+}
+function closeWithdraw(){
+  document.getElementById('wd-ov').style.display='none';
+}
+function calcWdAmount(){
+  const pts=parseInt(document.getElementById('wd-pts').value)||0;
+  const usd=(pts/250).toFixed(2);
+  document.getElementById('wd-usd').textContent='= $'+usd;
+}
+function selWdMethod(method,el){
+  _wdMethod=method;
+  document.getElementById('wd-method').value=method;
+  document.querySelectorAll('#wd-method-btns div').forEach(d=>d.style.borderColor='var(--b)');
+  el.style.borderColor='var(--g)';
+}
+async function submitWithdraw(){
+  const pts=parseInt(document.getElementById('wd-pts').value)||0;
+  const account=document.getElementById('wd-account').value.trim();
+  const name=document.getElementById('wd-name').value.trim();
+  if(pts<500){toast('⚠️ អប្បបរមា 500 pts ($2)','err');return;}
+  if(pts>Math.floor(U.points||0)){toast('⚠️ pts មិនគ្រប់','err');return;}
+  if(!_wdMethod){toast('⚠️ ជ្រើស វិធីទូទាត់','err');return;}
+  if(!account){toast('⚠️ ដាក់ លេខគណនី','err');return;}
+  if(!name){toast('⚠️ ដាក់ ឈ្មោះ','err');return;}
+  const btn=document.getElementById('wd-submit-btn');
+  btn.disabled=true;btn.textContent='⏳ Processing...';
+  try{
+    const usd=(pts/250).toFixed(2);
+    const req={
+      uid:U.id,username:U.username||'',displayName:U.displayName||'',
+      pts,usd:parseFloat(usd),method:_wdMethod,account,name,
+      status:'pending',createdAt:Date.now()
+    };
+    await db.ref('withdrawals').push(req);
+    // Deduct points immediately
+    const newPts=(U.points||0)-pts;
+    await FS('users/'+U.id+'/points',newPts);
+    U.points=newPts;
+    // Log
+    await db.ref('users/'+U.id+'/plog').push({
+      pts:-pts,source:'withdraw',
+      desc:'💰 ដកប្រាក់ $'+usd+' តាម '+_wdMethod,
+      ts:Date.now()
+    });
+    toast('✅ សំណើដាក់ស្នើ! Admin និងដំណើរការ','ok');
+    closeWithdraw();
+    renderMyProf();
+  }catch(e){toast('❌ '+e.message,'err');}
+  btn.disabled=false;btn.textContent='💰 ដកប្រាក់';
+}
+async function loadWdHistory(){
+  const el=document.getElementById('wd-history');
+  el.innerHTML='<div style="padding:14px;text-align:center"><span class="spin"></span></div>';
+  const snap=await db.ref('withdrawals').orderByChild('uid').equalTo(U.id).once('value');
+  const data=snap.val();
+  if(!data){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន</div>';return;}
+  const items=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+  el.innerHTML=items.map(w=>{
+    const d=new Date(w.createdAt).toLocaleDateString('km-KH');
+    const stCls=w.status==='approved'?'wd-status-approved':w.status==='rejected'?'wd-status-rejected':'wd-status-pending';
+    const stTxt=w.status==='approved'?'✅ Approved':w.status==='rejected'?'❌ Rejected':'⏳ Pending';
+    return '<div class="wd-row">'
+      +'<div style="width:40px;height:40px;border-radius:50%;background:rgba(0,195,122,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💰</div>'
+      +'<div style="flex:1">'
+        +'<div style="font-size:13px;font-weight:700">$'+w.usd+' ('+w.pts+' pts)</div>'
+        +'<div style="font-size:11px;color:var(--t2)">'+w.method+' · '+w.account+' · '+d+'</div>'
+        +(w.note?'<div style="font-size:11px;color:var(--red);margin-top:2px">'+w.note+'</div>':'')
+      +'</div>'
+      +'<span class="'+stCls+'">'+stTxt+'</span>'
+    +'</div>';
+  }).join('');
+}
+
 function closeSets(){
   document.getElementById('set-dr').style.transform='translateX(100%)';
   NAV.pop();
@@ -2541,6 +2639,92 @@ function doSearch(q){
 }
 </script>
 
+
+<!-- WITHDRAWAL OVERLAY -->
+<div id="wd-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:111;overflow-y:auto">
+  <div style="position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--b);
+    padding:11px 14px;display:flex;align-items:center;gap:10px;z-index:1">
+    <div onclick="closeWithdraw()" style="font-size:22px;cursor:pointer;color:var(--g);padding:2px 8px">←</div>
+    <div style="font-size:15px;font-weight:700">💰 ដកប្រាក់</div>
+    <div style="margin-left:auto;font-size:12px;color:var(--gold);font-weight:700" id="wd-pts-display"></div>
+  </div>
+
+  <!-- Rate info -->
+  <div style="margin:14px 14px 0;background:linear-gradient(135deg,rgba(0,195,122,.1),rgba(0,195,122,.05));
+    border:1px solid rgba(0,195,122,.25);border-radius:14px;padding:14px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:13px;color:var(--t2)">អត្រាប្ដូរ</span>
+      <span style="font-size:13px;font-weight:700">250 pts = $1 USD</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:13px;color:var(--t2)">ដកអប្បបរមា</span>
+      <span style="font-size:13px;font-weight:700;color:var(--g)">500 pts = $2</span>
+    </div>
+    <div style="display:flex;justify-content:space-between">
+      <span style="font-size:13px;color:var(--t2)">ពិន្ទុអ្នក</span>
+      <span id="wd-avail-pts" style="font-size:13px;font-weight:800;color:var(--gold)">— pts</span>
+    </div>
+  </div>
+
+  <!-- Withdraw Form -->
+  <div style="margin:14px;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:16px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:14px">📝 សំណើដក</div>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase">ចំនួន pts ចង់ដក</div>
+      <input id="wd-pts" type="number" min="500" step="250" placeholder="500"
+        style="font-size:16px;font-weight:700;text-align:center"
+        oninput="calcWdAmount()">
+      <div id="wd-usd" style="text-align:center;font-size:13px;color:var(--g);margin-top:6px;font-weight:600">= $0.00</div>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase">វិធីទូទាត់</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="wd-method-btns">
+        <div onclick="selWdMethod('ABA',this)" data-method="ABA"
+          style="padding:10px;background:var(--bg3);border:2px solid var(--b);border-radius:10px;text-align:center;cursor:pointer;transition:border .15s">
+          <div style="font-size:18px">🏦</div><div style="font-size:12px;font-weight:600;margin-top:4px">ABA Bank</div>
+        </div>
+        <div onclick="selWdMethod('ACLEDA',this)" data-method="ACLEDA"
+          style="padding:10px;background:var(--bg3);border:2px solid var(--b);border-radius:10px;text-align:center;cursor:pointer;transition:border .15s">
+          <div style="font-size:18px">🏦</div><div style="font-size:12px;font-weight:600;margin-top:4px">ACLEDA</div>
+        </div>
+        <div onclick="selWdMethod('KHQR',this)" data-method="KHQR"
+          style="padding:10px;background:var(--bg3);border:2px solid var(--b);border-radius:10px;text-align:center;cursor:pointer;transition:border .15s">
+          <div style="font-size:18px">📱</div><div style="font-size:12px;font-weight:600;margin-top:4px">KHQR</div>
+        </div>
+        <div onclick="selWdMethod('Wing',this)" data-method="Wing"
+          style="padding:10px;background:var(--bg3);border:2px solid var(--b);border-radius:10px;text-align:center;cursor:pointer;transition:border .15s">
+          <div style="font-size:18px">✈️</div><div style="font-size:12px;font-weight:600;margin-top:4px">Wing</div>
+        </div>
+      </div>
+      <input type="hidden" id="wd-method" value="">
+    </div>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase">លេខគណនី / លេខទូរស័ព្ទ</div>
+      <input id="wd-account" placeholder="012 345 678 ឬ លេខ ABA..."
+        style="font-size:14px">
+    </div>
+
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase">ឈ្មោះម្ចាស់គណនី</div>
+      <input id="wd-name" placeholder="ឈ្មោះ..." style="font-size:14px">
+    </div>
+
+    <button onclick="submitWithdraw()" id="wd-submit-btn"
+      style="width:100%;padding:14px;background:linear-gradient(135deg,var(--g),#00CFFF);
+      color:#000;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">
+      💰 ដកប្រាក់
+    </button>
+  </div>
+
+  <!-- History -->
+  <div style="margin:0 14px 24px;background:var(--card);border:1px solid var(--b);border-radius:14px;overflow:hidden">
+    <div style="padding:13px 16px;border-bottom:1px solid var(--b);font-size:14px;font-weight:700">📋 ប្រវត្តិដក</div>
+    <div id="wd-history"></div>
+  </div>
+</div>
 
 <!-- POINTS HISTORY OVERLAY -->
 <div id="pts-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:110;overflow-y:auto">
