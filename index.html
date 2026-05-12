@@ -1845,54 +1845,86 @@ async function submitStar(){if(!curStar){toast('⚠️ ជ្រើស Stars','e
 async function loadMatches(){
   const data=await FG('matches');
   const el=document.getElementById('matches');
-  if(!data){el.innerHTML='<div class="empty"><div class="empty-ic">⚽</div><div class="empty-h">គ្មានការប្រកួត</div></div>';return;}
-  // Get all open matches
+  if(!data){
+    el.innerHTML='<div class="empty"><div class="empty-ic">⚽</div><div class="empty-h">គ្មានការប្រកួត</div></div>';
+    return;
+  }
   const matches=Object.entries(data)
     .filter(([k,v])=>v.status==='open')
     .map(([k,v])=>({...v,id:k}))
-    .sort((a,b)=>(a.date||'')+(a.time||'')-(b.date||'')-(b.time||''));
-  // Get my predictions
+    .sort((a,b)=>((a.date||'')+(a.time||'')).localeCompare((b.date||'')+(b.time||'')));
   const myPreds=await FG('predictions/'+U.id)||{};
-  const used=Object.keys(myPreds).length;
-  // Update dots
+  const total=matches.length;
+  const done=matches.filter(m=>myPreds[m.id]).length;
   const dots=document.getElementById('ldots');
   const txt=document.getElementById('ltxt');
-  if(dots)dots.innerHTML=[0,1,2].map(i=>'<div style="width:9px;height:9px;border-radius:50%;background:'+(i<Math.min(used,3)?'var(--g)':'var(--b2)')+'"></div>').join('');
-  if(txt)txt.textContent=Math.min(used,matches.length)+'/'+matches.length+' ការទស្សន៍ទាយ';
-  if(!matches.length){el.innerHTML='<div class="empty"><div class="empty-ic">⚽</div><div class="empty-h">គ្មានការប្រកួតកំពុងបើក</div></div>';return;}
+  if(dots)dots.innerHTML=matches.slice(0,5).map((_,i)=>
+    '<div style="width:9px;height:9px;border-radius:50%;background:'+(myPreds[matches[i]&&matches[i].id]?'var(--g)':'var(--b2)')+';transition:background .3s"></div>'
+  ).join('');
+  if(txt)txt.textContent=done+'/'+total+' ការទស្សន៍ទាយ';
+  if(!matches.length){
+    el.innerHTML='<div class="empty"><div class="empty-ic">⚽</div><div class="empty-h">គ្មានការប្រកួតកំពុងបើក</div></div>';
+    return;
+  }
   el.innerHTML=matches.map(m=>{
     const myP=myPreds[m.id];
-    const choices=m.choices||['Home Win','Draw','Away Win'];
+    const choices=m.choices||['ម្ចាស់ (Home)','ស្មើ (Draw)','ភ្ញៀវ (Away)'];
     const dateStr=m.date?new Date(m.date).toLocaleDateString('km-KH',{weekday:'short',month:'short',day:'numeric'}):'';
+    // Detect type for icon
+    const isGoals=choices.some(ch=>/over|under|\d\.\d/i.test(ch));
+    const typeIcon=isGoals?'🎯':'⚽';
+    // Build choice buttons
     const choiceBtns=choices.map(ch=>{
       const isSel=myP===ch;
       const isDis=!!(myP&&!isSel);
-      return '<button data-mid="'+m.id+'" data-ch="'+ch+'" onclick="predict(this.dataset.mid,this.dataset.ch)" '
-        +'style="flex:1;padding:9px 4px;border-radius:10px;border:1.5px solid '+(isSel?'var(--g)':'var(--b2)')+';background:'+(isSel?'rgba(0,195,122,.15)':'var(--bg3)')+';cursor:'+(isDis?'default':'pointer')+';font-size:12px;font-weight:'+(isSel?'800':'600')+';color:'+(isSel?'var(--g)':'var(--t)')+';opacity:'+(isDis?'0.4':'1')+'" '
-        +(isDis?'disabled':'')+'>'+ch+'</button>';
+      // Icon per choice
+      const ic=/home|ម្ចាស់/i.test(ch)?'🏠':/away|ភ្ញៀវ/i.test(ch)?'✈️':/draw|ស្មើ/i.test(ch)?'🤝':/over/i.test(ch)?'⬆️':/under/i.test(ch)?'⬇️':'🎯';
+      return '<div data-mid="'+m.id+'" data-ch="'+ch+'" onclick="predict(this.dataset.mid,this.dataset.ch)"'
+        +' style="flex:1;min-width:calc(50% - 4px);padding:10px 6px;border-radius:12px;border:2px solid '+(isSel?'var(--g)':'var(--b2)')+';background:'+(isSel?'rgba(0,195,122,.12)':'var(--bg3)')+';cursor:'+(isDis?'default':'pointer')+';text-align:center;transition:all .15s;opacity:'+(isDis?'0.35':'1')+'">'
+        +'<div style="font-size:18px;margin-bottom:3px">'+ic+'</div>'
+        +'<div style="font-size:11px;font-weight:'+(isSel?'800':'600')+';color:'+(isSel?'var(--g)':'var(--t)')+';line-height:1.3">'+ch+'</div>'
+        +(isSel?'<div style="font-size:9px;color:var(--g);margin-top:2px">✅ ជ្រើស</div>':'')
+        +'</div>';
     }).join('');
-    return '<div style="background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden;margin-bottom:10px">'
-      +'<div style="padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b)">'
-        +'<span style="font-size:11px;font-weight:600;color:var(--t2)">🏆 '+m.league+'</span>'
-        +'<span style="font-size:11px;color:var(--t2)">'+(dateStr?dateStr+' ':'')+m.time+'</span>'
+    return '<div style="background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden;margin-bottom:12px">'
+      // Header
+      +'<div style="padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b);background:rgba(0,195,122,.03)">'
+        +'<span style="font-size:11px;font-weight:700;color:var(--t2)">'+typeIcon+' '+m.league+'</span>'
+        +'<span style="font-size:11px;color:var(--t2)">📅 '+(dateStr||'')+(m.time?' ⏰ '+m.time:'')+'</span>'
       +'</div>'
-      +'<div style="padding:16px 14px;display:flex;align-items:center;gap:8px">'
-        +'<div style="flex:1;text-align:center"><div style="font-size:16px;font-weight:800;color:var(--t)">'+m.home+'</div></div>'
-        +'<div style="font-size:14px;font-weight:900;color:var(--t3);padding:0 8px">VS</div>'
-        +'<div style="flex:1;text-align:center"><div style="font-size:16px;font-weight:800;color:var(--t)">'+m.away+'</div></div>'
+      // Teams
+      +'<div style="padding:14px;display:flex;align-items:center;gap:8px">'
+        +'<div style="flex:1;text-align:center">'
+          +'<div style="font-size:15px;font-weight:800;color:var(--t);margin-bottom:2px">'+m.home+'</div>'
+          +'<div style="font-size:10px;color:var(--t3)">ម្ចាស់ផ្ទះ</div>'
+        +'</div>'
+        +'<div style="text-align:center;padding:0 10px">'
+          +'<div style="font-size:12px;font-weight:900;color:var(--t3)">VS</div>'
+        +'</div>'
+        +'<div style="flex:1;text-align:center">'
+          +'<div style="font-size:15px;font-weight:800;color:var(--t);margin-bottom:2px">'+m.away+'</div>'
+          +'<div style="font-size:10px;color:var(--t3)">ភ្ញៀវ</div>'
+        +'</div>'
       +'</div>'
-      +(m.desc?'<div style="padding:0 14px 10px;font-size:12px;color:var(--t2)">📝 '+m.desc+'</div>':'')
-      +'<div style="display:flex;gap:6px;padding:0 14px 14px">'+choiceBtns+'</div>'
-      +(myP?'<div style="padding:8px 14px;font-size:12px;color:var(--g);text-align:center;border-top:1px solid var(--b);background:rgba(0,195,122,.05)">✅ ជ្រើស: '+myP+' · 🎯 '+m.pts+' pts ប្រសិនឈ្នះ!</div>':'')
+      // Description
+      +(m.desc?'<div style="padding:0 14px 10px;font-size:12px;color:var(--t2);line-height:1.5">📝 '+m.desc+'</div>':'')
+      // Choices
+      +'<div style="padding:0 14px 14px">'
+        +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">ទស្សន៍ទាយ · 🎯 '+m.pts+' pts ប្រសិនឈ្នះ</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:8px">'+choiceBtns+'</div>'
+      +'</div>'
+      // Selected
+      +(myP?'<div style="padding:9px 14px;font-size:12px;font-weight:700;color:var(--g);text-align:center;border-top:1px solid rgba(0,195,122,.15);background:rgba(0,195,122,.05)">✅ ការទស្សន៍ទាយ: '+myP+'</div>':'')
     +'</div>';
   }).join('');
 }
 
 async function predict(mid,choice){
+  if(!mid||!choice)return;
   const myPreds=await FG('predictions/'+U.id)||{};
   if(myPreds[mid]){toast('⚠️ ទស្សន៍ទាយរួចហើយ!','inf');return;}
   await FS('predictions/'+U.id+'/'+mid,choice);
-  toast('🎯 ជ្រើស: '+choice+'!','ok');
+  toast('🎯 ជ្រើស: '+choice+' ✅','ok');
   loadMatches();
 }
 
