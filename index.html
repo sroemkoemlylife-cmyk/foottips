@@ -2655,6 +2655,12 @@ async function openPtsHistory(){
     }).join('')
     +'</div>';
 }
+function closeSets(){
+  const dr=document.getElementById('set-dr');
+  if(dr)dr.style.transform='translateX(100%)';
+  if(NAV._cur==='sets')NAV.stack.pop();
+}
+
 function closePtsHistory(){
   document.getElementById('pts-ov').style.display='none';
 }
@@ -2700,6 +2706,7 @@ function wdAll(){
   const pi=document.getElementById('wd-pts');if(pi)pi.value=n;
   wdCalc();
 }
+function wdBank(b){_wdBank=b;}
 
 
 
