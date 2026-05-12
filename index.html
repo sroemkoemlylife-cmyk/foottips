@@ -2497,15 +2497,35 @@ function openWithdraw(){
   ov.style.display='block';
   NAV.push('wd',closeWithdraw);
   const pts=Math.floor(U.points||0);
-  document.getElementById('wd-pts-display').textContent=pts+' pts';
-  document.getElementById('wd-avail-pts').textContent=pts.toLocaleString();
-  document.getElementById('wd-usd-bal').textContent='$'+(pts/250).toFixed(2);
-  document.getElementById('wd-pts').value='';
-  document.getElementById('wd-usd').textContent='= $0.00';
-  document.getElementById('wd-account').value='';
-  document.getElementById('wd-name').value=U.displayName||'';
+  const ptsEl=document.getElementById('wd-pts-display');
+  const availEl=document.getElementById('wd-avail-pts');
+  const balEl=document.getElementById('wd-usd-bal');
+  if(ptsEl)ptsEl.textContent=pts+' pts';
+  if(availEl)availEl.textContent=pts.toLocaleString();
+  if(balEl)balEl.textContent='$'+(pts/250).toFixed(2);
+  const ptsInp=document.getElementById('wd-pts');
+  const usdEl=document.getElementById('wd-usd');
+  const accEl=document.getElementById('wd-account');
+  const nmEl=document.getElementById('wd-name');
+  if(ptsInp)ptsInp.value='';
+  if(usdEl)usdEl.textContent='$0.00';
+  if(accEl)accEl.value='';
+  if(nmEl)nmEl.value=U.displayName||'';
   _wdMethod='';
-  document.querySelectorAll('#wd-method-btns div').forEach(d=>d.style.borderColor='var(--b)');
+  // Reset + attach bank card clicks
+  const btnsEl=document.getElementById('wd-method-btns');
+  if(btnsEl){
+    btnsEl.querySelectorAll('[data-method]').forEach(d=>{
+      d.style.borderColor='var(--b)';
+      d.style.background='var(--bg3)';
+    });
+    btnsEl.onclick=function(e){
+      const card=e.target.closest('[data-method]');
+      if(card)selWdMethod(card.dataset.method,card);
+    };
+  }
+  const lbl=document.getElementById('wd-sel-label');
+  if(lbl)lbl.style.display='none';
   loadWdHistory();
 }
 function closeWithdraw(){
@@ -2528,20 +2548,19 @@ function setWdAll(){
 }
 function selWdMethod(method,el){
   _wdMethod=method;
-  // Reset all method cards
-  const btns=document.getElementById('wd-method-btns');
-  if(btns) btns.querySelectorAll('div').forEach(d=>{
+  // Reset all
+  document.querySelectorAll('#wd-method-btns [data-method]').forEach(d=>{
     d.style.borderColor='var(--b)';
     d.style.background='var(--bg3)';
   });
-  // Highlight selected
+  // Highlight
   el.style.borderColor='var(--g)';
   el.style.background='rgba(0,195,122,.08)';
-  // Show label
+  // Show indicator
   const lbl=document.getElementById('wd-sel-label');
   const nm=document.getElementById('wd-sel-name');
-  if(lbl){lbl.style.display='block';}
-  if(nm){nm.textContent=method;}
+  if(lbl)lbl.style.display='block';
+  if(nm)nm.textContent=method;
 }
 async function submitWithdraw(){
   const pts=parseInt(document.getElementById('wd-pts').value)||0;
@@ -2590,8 +2609,12 @@ async function submitWithdraw(){
     document.getElementById('wd-usd-bal').textContent='$'+(newPts/250).toFixed(2);
     loadWdHistory();
     renderMyProf();
-  }catch(e){toast('❌ '+e.message,'err');}
-  if(btn){btn.disabled=false;btn.innerHTML='💰 ដាក់ស្នើ ដកប្រាក់';}
+  }catch(e){
+    console.error('Withdraw error:',e);
+    toast('❌ '+(e.message||'មានបញ្ហា'),'err');
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='💰 ដាក់ស្នើ ដកប្រាក់';}
+  }
 }
 async function loadWdHistory(){
   const el=document.getElementById('wd-history');
@@ -2729,51 +2752,31 @@ function doSearch(q){
       <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;
         letter-spacing:.6px;margin-bottom:12px">🏦 វិធីទូទាត់</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="wd-method-btns">
-
-        <!-- ABA -->
-        <div onclick="selWdMethod('ABA',this)"
-          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);
-          border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
-          <div style="width:48px;height:48px;border-radius:12px;background:#0066B3;
-            display:flex;align-items:center;justify-content:center;margin:0 auto 8px;
-            font-size:22px;font-weight:900;color:#fff;letter-spacing:-1px">ABA</div>
+        <div data-method="ABA"
+          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
+          <div style="width:48px;height:48px;border-radius:12px;background:#0066B3;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:18px;font-weight:900;color:#fff">ABA</div>
           <div style="font-size:12px;font-weight:700">ABA Bank</div>
           <div style="font-size:10px;color:var(--t2);margin-top:2px">ផ្ទេរភ្លាម</div>
         </div>
-
-        <!-- ACLEDA -->
-        <div onclick="selWdMethod('ACLEDA',this)"
-          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);
-          border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
-          <div style="width:48px;height:48px;border-radius:12px;background:#E31837;
-            display:flex;align-items:center;justify-content:center;margin:0 auto 8px;
-            font-size:11px;font-weight:900;color:#fff;letter-spacing:-.5px">ACL</div>
+        <div data-method="ACLEDA"
+          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
+          <div style="width:48px;height:48px;border-radius:12px;background:#E31837;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:18px;font-weight:900;color:#fff">ACL</div>
           <div style="font-size:12px;font-weight:700">ACLEDA</div>
           <div style="font-size:10px;color:var(--t2);margin-top:2px">ផ្ទេរភ្លាម</div>
         </div>
-
-        <!-- Wing -->
-        <div onclick="selWdMethod('Wing',this)"
-          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);
-          border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
-          <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#FF6B00,#FF9500);
-            display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:22px">✈️</div>
+        <div data-method="Wing"
+          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
+          <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#FF6B00,#FF9500);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:24px">✈️</div>
           <div style="font-size:12px;font-weight:700">Wing</div>
           <div style="font-size:10px;color:var(--t2);margin-top:2px">លេខ Wing</div>
         </div>
-
-        <!-- KHQR -->
-        <div onclick="selWdMethod('KHQR',this)"
-          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);
-          border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
-          <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#004B9B,#C8102E);
-            display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:22px">📱</div>
+        <div data-method="KHQR"
+          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
+          <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#004B9B,#C8102E);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:24px">📱</div>
           <div style="font-size:12px;font-weight:700">KHQR</div>
           <div style="font-size:10px;color:var(--t2);margin-top:2px">ស្កែន QR</div>
         </div>
-
-      </div>
-      <input type="hidden" id="wd-method" value="">
+            <input type="hidden" id="wd-method" value="">
       <!-- Selected method indicator -->
       <div id="wd-sel-label" style="display:none;margin-top:10px;padding:8px 12px;
         background:rgba(0,195,122,.08);border:1px solid rgba(0,195,122,.2);
@@ -2816,7 +2819,7 @@ function doSearch(q){
     <div style="padding:12px 16px;border-bottom:1px solid var(--b);
       background:rgba(227,179,65,.05)">
       <div style="font-size:12px;color:var(--gold);line-height:1.7">
-        ⚠️ Admin និង Review + Transfer ក្នុង 1-3ម៉ោង ក្នុងថ្ងៃធ្វើការ<br>
+        ⚠️ Admin និង Review + Transfer ក្នុង 1-3 ថ្ងៃធ្វើការ<br>
         💡 pts ត្រូវដកចេញភ្លាម ពេលដាក់ស្នើ
       </div>
     </div>
