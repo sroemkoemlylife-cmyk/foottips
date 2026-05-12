@@ -119,6 +119,16 @@ body{display:flex;flex-direction:column;}
 .wd-status-approved{background:rgba(0,195,122,.1);color:var(--g);border:1px solid rgba(0,195,122,.3);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
 .wd-status-rejected{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.3);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
 
+/* ── COUNTDOWN ── */
+.cd-bar{height:3px;background:var(--b2);border-radius:2px;overflow:hidden;margin-top:8px;}
+.cd-prog{height:100%;border-radius:2px;transition:width 1s linear;background:var(--g);}
+.cd-prog.warn{background:var(--gold);}
+.cd-prog.urgent{background:var(--red);}
+.cd-txt{font-size:11px;font-weight:700;text-align:center;margin-top:4px;}
+.cd-txt.warn{color:var(--gold);}
+.cd-txt.urgent{color:var(--red);animation:cdPulse .5s ease-in-out infinite alternate;}
+@keyframes cdPulse{from{opacity:1}to{opacity:.4}}
+
 /* ── PTR ── */
 #ptr-bar{position:sticky;top:0;left:0;right:0;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:10;flex-shrink:0;}
 #ptr-inner{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g);font-weight:600;opacity:0;transition:opacity .15s;}
@@ -1845,6 +1855,60 @@ async function submitStar(){if(!curStar){toast('⚠️ ជ្រើស Stars','e
 // ══════════════════════════════════════════════
 // MATCHES
 // ══════════════════════════════════════════════
+// ── COUNTDOWN TIMERS ──
+let _cdTimers={};
+function startCountdowns(matches){
+  // Clear old timers
+  Object.values(_cdTimers).forEach(t=>clearInterval(t));
+  _cdTimers={};
+  matches.forEach(m=>{
+    if(!m.date||!m.time||m.status!=='open')return;
+    const [hh,mm]=(m.time||'00:00').split(':').map(Number);
+    const kickoff=new Date(m.date);
+    kickoff.setHours(hh,mm,0,0);
+    const FIVE_MIN=5*60*1000;
+    function tick(){
+      const now=Date.now();
+      const diff=kickoff.getTime()-now;
+      const prog=document.getElementById('cdp-'+m.id);
+      const txt=document.getElementById('cdt-'+m.id);
+      if(!prog||!txt)return;
+      if(diff<=0){
+        // Time up — close match
+        prog.style.width='0%';
+        txt.textContent='🔒 ការទាយបិទហើយ!';
+        txt.className='cd-txt urgent';
+        clearInterval(_cdTimers[m.id]);
+        // Auto-close in Firebase
+        db.ref('matches/'+m.id+'/status').set('closed').then(()=>loadMatches());
+        return;
+      }
+      if(diff>FIVE_MIN){
+        // More than 5 min away — show kickoff time
+        const h=kickoff.getHours().toString().padStart(2,'0');
+        const mi=kickoff.getMinutes().toString().padStart(2,'0');
+        prog.style.width='100%';
+        prog.className='cd-prog';
+        txt.textContent='⏰ ម៉ោងចាប់ផ្ដើម '+h+':'+mi;
+        txt.className='cd-txt';
+        return;
+      }
+      // Within 5 min — show countdown
+      const totalSec=Math.ceil(diff/1000);
+      const min=Math.floor(totalSec/60);
+      const sec=totalSec%60;
+      const pct=Math.max(0,(diff/FIVE_MIN)*100);
+      prog.style.width=pct+'%';
+      const isUrgent=diff<60000; // < 1 min
+      prog.className='cd-prog'+(isUrgent?' urgent':' warn');
+      txt.textContent='⚠️ '+(min>0?min+'m ':'')+sec.toString().padStart(2,'0')+'s ទៀតទាយបាន';
+      txt.className='cd-txt'+(isUrgent?' urgent':' warn');
+    }
+    tick(); // run immediately
+    _cdTimers[m.id]=setInterval(tick,1000);
+  });
+}
+
 async function autoCloseMatches(matches){
   // Auto-close matches that start within 5 minutes
   const now=Date.now();
@@ -1950,8 +2014,11 @@ async function loadMatches(){
       +'</div>'
       // Selected
       +(myP?'<div style="padding:9px 14px;font-size:12px;font-weight:700;color:var(--g);text-align:center;border-top:1px solid rgba(0,195,122,.15);background:rgba(0,195,122,.05)">✅ ការទស្សន៍ទាយ: '+myP+'</div>':'')
+      // Countdown timer (only if date+time set)
+      +(m.date&&m.time?'<div id="cd-'+m.id+'" style="padding:0 14px 12px"><div class="cd-bar"><div class="cd-prog" id="cdp-'+m.id+'"></div></div><div class="cd-txt" id="cdt-'+m.id+'">⏳ ...</div></div>':'')
     +'</div>';
   }).join('');
+  setTimeout(()=>startCountdowns(matches),100);
 }
 
 async function predict(mid,choice){
