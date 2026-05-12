@@ -982,51 +982,89 @@ async function handleDeepLink(){
 // PULL-TO-REFRESH — stable, no scroll lock
 // ══════════════════════════════════════════════
 function initPTR(){
-  const sc=document.getElementById('pg-home');
   const bar=document.getElementById('ptr-bar');
   const inner=document.getElementById('ptr-inner');
   const ic=document.getElementById('ptr-ic');
   const tx=document.getElementById('ptr-tx');
-  if(!sc||!bar)return;
-  const T=62;
-  let sy=0,pulling=false,busy=false;
+  if(!bar)return;
+  const THRESHOLD=65;
+  let startY=0,pulling=false,busy=false,dist=0;
 
+  function getScrollTop(){
+    const sc=document.getElementById('pg-home');
+    return sc?sc.scrollTop:0;
+  }
   function reset(){
-    bar.style.transition='height .2s';bar.style.height='0';
+    bar.style.transition='height .22s ease';
+    bar.style.height='0';
     inner.style.opacity='0';
-    if(ic){ic.innerHTML='↓';ic.style.transform='';}
+    if(ic){ic.style.transition='transform .2s';ic.textContent='↓';ic.style.transform='';}
     if(tx)tx.textContent='ទាញចុះ Refresh';
-    setTimeout(()=>bar.style.transition='',220);
+    setTimeout(()=>{
+      bar.style.transition='';
+      if(ic)ic.style.transition='';
+    },240);
   }
   function doRefresh(){
-    busy=true;bar.style.height='52px';inner.style.opacity='1';
-    if(ic)ic.innerHTML='<div class="ptr-spin"></div>';
+    busy=true;
+    bar.style.transition='';
+    bar.style.height='52px';
+    inner.style.opacity='1';
+    if(ic){ic.textContent='';ic.innerHTML='<div class="ptr-spin"></div>';}
     if(tx)tx.textContent='Refreshing...';
-    Promise.all([db.ref('posts').limitToLast(60).once('value'),db.ref('users').once('value')])
-    .then(([ps,us])=>{
-      AU=us.val()||AU;const d=ps.val();if(d){allPosts={};Object.assign(allPosts,d);}
-      renderFeed(allPosts);if(typeof renderLead==='function')renderLead(AU);
-      if(ic)ic.innerHTML='✓';if(tx)tx.textContent='Refresh ហើយ!';
-      setTimeout(()=>{reset();setTimeout(()=>busy=false,250);},900);
+    Promise.all([
+      db.ref('posts').limitToLast(60).once('value'),
+      db.ref('users').once('value')
+    ]).then(([ps,us])=>{
+      AU=us.val()||AU;
+      const d=ps.val();
+      if(d){allPosts={};Object.assign(allPosts,d);}
+      renderFeed(allPosts);
+      if(typeof renderLead==='function')renderLead(AU);
+      if(ic){ic.innerHTML='';ic.textContent='✓';}
+      if(tx)tx.textContent='ស្រស់ហើយ!';
+      setTimeout(()=>{reset();setTimeout(()=>{busy=false;},300);},1000);
     }).catch(()=>{reset();busy=false;});
   }
 
-  sc.addEventListener('touchstart',e=>{if(sc.scrollTop>2||busy)return;sy=e.touches[0].clientY;pulling=true;},{passive:true});
-  sc.addEventListener('touchmove',e=>{
+  // Attach to document — works even with overscroll-behavior on children
+  document.addEventListener('touchstart',e=>{
+    if(busy)return;
+    if(getScrollTop()>2)return;
+    // Only trigger on home page
+    const pg=document.getElementById('pg-home');
+    if(!pg||!pg.classList.contains('act'))return;
+    startY=e.touches[0].clientY;
+    pulling=true;
+    dist=0;
+  },{passive:true});
+
+  document.addEventListener('touchmove',e=>{
     if(!pulling||busy)return;
-    const dy=e.touches[0].clientY-sy;
-    if(dy<=0){pulling=false;reset();return;}
-    const h=Math.min(dy*0.38,76);
-    bar.style.height=h+'px';inner.style.opacity=h>16?'1':'0';
-    if(ic&&ic.innerHTML==='↓'){ic.style.transform=h>T?'rotate(180deg)':'';}
-    if(tx)tx.textContent=h>T?'ដោះ Refresh':'ទាញចុះ Refresh';
+    dist=e.touches[0].clientY-startY;
+    if(dist<=0){pulling=false;reset();return;}
+    // Scroll is at top — show PTR bar
+    if(getScrollTop()>2){pulling=false;reset();return;}
+    const h=Math.min(dist*0.4,80);
+    bar.style.height=h+'px';
+    inner.style.opacity=h>20?'1':'0';
+    if(ic&&ic.textContent==='↓'){
+      ic.style.transform=h>THRESHOLD?'rotate(180deg)':'rotate('+Math.min(h/THRESHOLD*180,180)+'deg)';
+    }
+    if(tx)tx.textContent=h>THRESHOLD?'ដោះដៃ Refresh ✓':'ទាញចុះ Refresh';
   },{passive:true});
-  sc.addEventListener('touchend',()=>{
-    if(!pulling)return;pulling=false;
-    const h=parseFloat(bar.style.height)||0;
-    if(h>T)doRefresh();else reset();
+
+  document.addEventListener('touchend',()=>{
+    if(!pulling)return;
+    pulling=false;
+    if(dist>THRESHOLD)doRefresh();
+    else reset();
   },{passive:true});
-  sc.addEventListener('touchcancel',()=>{pulling=false;if(!busy)reset();},{passive:true});
+
+  document.addEventListener('touchcancel',()=>{
+    pulling=false;
+    if(!busy)reset();
+  },{passive:true});
 }
 
 // ══════════════════════════════════════════════
