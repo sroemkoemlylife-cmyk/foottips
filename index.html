@@ -20,6 +20,12 @@
   --sb:env(safe-area-inset-bottom,0px);
   --font:'Sora','Noto Sans Khmer',sans-serif;
 }
+body.light{
+  --bg:#F0F4F8;--bg2:#FFFFFF;--bg3:#E8EDF5;
+  --card:#FFFFFF;--card2:#F5F8FF;
+  --b:rgba(0,0,0,.07);--b2:rgba(0,0,0,.13);
+  --t:#0A0E1A;--t2:#5A6480;--t3:#9AA0B4;
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--t);}
 body{display:flex;flex-direction:column;}
@@ -2627,25 +2633,108 @@ async function markAllRead(){const d=await FG('notifications/'+U.id);if(!d)retur
 // SETTINGS
 // ══════════════════════════════════════════════
 function openSets(){
-  const me=AU[U.id]||U;const f=me.followers||0;
+  const me=AU[U.id]||U;
+  const isDark=!document.body.classList.contains('light');
+  const av=me.tgPhoto||me.avUrl?
+    '<img src="'+(me.tgPhoto||me.avUrl)+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':
+    '<span style="font-size:22px">'+(me.avatar||'⚽')+'</span>';
+
+  document.getElementById('set-c').innerHTML=[
+    // ── Profile Card ──
+    '<div style="margin:16px 14px 0">',
+      '<div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--b);border-radius:16px;padding:16px">',
+        '<div style="width:56px;height:56px;border-radius:50%;background:'+(me.color||'#00C37A')+'22;color:'+(me.color||'#00C37A')+';display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;overflow:hidden;flex-shrink:0">'+av+'</div>',
+        '<div style="flex:1;min-width:0">',
+          '<div style="font-size:15px;font-weight:700;margin-bottom:2px">'+( me.displayName||'User')+'</div>',
+          '<div style="font-size:12px;color:var(--t2)">@'+(me.username||'')+'</div>',
+          '<div style="font-size:11px;color:var(--t2);margin-top:3px">'+(me.bio||'')+'</div>',
+        '</div>',
+      '</div>',
+    '</div>',
+
+    // ── Edit Section ──
+    '<div style="margin:14px 14px 0">',
+      '<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;padding-left:4px">✏️ កែប្រែព័ត៌មាន</div>',
+      '<div style="background:var(--card);border:1px solid var(--b);border-radius:14px;overflow:hidden">',
+        // Change Name
+        '<div onclick="chgName()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--b);-webkit-tap-highlight-color:transparent">',
+          '<div style="width:36px;height:36px;border-radius:10px;background:rgba(75,139,255,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">✏️</div>',
+          '<div style="flex:1"><div style="font-size:14px;font-weight:600">ប្ដូរឈ្មោះ</div><div style="font-size:11px;color:var(--t2);margin-top:1px">'+(me.displayName||'')+'</div></div>',
+          '<span style="color:var(--t3);font-size:18px">›</span>',
+        '</div>',
+        // Change Bio
+        '<div onclick="chgBio()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent">',
+          '<div style="width:36px;height:36px;border-radius:10px;background:rgba(0,195,122,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📝</div>',
+          '<div style="flex:1"><div style="font-size:14px;font-weight:600">ប្ដូរ Bio</div><div style="font-size:11px;color:var(--t2);margin-top:1px">'+(me.bio||'ដាក់ Bio...')+'</div></div>',
+          '<span style="color:var(--t3);font-size:18px">›</span>',
+        '</div>',
+      '</div>',
+    '</div>',
+
+    // ── Appearance ──
+    '<div style="margin:14px 14px 0">',
+      '<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;padding-left:4px">🎨 បង្ហាញ</div>',
+      '<div style="background:var(--card);border:1px solid var(--b);border-radius:14px;overflow:hidden">',
+        '<div id="dark-toggle-row" onclick="toggleDark()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent">',
+          '<div style="width:36px;height:36px;border-radius:10px;background:rgba(245,200,66,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">'+(isDark?'🌙':'☀️')+'</div>',
+          '<div style="flex:1"><div style="font-size:14px;font-weight:600">'+(isDark?'Dark Mode':'Light Mode')+'</div><div style="font-size:11px;color:var(--t2);margin-top:1px">ចុចដើម្បីប្ដូរ</div></div>',
+          // Toggle switch
+          '<div style="width:44px;height:24px;border-radius:12px;background:'+(isDark?'var(--g)':'var(--b2)')+';position:relative;transition:background .2s;flex-shrink:0">',
+            '<div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:'+(isDark?'22px':'2px')+';transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',
+          '</div>',
+        '</div>',
+      '</div>',
+    '</div>',
+
+    // ── Logout ──
+    '<div style="margin:14px 14px 24px">',
+      '<div onclick="doLogout()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,75,110,.06);border:1px solid rgba(255,75,110,.15);border-radius:14px;cursor:pointer;-webkit-tap-highlight-color:transparent">',
+        '<div style="width:36px;height:36px;border-radius:10px;background:rgba(255,75,110,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🚪</div>',
+        '<div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--red)">ចាកចេញ</div><div style="font-size:11px;color:var(--t3);margin-top:1px">Log out ពី FootTips</div></div>',
+        '<span style="color:var(--red);font-size:18px">›</span>',
+      '</div>',
+    '</div>',
+  ].join('');
+
   document.getElementById('set-dr').style.transform='translateX(0)';
-  NAV.push('sets',closeSets);  // ← register back button
-  document.getElementById('set-c').innerHTML=`
-  <div class="set-s"><div class="set-title">Profile</div><div class="set-card">
-    <div class="sr"><span class="si">${me.avUrl?'📷':me.avatar||'⚽'}</span><span class="sl">${me.displayName}</span><span class="sv">@${me.username}</span></div>
-    <div class="sr" onclick="changeAv();document.getElementById('set-dr').style.transform=''"><span class="si">🖼️</span><span class="sl">ប្ដូរ Avatar/Photo</span><span class="sv">→</span></div>
-    <div class="sr" onclick="chgName()"><span class="si">✏️</span><span class="sl">ប្ដូរឈ្មោះ</span><span class="sv">→</span></div>
-    <div class="sr" onclick="chgBio()"><span class="si">📝</span><span class="sl">ប្ដូរ Bio</span><span class="sv">→</span></div>
-  </div></div>
-  ${f>=50?`<div class="set-s"><div class="set-title">Features</div><div class="set-card">
-    <div class="sr" onclick="closeSets();showIns()"><span class="si">📊</span><span class="sl">Insights</span><span class="sv">→</span></div>
-    ${f>=100?'<div class="sr" onclick="createGrp()"><span class="si">👥</span><span class="sl">Create Group</span><span class="sv">→</span></div>':''}
-  </div></div>`:''}
-  <div class="set-s"><div class="set-card">
-    <div class="sr" onclick="closeSets();nav('notif')"><span class="si">🔔</span><span class="sl">ការជូនដំណឹង</span><span class="sv">→</span></div>
-    <div class="sr" onclick="doLogout()" style="color:var(--red)"><span class="si">🚪</span><span class="sl" style="color:var(--red)">ចេញ</span><span class="sv" style="color:var(--red)">→</span></div>
-  </div></div>`;
+  NAV.push('sets',closeSets);
 }
+
+function toggleDark(){
+  const isLight=document.body.classList.toggle('light');
+  localStorage.setItem('theme',isLight?'light':'dark');
+  // Re-render settings to update toggle
+  openSets();
+}
+
+function chgName(){
+  const cur=(AU[U.id]||U).displayName||'';
+  const name=prompt('ឈ្មោះថ្មី:',cur);
+  if(!name||!name.trim()||name.trim()===cur)return;
+  FU('users/'+U.id,{displayName:name.trim()});
+  U.displayName=name.trim();
+  if(AU[U.id])AU[U.id].displayName=name.trim();
+  toast('✅ ប្ដូរឈ្មោះ!','ok');
+  openSets();renderMyProf();
+}
+
+function chgBio(){
+  const cur=(AU[U.id]||U).bio||'';
+  const bio=prompt('Bio ថ្មី:',cur);
+  if(bio===null)return;
+  FU('users/'+U.id,{bio:bio.trim()});
+  U.bio=bio.trim();
+  if(AU[U.id])AU[U.id].bio=bio.trim();
+  toast('✅ ប្ដូរ Bio!','ok');
+  openSets();renderMyProf();
+}
+
+function doLogout(){
+  if(!confirm('ចាកចេញ?'))return;
+  ls.clear();location.reload();
+}
+
+
 async function openPtsHistory(){
   const ov=document.getElementById('pts-ov');
   ov.style.display='block';
