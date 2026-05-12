@@ -2540,21 +2540,18 @@ function wdAll(){
 
 function wdBank(bank){
   _wdBank = bank;
-  // Reset all cards
-  document.querySelectorAll('.wb-card').forEach(function(d){
-    d.style.borderColor = 'var(--b)';
-    d.style.background = 'var(--bg3)';
-  });
-  // Find selected radio's card
-  var radios = document.querySelectorAll('input[name="wd_bank"]');
-  radios.forEach(function(r){
-    if(r.value === bank){
-      var card = r.nextElementSibling;
-      if(card){ card.style.borderColor = 'var(--g)'; card.style.background = 'rgba(0,195,122,.08)'; }
-    }
-  });
+  // Reset all 4 buttons
+  var ids = ['ABA','ACLEDA','Wing','KHQR'];
+  for(var i=0;i<ids.length;i++){
+    var el = document.getElementById('wb-'+ids[i]);
+    if(el){ el.style.borderColor='var(--b)'; el.style.background='var(--bg3)'; }
+  }
+  // Highlight selected
+  var sel = document.getElementById('wb-'+bank);
+  if(sel){ sel.style.borderColor='var(--g)'; sel.style.background='rgba(0,195,122,.1)'; }
+  // Show label
   var lbl = document.getElementById('wd-bank-label');
-  if(lbl){ lbl.style.display = 'block'; lbl.textContent = '✅ ជ្រើស: ' + bank; }
+  if(lbl){ lbl.style.display='block'; lbl.textContent='✅ ជ្រើស: '+bank; }
 }
 
 async function wdSubmit(){
@@ -2601,10 +2598,11 @@ async function wdSubmit(){
     document.getElementById('wd-account').value='';
     document.getElementById('wd-usd').textContent='$0.00';
     _wdBank='';
-    document.querySelectorAll('input[name="wd_bank"]').forEach(function(r){r.checked=false;});
-    document.querySelectorAll('.wb-card').forEach(function(d){
-      d.style.borderColor='var(--b)';d.style.background='var(--bg3)';
-    });
+    var bids2=['ABA','ACLEDA','Wing','KHQR'];
+    for(var bi2=0;bi2<bids2.length;bi2++){
+      var bel2=document.getElementById('wb-'+bids2[bi2]);
+      if(bel2){bel2.style.borderColor='var(--b)';bel2.style.background='var(--bg3)';}
+    }
     var lbl=document.getElementById('wd-bank-label');if(lbl)lbl.style.display='none';
     var bp=document.getElementById('wd-bal-pts');if(bp)bp.textContent=np.toLocaleString();
     var bu=document.getElementById('wd-bal-usd');if(bu)bu.textContent='≈ $'+(np/250).toFixed(2);
@@ -2731,39 +2729,26 @@ function doSearch(q){
     <div style="background:var(--card);border:1px solid var(--b);border-radius:14px;padding:14px;margin-bottom:10px">
       <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;margin-bottom:12px">② ជ្រើស Bank</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-
-        <label style="display:block;cursor:pointer">
-          <input type="radio" name="wd_bank" value="ABA" style="display:none" onchange="wdBank(this.value)">
-          <div class="wb-card" style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;text-align:center;transition:border .15s">
-            <div style="width:44px;height:44px;border-radius:10px;background:#0066B3;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff">ABA</div>
-            <div style="font-size:12px;font-weight:700;color:var(--t)">ABA Bank</div>
-          </div>
-        </label>
-
-        <label style="display:block;cursor:pointer">
-          <input type="radio" name="wd_bank" value="ACLEDA" style="display:none" onchange="wdBank(this.value)">
-          <div class="wb-card" style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;text-align:center;transition:border .15s">
-            <div style="width:44px;height:44px;border-radius:10px;background:#E31837;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff">ACL</div>
-            <div style="font-size:12px;font-weight:700;color:var(--t)">ACLEDA</div>
-          </div>
-        </label>
-
-        <label style="display:block;cursor:pointer">
-          <input type="radio" name="wd_bank" value="Wing" style="display:none" onchange="wdBank(this.value)">
-          <div class="wb-card" style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;text-align:center;transition:border .15s">
-            <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#FF6B00,#FF9500);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:22px">✈️</div>
-            <div style="font-size:12px;font-weight:700;color:var(--t)">Wing</div>
-          </div>
-        </label>
-
-        <label style="display:block;cursor:pointer">
-          <input type="radio" name="wd_bank" value="KHQR" style="display:none" onchange="wdBank(this.value)">
-          <div class="wb-card" style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;text-align:center;transition:border .15s">
-            <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#004B9B,#C8102E);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:22px">📱</div>
-            <div style="font-size:12px;font-weight:700;color:var(--t)">KHQR</div>
-          </div>
-        </label>
-
+        <button type="button" onclick="wdBank('ABA')" id="wb-ABA"
+          style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;cursor:pointer;text-align:center;font-family:inherit;-webkit-tap-highlight-color:transparent">
+          <div style="width:44px;height:44px;border-radius:10px;background:#0066B3;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff">ABA</div>
+          <div style="font-size:12px;font-weight:700;color:var(--t)">ABA Bank</div>
+        </button>
+        <button type="button" onclick="wdBank('ACLEDA')" id="wb-ACLEDA"
+          style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;cursor:pointer;text-align:center;font-family:inherit;-webkit-tap-highlight-color:transparent">
+          <div style="width:44px;height:44px;border-radius:10px;background:#E31837;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff">ACL</div>
+          <div style="font-size:12px;font-weight:700;color:var(--t)">ACLEDA</div>
+        </button>
+        <button type="button" onclick="wdBank('Wing')" id="wb-Wing"
+          style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;cursor:pointer;text-align:center;font-family:inherit;-webkit-tap-highlight-color:transparent">
+          <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#FF6B00,#FF9500);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:22px">✈️</div>
+          <div style="font-size:12px;font-weight:700;color:var(--t)">Wing</div>
+        </button>
+        <button type="button" onclick="wdBank('KHQR')" id="wb-KHQR"
+          style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;cursor:pointer;text-align:center;font-family:inherit;-webkit-tap-highlight-color:transparent">
+          <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#004B9B,#C8102E);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:22px">📱</div>
+          <div style="font-size:12px;font-weight:700;color:var(--t)">KHQR</div>
+        </button>
       </div>
       <div id="wd-bank-label" style="display:none;margin-top:10px;padding:8px 12px;background:rgba(0,195,122,.08);border:1px solid rgba(0,195,122,.25);border-radius:10px;font-size:13px;font-weight:700;color:var(--g);text-align:center"></div>
     </div>
