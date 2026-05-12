@@ -982,14 +982,45 @@ async function handleDeepLink(){
 // PULL-TO-REFRESH — stable, no scroll lock
 // ══════════════════════════════════════════════
 function initPTR(){
-  const sc=document.getElementById('pg-home');
   const bar=document.getElementById('ptr-bar');
   const inner=document.getElementById('ptr-inner');
   const ic=document.getElementById('ptr-ic');
   const tx=document.getElementById('ptr-tx');
-  if(!sc||!bar)return;
+  if(!bar)return;
   const T=62;
-  let sy=0,pulling=false,busy=false;
+  let sy=0,pulling=false,busy=false,activeSc=null;
+
+  // Pages + their refresh actions
+  const PAGE_REFRESH={
+    'pg-home': ()=>Promise.all([
+      db.ref('posts').limitToLast(60).once('value'),
+      db.ref('users').once('value')
+    ]).then(([ps,us])=>{
+      AU=us.val()||AU;const d=ps.val();if(d)allPosts=d;
+      renderFeed(allPosts);renderLead(AU);
+    }),
+    'pg-pred': ()=>new Promise(res=>{loadMatches();setTimeout(res,800);}),
+    'pg-lead': ()=>db.ref('users').once('value').then(s=>{AU=s.val()||AU;renderLead(AU);}),
+    'pg-chat': ()=>new Promise(res=>{loadConvList();setTimeout(res,800);}),
+    'pg-prof': ()=>new Promise(res=>{renderMyProf();setTimeout(res,800);}),
+  };
+
+  function getActivePage(){
+    for(const id of Object.keys(PAGE_REFRESH)){
+      const el=document.getElementById(id);
+      if(el&&(el.classList.contains('act')||el.style.transform==='translateX(0px)'||el.style.transform==='translateX(0)'))
+        return el;
+    }
+    return document.querySelector('.pg.act');
+  }
+
+  // Move ptr-bar: place it inside active page for correct positioning
+  function showBar(page){
+    if(page&&!page.contains(bar)){
+      page.insertBefore(bar,page.firstChild);
+    }
+    bar.style.display='flex';
+  }
 
   function reset(){
     bar.style.transition='height .2s';bar.style.height='0';
@@ -997,46 +1028,57 @@ function initPTR(){
     if(ic){ic.innerHTML='↓';ic.style.transform='';}
     if(tx)tx.textContent='ទាញចុះ Refresh';
     setTimeout(()=>bar.style.transition='',220);
+    activeSc=null;
   }
-  function doRefresh(){
+
+  function doRefresh(pageId){
     busy=true;bar.style.height='52px';inner.style.opacity='1';
     if(ic)ic.innerHTML='<div class="ptr-spin"></div>';
     if(tx)tx.textContent='Refreshing...';
-    Promise.all([db.ref('posts').limitToLast(60).once('value'),db.ref('users').once('value')])
-    .then(([ps,us])=>{
-      AU=us.val()||AU;const d=ps.val();if(d)allPosts=d;
-      renderFeed(allPosts);renderLead(AU);
-      if(ic)ic.innerHTML='✓';if(tx)tx.textContent='Refresh ហើយ!';
+    const fn=PAGE_REFRESH[pageId]||PAGE_REFRESH['pg-home'];
+    fn().then(()=>{
+      if(ic)ic.innerHTML='✓';
+      if(tx)tx.textContent='Refresh ហើយ!';
       setTimeout(()=>{reset();setTimeout(()=>busy=false,250);},900);
     }).catch(()=>{reset();busy=false;});
   }
 
-  sc.addEventListener('touchstart',e=>{
-    if(sc.scrollTop>2||busy)return;
-    sy=e.touches[0].clientY;
-    pulling=true;
-  },{passive:true});
+  // Attach to each scrollable page
+  Object.keys(PAGE_REFRESH).forEach(pgId=>{
+    const sc=document.getElementById(pgId);
+    if(!sc)return;
 
-  // passive:false ដើម្បីអាច preventDefault() — ទប់ Telegram swipe-to-close
-  sc.addEventListener('touchmove',e=>{
-    if(!pulling||busy)return;
-    const dy=e.touches[0].clientY-sy;
-    if(dy<=0){pulling=false;reset();return;}
-    // ទប់ Telegram Mini App ពី swipe-to-close
-    e.preventDefault();
-    const h=Math.min(dy*0.38,76);
-    bar.style.height=h+'px';
-    inner.style.opacity=h>16?'1':'0';
-    if(ic&&ic.innerHTML==='↓'){ic.style.transform=h>T?'rotate(180deg)':'';}
-    if(tx)tx.textContent=h>T?'ដោះ Refresh':'ទាញចុះ Refresh';
-  },{passive:false});
+    sc.addEventListener('touchstart',e=>{
+      if(sc.scrollTop>2||busy)return;
+      sy=e.touches[0].clientY;
+      pulling=true;
+      activeSc=sc;
+    },{passive:true});
 
-  sc.addEventListener('touchend',()=>{
-    if(!pulling)return;pulling=false;
-    const h=parseFloat(bar.style.height)||0;
-    if(h>T)doRefresh();else reset();
-  },{passive:true});
-  sc.addEventListener('touchcancel',()=>{pulling=false;if(!busy)reset();},{passive:true});
+    sc.addEventListener('touchmove',e=>{
+      if(!pulling||busy||activeSc!==sc)return;
+      const dy=e.touches[0].clientY-sy;
+      if(dy<=0){pulling=false;reset();return;}
+      e.preventDefault();
+      showBar(sc);
+      const h=Math.min(dy*0.38,76);
+      bar.style.height=h+'px';
+      inner.style.opacity=h>16?'1':'0';
+      if(ic&&ic.innerHTML==='↓'){ic.style.transform=h>T?'rotate(180deg)':'';}
+      if(tx)tx.textContent=h>T?'ដោះ Refresh':'ទាញចុះ Refresh';
+    },{passive:false});
+
+    sc.addEventListener('touchend',()=>{
+      if(!pulling||activeSc!==sc)return;
+      pulling=false;
+      const h=parseFloat(bar.style.height)||0;
+      if(h>T)doRefresh(pgId);else reset();
+    },{passive:true});
+
+    sc.addEventListener('touchcancel',()=>{
+      if(activeSc===sc){pulling=false;if(!busy)reset();}
+    },{passive:true});
+  });
 }
 
 
