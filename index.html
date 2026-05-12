@@ -2558,110 +2558,100 @@ function wdBank(bank){
 }
 
 async function wdSubmit(){
-  var ptsEl = document.getElementById('wd-pts');
-  var accEl = document.getElementById('wd-account');
-  var nmEl  = document.getElementById('wd-name');
-  var btn   = document.getElementById('wd-submit-btn');
-  var pts = parseInt((ptsEl&&ptsEl.value)||0);
-  var acc = (accEl&&accEl.value||'').trim();
-  var nm  = (nmEl&&nmEl.value||'').trim();
+  var pts = parseInt(document.getElementById('wd-pts').value||0);
+  var acc = (document.getElementById('wd-account').value||'').trim();
+  var nm  = (document.getElementById('wd-name').value||'').trim();
   var bal = Math.floor((U&&U.points)||0);
+  var btn = document.getElementById('wd-submit-btn');
 
-  if(pts<500){toast('⚠️ Min 500 pts','err');return;}
-  if(pts>bal){toast('⚠️ pts មិនគ្រប់ (មាន '+bal+')','err');return;}
-  if(!_wdBank){toast('⚠️ ជ្រើស Bank ជាមុន','err');return;}
+  if(pts<500){toast('⚠️ Min 500 pts ($2)','err');return;}
+  if(pts>bal){toast('⚠️ pts មិនគ្រប់ ('+bal+')','err');return;}
+  if(!_wdBank){toast('⚠️ ជ្រើស Bank','err');return;}
   if(!acc){toast('⚠️ ដាក់ លេខគណនី','err');return;}
   if(!nm){toast('⚠️ ដាក់ ឈ្មោះ','err');return;}
 
-  if(btn){btn.disabled=true;btn.style.opacity='0.6';btn.textContent='⏳...';}
-
+  if(btn){btn.disabled=true;btn.textContent='⏳...';}
   try{
-    var usd = Math.round(pts/250*100)/100;
-    var now = Date.now();
-
-    // Step 1: Write withdrawal
-    var wRef = db.ref('withdrawals');
-    var newRef = wRef.push();
-    await newRef.set({
-      uid:U.id, displayName:U.displayName||'', username:U.username||'',
-      pts:pts, usd:usd, method:_wdBank, account:acc, name:nm,
-      status:'pending', createdAt:now
+    var usd=Math.round(pts/2.5)/100;
+    // Save using FP() — exact same as CEO tips (known working)
+    await FP('posts',{
+      userId:U.id,
+      isWithdraw:true,
+      wdUid:U.id,
+      wdName:U.displayName||'',
+      wdUsername:U.username||'',
+      wdPts:pts,
+      wdUsd:usd,
+      wdMethod:_wdBank,
+      wdAccount:acc,
+      wdOwner:nm,
+      wdStatus:'pending',
+      caption:'💰 Withdraw $'+usd,
+      mediaUrl:'',likes:0,comments:0,
+      createdAt:Date.now()
     });
-
-    // Step 2: Deduct points
-    var np = Math.max(0, bal - pts);
-    await db.ref('users/'+U.id+'/points').set(np);
-    U.points = np;
-    if(AU[U.id]) AU[U.id].points = np;
-
-    // Step 3: Log
-    await db.ref('users/'+U.id+'/plog').push({
-      pts:-pts, source:'withdraw',
-      desc:'💰 ដក $'+usd+' តាម '+_wdBank,
-      ts:now
-    });
-
+    // Deduct pts using FS() — same as other pts updates
+    var np=Math.max(0,bal-pts);
+    await FS('users/'+U.id+'/points',np);
+    U.points=np;
+    if(AU[U.id])AU[U.id].points=np;
+    // Success
     toast('✅ ស្នើជោគជ័យ! Admin ពិនិត្យ 1-3 ថ្ងៃ','ok');
-
-    // Reset form
-    if(ptsEl)ptsEl.value='';
-    if(accEl)accEl.value='';
+    document.getElementById('wd-pts').value='';
+    document.getElementById('wd-account').value='';
     document.getElementById('wd-usd').textContent='$0.00';
     _wdBank='';
     document.querySelectorAll('input[name="wd_bank"]').forEach(function(r){r.checked=false;});
     document.querySelectorAll('.wb-card').forEach(function(d){
       d.style.borderColor='var(--b)';d.style.background='var(--bg3)';
     });
-    var lbl=document.getElementById('wd-bank-label');
-    if(lbl)lbl.style.display='none';
-    var bp=document.getElementById('wd-bal-pts');
-    var bu=document.getElementById('wd-bal-usd');
-    var pd=document.getElementById('wd-pts-display');
-    if(bp)bp.textContent=np.toLocaleString();
-    if(bu)bu.textContent='≈ $'+(np/250).toFixed(2);
-    if(pd)pd.textContent=Math.floor(np)+' pts';
+    var lbl=document.getElementById('wd-bank-label');if(lbl)lbl.style.display='none';
+    var bp=document.getElementById('wd-bal-pts');if(bp)bp.textContent=np.toLocaleString();
+    var bu=document.getElementById('wd-bal-usd');if(bu)bu.textContent='≈ $'+(np/250).toFixed(2);
+    var pd=document.getElementById('wd-pts-display');if(pd)pd.textContent=Math.floor(np)+' pts';
     wdLoadHistory();
     renderMyProf();
-
-  }catch(err){
-    console.error('wdSubmit error:',err);
-    toast('❌ Error: '+(err.message||err.code||JSON.stringify(err)),'err');
+  }catch(e){
+    toast('❌ '+(e.message||'Error'),'err');
+    console.error(e);
   }finally{
-    if(btn){btn.disabled=false;btn.style.opacity='1';btn.textContent='💰 ដាក់ស្នើ ដកប្រាក់';}
+    if(btn){btn.disabled=false;btn.textContent='💰 ដាក់ស្នើ ដកប្រាក់';}
   }
 }
 
 
 async function wdLoadHistory(){
-  var el = document.getElementById('wd-history');
-  if(!el) return;
-  el.innerHTML = '<div style="padding:16px;text-align:center"><span class="spin"></span></div>';
+  var el=document.getElementById('wd-history');
+  if(!el)return;
+  el.innerHTML='<div style="padding:16px;text-align:center"><span class="spin"></span></div>';
   try{
-    var snap = await db.ref('posts').orderByChild('userId').equalTo(U.id).once('value');
-    var data = snap.val();
-    var items = [];
+    var data=await FG('posts');
+    var items=[];
     if(data){
       Object.values(data).forEach(function(p){
-        if(p.isWithdraw && p.withdraw) items.push(p.withdraw);
+        if(p.isWithdraw&&p.wdUid===U.id)items.push(p);
       });
     }
-    items.sort(function(a,b){ return b.createdAt - a.createdAt; });
-    if(!items.length){ el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន</div>'; return; }
-    el.innerHTML = items.map(function(w){
-      var d = new Date(w.createdAt).toLocaleDateString('km-KH');
-      var sc = w.status==='approved'?'color:var(--g)':w.status==='rejected'?'color:var(--red)':'color:var(--gold)';
-      var st = w.status==='approved'?'✅ Approved':w.status==='rejected'?'❌ Rejected':'⏳ Pending';
+    items.sort(function(a,b){return b.createdAt-a.createdAt;});
+    if(!items.length){
+      el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន</div>';
+      return;
+    }
+    el.innerHTML=items.map(function(w){
+      var d=new Date(w.createdAt).toLocaleDateString('km-KH');
+      var sc=w.wdStatus==='approved'?'color:var(--g)':w.wdStatus==='rejected'?'color:var(--red)':'color:var(--gold)';
+      var st=w.wdStatus==='approved'?'✅ Approved':w.wdStatus==='rejected'?'❌ Rejected':'⏳ Pending';
       return '<div style="padding:13px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px">'
-        + '<div style="font-size:20px">💰</div>'
-        + '<div style="flex:1">'
-          + '<div style="font-size:13px;font-weight:700">$' + w.usd + ' (' + w.pts + ' pts)</div>'
-          + '<div style="font-size:11px;color:var(--t2)">' + w.method + ' · ' + w.account + ' · ' + d + '</div>'
-        + '</div>'
-        + '<span style="font-size:11px;font-weight:700;' + sc + '">' + st + '</span>'
-      + '</div>';
+        +'<div style="font-size:20px">💰</div>'
+        +'<div style="flex:1">'
+          +'<div style="font-size:13px;font-weight:700">$'+w.wdUsd+' ('+w.wdPts+' pts)</div>'
+          +'<div style="font-size:11px;color:var(--t2)">'+w.wdMethod+' · '+w.wdAccount+' · '+d+'</div>'
+        +'</div>'
+        +'<span style="font-size:11px;font-weight:700;'+sc+'">'+st+'</span>'
+      +'</div>';
     }).join('');
   }catch(e){
-    el.innerHTML = '<div style="padding:14px;color:var(--t3)">Error loading</div>';
+    el.innerHTML='<div style="padding:14px;color:var(--t3)">Error</div>';
   }
 }
 
