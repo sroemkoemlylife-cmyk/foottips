@@ -1661,15 +1661,22 @@ function pmPreview(){
       choices.map(ch=>'<div style="flex:1;min-width:80px;padding:10px 6px;background:rgba(0,195,122,.08);border:1.5px solid rgba(0,195,122,.25);border-radius:10px;text-align:center;cursor:pointer"><div style="font-size:12px;font-weight:700;color:#fff">'+ch+'</div></div>').join('')+
       '</div>'
     :'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">ជ្រើស ឬ ដាក់ choices</div>';
+  // Get logos from picker
+  const hImgEl=document.getElementById('pm-lg-h').querySelector('img');
+  const aImgEl=document.getElementById('pm-lg-a').querySelector('img');
+  const hLogoSrc=hImgEl?hImgEl.src:'';
+  const aLogoSrc=aImgEl?aImgEl.src:'';
+  const hLogoHTML=hLogoSrc?'<img src="'+hLogoSrc+'" style="width:48px;height:48px;object-fit:contain;margin-bottom:6px">':'<div style="font-size:36px;margin-bottom:6px">🏠</div>';
+  const aLogoHTML=aLogoSrc?'<img src="'+aLogoSrc+'" style="width:48px;height:48px;object-fit:contain;margin-bottom:6px">':'<div style="font-size:36px;margin-bottom:6px">✈️</div>';
   content.innerHTML=
-    '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:8px">'+league+'</div>'
-    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
-      +'<div style="flex:1;text-align:center"><div style="font-size:15px;font-weight:800;color:#fff">'+(home||'ក្រុមមេ')+'</div></div>'
+    '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">'+league+'</div>'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+      +'<div style="flex:1;text-align:center">'+hLogoHTML+'<div style="font-size:14px;font-weight:800;color:#fff">'+(home||'ក្រុមមេ')+'</div></div>'
       +'<div style="text-align:center;padding:0 10px">'
-        +(time||dateStr?'<div style="font-size:11px;color:rgba(255,255,255,.5)">'+(dateStr?dateStr+' ':'')+time+'</div>':'')
-        +'<div style="font-size:16px;font-weight:900;color:rgba(255,255,255,.6)">VS</div>'
+        +(time||dateStr?'<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px">'+(dateStr?dateStr+' ':'')+time+'</div>':'')
+        +'<div style="font-size:18px;font-weight:900;color:rgba(255,255,255,.5)">VS</div>'
       +'</div>'
-      +'<div style="flex:1;text-align:center"><div style="font-size:15px;font-weight:800;color:#fff">'+(away||'ក្រុមភ្ញៀវ')+'</div></div>'
+      +'<div style="flex:1;text-align:center">'+aLogoHTML+'<div style="font-size:14px;font-weight:800;color:#fff">'+(away||'ក្រុមភ្ញៀវ')+'</div></div>'
     +'</div>'
     +choiceHTML;
 }
@@ -1677,9 +1684,8 @@ function pmPreview(){
 async function pmSubmit(){
   const home=(document.getElementById('pm-nm-h').textContent||'').trim();
   const away=(document.getElementById('pm-nm-a').textContent||'').trim();
-  if(home==='ចុចជ្រើស'||!home||away==='ចុចជ្រើស'||!away){
-    const box=document.getElementById('pm-preview');if(box)box.style.display='none';
-  }
+  const cleanHome=home==='ចុចជ្រើស'?'':home;
+  const cleanAway=away==='ចុចជ្រើស'?'':away;
   const league=document.getElementById('pm-league').value||'';
   const date=(document.getElementById('pm-date').value||'').trim();
   const time=(document.getElementById('pm-time').value||'').trim();
@@ -1706,6 +1712,7 @@ async function pmSubmit(){
       result:null
     });
     tok('✅ ប្រកួតបន្ថែម!');
+    // Reset form
     document.getElementById('pm-nm-h').textContent='ចុចជ្រើស';
     document.getElementById('pm-lg-h').innerHTML='<span style="font-size:34px">🏠</span>';
     document.getElementById('pm-btn-h').classList.remove('on');
@@ -1716,16 +1723,17 @@ async function pmSubmit(){
     document.getElementById('pm-date').value='';
     document.getElementById('pm-choices').value='';
     document.getElementById('pm-desc').value='';
-    document.getElementById('pm-choice-preview').style.display='none';
-    document.getElementById('pm-preview').style.display='none';
-    pmPreview();
+    const cpBox=document.getElementById('pm-choice-preview');if(cpBox)cpBox.style.display='none';
+    const pvBox=document.getElementById('pm-preview');if(pvBox)pvBox.style.display='none';
     pmLoad();
   }catch(e){
+    console.error(e);
     terr('❌ '+(e.message||'Error'));
   }finally{
     if(btn){btn.disabled=false;btn.textContent='➕ Post ការប្រកួត';}
   }
 }
+
 
 async function pmLoad(){
   const el=document.getElementById('pm-list');
