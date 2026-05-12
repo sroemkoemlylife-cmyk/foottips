@@ -54,7 +54,7 @@ body{display:flex;flex-direction:column;}
 .tpts{display:flex;align-items:center;gap:4px;background:var(--card);padding:5px 9px;border-radius:20px;border:1px solid var(--b2);cursor:pointer;flex-shrink:0;}
 .tpts-n{font-size:12px;font-weight:700;color:var(--gold);}
 .pages{flex:1;overflow:hidden;position:relative;}
-.pg{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:none;opacity:0;pointer-events:none;transform:translateX(20px);transition:opacity .2s,transform .2s;padding-bottom:calc(72px + var(--sb));}
+.pg{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;opacity:0;pointer-events:none;transform:translateX(20px);transition:opacity .2s,transform .2s;padding-bottom:calc(72px + var(--sb));}
 .pg.act{opacity:1;pointer-events:auto;transform:translateX(0);}
 .bnav{display:flex;background:var(--bg2);border-top:1px solid var(--b);padding:4px 0;padding-bottom:max(4px,var(--sb));flex-shrink:0;position:relative;}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0 4px;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent;user-select:none;}
@@ -982,82 +982,54 @@ async function handleDeepLink(){
 // PULL-TO-REFRESH — stable, no scroll lock
 // ══════════════════════════════════════════════
 function initPTR(){
-  const sc = document.getElementById('pg-home');
-  const bar = document.getElementById('ptr-bar');
-  const inner = document.getElementById('ptr-inner');
-  const ic = document.getElementById('ptr-ic');
-  const tx = document.getElementById('ptr-tx');
-  if(!sc||!bar) return;
-
-  const THRESHOLD = 60;
-  let startY=0, curY=0, pulling=false, busy=false;
+  const sc=document.getElementById('pg-home');
+  const bar=document.getElementById('ptr-bar');
+  const inner=document.getElementById('ptr-inner');
+  const ic=document.getElementById('ptr-ic');
+  const tx=document.getElementById('ptr-tx');
+  if(!sc||!bar)return;
+  const T=62;
+  let sy=0,pulling=false,busy=false;
 
   function reset(){
-    bar.style.transition = 'height .2s ease';
-    bar.style.height = '0';
-    inner.style.opacity = '0';
-    if(ic){ ic.textContent='↓'; ic.style.transform=''; }
-    if(tx) tx.textContent = 'ទាញចុះ Refresh';
-    setTimeout(()=>{ bar.style.transition=''; },220);
+    bar.style.transition='height .2s';bar.style.height='0';
+    inner.style.opacity='0';
+    if(ic){ic.innerHTML='↓';ic.style.transform='';}
+    if(tx)tx.textContent='ទាញចុះ Refresh';
+    setTimeout(()=>bar.style.transition='',220);
   }
-
   function doRefresh(){
-    busy = true;
-    bar.style.height = '52px';
-    inner.style.opacity = '1';
-    if(ic) ic.innerHTML = '<div class="ptr-spin"></div>';
-    if(tx) tx.textContent = 'Refreshing...';
-    Promise.all([
-      db.ref('posts').limitToLast(60).once('value'),
-      db.ref('users').once('value')
-    ]).then(([ps,us])=>{
-      AU = us.val()||AU;
-      const d = ps.val();
-      if(d){ allPosts={}; Object.assign(allPosts,d); }
-      renderFeed(allPosts);
-      if(typeof renderLead==='function') renderLead(AU);
-      if(ic){ ic.innerHTML=''; ic.textContent='✓'; }
-      if(tx) tx.textContent = 'ស្រស់ហើយ!';
-      setTimeout(()=>{ reset(); setTimeout(()=>busy=false,300); },1000);
-    }).catch(()=>{ reset(); busy=false; });
+    busy=true;bar.style.height='52px';inner.style.opacity='1';
+    if(ic)ic.innerHTML='<div class="ptr-spin"></div>';
+    if(tx)tx.textContent='Refreshing...';
+    Promise.all([db.ref('posts').limitToLast(60).once('value'),db.ref('users').once('value')])
+    .then(([ps,us])=>{
+      AU=us.val()||AU;const d=ps.val();if(d)allPosts=d;
+      renderFeed(allPosts);renderLead(AU);
+      if(ic)ic.innerHTML='✓';if(tx)tx.textContent='Refresh ហើយ!';
+      setTimeout(()=>{reset();setTimeout(()=>busy=false,250);},900);
+    }).catch(()=>{reset();busy=false;});
   }
 
-  sc.addEventListener('touchstart', e=>{
-    if(busy || sc.scrollTop > 0) return;
-    startY = e.touches[0].clientY;
-    curY   = startY;
-    pulling = true;
-  }, {passive:true});
-
-  sc.addEventListener('touchmove', e=>{
-    if(!pulling || busy) return;
-    curY = e.touches[0].clientY;
-    const dy = curY - startY;
-    if(dy <= 0 || sc.scrollTop > 0){ pulling=false; reset(); return; }
-    // Prevent Telegram swipe-to-close
-    e.stopPropagation();
-    const h = Math.min(dy * 0.42, 80);
-    bar.style.height = h + 'px';
-    inner.style.opacity = h > 18 ? '1' : '0';
-    if(ic && ic.textContent === '↓'){
-      ic.style.transform = h > THRESHOLD ? 'rotate(180deg)' : 'rotate('+Math.floor(h/THRESHOLD*180)+'deg)';
-    }
-    if(tx) tx.textContent = h > THRESHOLD ? 'ដោះដៃ Refresh ✓' : 'ទាញចុះ Refresh';
-  }, {passive:true});
-
-  sc.addEventListener('touchend', ()=>{
-    if(!pulling) return;
-    pulling = false;
-    const h = parseFloat(bar.style.height)||0;
-    if(h > THRESHOLD) doRefresh();
-    else reset();
-  }, {passive:true});
-
-  sc.addEventListener('touchcancel', ()=>{
-    pulling = false;
-    if(!busy) reset();
-  }, {passive:true});
+  sc.addEventListener('touchstart',e=>{if(sc.scrollTop>2||busy)return;sy=e.touches[0].clientY;pulling=true;},{passive:true});
+  sc.addEventListener('touchmove',e=>{
+    if(!pulling||busy)return;
+    const dy=e.touches[0].clientY-sy;
+    if(dy<=0){pulling=false;reset();return;}
+    const h=Math.min(dy*0.38,76);
+    bar.style.height=h+'px';inner.style.opacity=h>16?'1':'0';
+    if(ic&&ic.innerHTML==='↓'){ic.style.transform=h>T?'rotate(180deg)':'';}
+    if(tx)tx.textContent=h>T?'ដោះ Refresh':'ទាញចុះ Refresh';
+  },{passive:true});
+  sc.addEventListener('touchend',()=>{
+    if(!pulling)return;pulling=false;
+    const h=parseFloat(bar.style.height)||0;
+    if(h>T)doRefresh();else reset();
+  },{passive:true});
+  sc.addEventListener('touchcancel',()=>{pulling=false;if(!busy)reset();},{passive:true});
 }
+
+
 // ══════════════════════════════════════════════
 // NAV
 // ══════════════════════════════════════════════
