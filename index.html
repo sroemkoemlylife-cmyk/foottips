@@ -692,6 +692,7 @@ body{display:flex;flex-direction:column;}
 <!-- star removed -->
 
 <script>
+
 // ══════════════════════════════════════════════
 // FIREBASE
 // ══════════════════════════════════════════════
@@ -2491,324 +2492,171 @@ function closePtsHistory(){
 }
 
 // ── WITHDRAWAL ──
-let _wdBank = '';
+let _wdBank='';
 
 function openWithdraw(){
-  document.getElementById('wd-ov').style.display = 'block';
-  NAV.push('wd', closeWithdraw);
-  const pts = Math.floor(U.points || 0);
-  document.getElementById('wd-pts-display').textContent = pts + ' pts';
-  document.getElementById('wd-bal-pts').textContent = pts.toLocaleString();
-  document.getElementById('wd-bal-usd').textContent = '≈ $' + (pts/250).toFixed(2) + ' · 250pts=$1 · Min 500pts';
-  document.getElementById('wd-pts').value = '';
-  document.getElementById('wd-usd').textContent = '$0';
-  document.getElementById('wd-account').value = '';
-  document.getElementById('wd-name').value = U.displayName || '';
-  _wdBank = '';
-  document.querySelectorAll('input[name="wd_bank"]').forEach(function(r){ r.checked = false; });
-  document.querySelectorAll('.wb-card').forEach(function(d){ d.style.borderColor = 'var(--b)'; d.style.background = 'var(--bg3)'; });
-  var lbl0 = document.getElementById('wd-bank-label');
-  if(lbl0) lbl0.style.display = 'none';
+  const pg=document.getElementById('wd-pg');
+  if(!pg)return;
+  pg.style.transform='translateX(0)';
+  NAV.push('wd',closeWithdraw);
+  const pts=Math.floor((U&&U.points)||0);
+  const dp=document.getElementById('wd-pts-display');
+  const bp=document.getElementById('wd-bal-pts');
+  const bu=document.getElementById('wd-bal-usd');
+  if(dp)dp.textContent=pts+' pts';
+  if(bp)bp.textContent=pts.toLocaleString();
+  if(bu)bu.textContent='≈ $'+(pts/250).toFixed(2);
+  const pi=document.getElementById('wd-pts');if(pi)pi.value='';
+  const ui=document.getElementById('wd-usd');if(ui)ui.textContent='$0';
+  const ai=document.getElementById('wd-account');if(ai)ai.value='';
+  const ni=document.getElementById('wd-name');if(ni)ni.value=U.displayName||'';
+  const bs=document.getElementById('wd-bank-sel');if(bs)bs.value='';
+  _wdBank='';
   wdLoadHistory();
-  // Attach submit via addEventListener (more reliable than onclick)
-  var btn = document.getElementById('wd-submit-btn');
-  if(btn){
-    btn.onclick = null;
-    btn.onclick = wdSubmit;
-  }
 }
-
 function closeWithdraw(){
-  document.getElementById('wd-ov').style.display = 'none';
+  const pg=document.getElementById('wd-pg');
+  if(pg)pg.style.transform='translateX(100%)';
 }
-
 function wdCalc(){
-  var pts = parseInt(document.getElementById('wd-pts').value) || 0;
-  document.getElementById('wd-usd').textContent = '$' + (pts/250).toFixed(2);
+  const pts=parseInt(document.getElementById('wd-pts').value||0);
+  const ui=document.getElementById('wd-usd');
+  if(ui)ui.textContent='$'+(pts/250).toFixed(2);
 }
-
 function wdSet(n){
-  document.getElementById('wd-pts').value = n;
+  const pi=document.getElementById('wd-pts');if(pi)pi.value=n;
   wdCalc();
 }
-
 function wdAll(){
-  var n = Math.floor(Math.floor(U.points||0) / 250) * 250;
-  document.getElementById('wd-pts').value = n;
+  const n=Math.floor(Math.floor((U&&U.points)||0)/250)*250;
+  const pi=document.getElementById('wd-pts');if(pi)pi.value=n;
   wdCalc();
 }
 
-function wdBank(bank){
-  _wdBank = bank;
-}
-function wdBankSel(bank){
-  _wdBank = bank;
-  var lbl = document.getElementById('wd-bank-label');
-  if(lbl && bank){
-    lbl.style.display = 'block';
-    lbl.textContent = '✅ ជ្រើស: ' + bank;
-  }
-}
+
+
+
 
 async function wdSubmit(){
-  var pts = parseInt(document.getElementById('wd-pts').value||0);
-  var acc = (document.getElementById('wd-account').value||'').trim();
-  var nm  = (document.getElementById('wd-name').value||'').trim();
-  var bal = Math.floor((U&&U.points)||0);
-  var btn = document.getElementById('wd-submit-btn');
-
+  var pts=parseInt(document.getElementById('wd-pts').value||0);
+  var acc=(document.getElementById('wd-account').value||'').trim();
+  var nm=(document.getElementById('wd-name').value||'').trim();
+  var bank=(document.getElementById('wd-bank-sel').value||'').trim();
+  var bal=Math.floor((U&&U.points)||0);
+  var btn=document.getElementById('wd-submit-btn');
   if(pts<500){toast('⚠️ Min 500 pts ($2)','err');return;}
   if(pts>bal){toast('⚠️ pts មិនគ្រប់ ('+bal+')','err');return;}
-  // Also read from select element as backup
-  if(!_wdBank){
-    var bselEl=document.getElementById('wd-bank-sel');
-    if(bselEl&&bselEl.value) _wdBank=bselEl.value;
-  }
-  if(!_wdBank){toast('⚠️ ជ្រើស Bank','err');return;}
+  if(!bank){toast('⚠️ ជ្រើស Bank','err');return;}
   if(!acc){toast('⚠️ ដាក់ លេខគណនី','err');return;}
   if(!nm){toast('⚠️ ដាក់ ឈ្មោះ','err');return;}
-
   if(btn){btn.disabled=true;btn.textContent='⏳...';}
   try{
     var usd=Math.round(pts/2.5)/100;
-    // Save using FP() — exact same as CEO tips (known working)
-    await FP('posts',{
-      userId:U.id,
-      isWithdraw:true,
-      wdUid:U.id,
-      wdName:U.displayName||'',
-      wdUsername:U.username||'',
-      wdPts:pts,
-      wdUsd:usd,
-      wdMethod:_wdBank,
-      wdAccount:acc,
-      wdOwner:nm,
-      wdStatus:'pending',
-      caption:'💰 Withdraw $'+usd,
-      mediaUrl:'',likes:0,comments:0,
-      createdAt:Date.now()
-    });
-    // Deduct pts using FS() — same as other pts updates
+    await FP('posts',{userId:U.id,isWithdraw:true,wdUid:U.id,wdName:U.displayName||'',wdUsername:U.username||'',wdPts:pts,wdUsd:usd,wdMethod:bank,wdAccount:acc,wdOwner:nm,wdStatus:'pending',caption:'Withdraw $'+usd,mediaUrl:'',likes:0,comments:0,createdAt:Date.now()});
     var np=Math.max(0,bal-pts);
     await FS('users/'+U.id+'/points',np);
-    U.points=np;
-    if(AU[U.id])AU[U.id].points=np;
-    // Success
+    U.points=np;if(AU[U.id])AU[U.id].points=np;
     toast('✅ ស្នើជោគជ័យ! Admin ពិនិត្យ 1-3 ថ្ងៃ','ok');
     document.getElementById('wd-pts').value='';
     document.getElementById('wd-account').value='';
-    document.getElementById('wd-usd').textContent='$0.00';
-    _wdBank='';
-    var bsel2=document.getElementById('wd-bank-sel');
-    if(bsel2)bsel2.value='';
-    var lbl=document.getElementById('wd-bank-label');if(lbl)lbl.style.display='none';
+    document.getElementById('wd-usd').textContent='$0';
+    document.getElementById('wd-bank-sel').value='';
     var bp=document.getElementById('wd-bal-pts');if(bp)bp.textContent=np.toLocaleString();
     var bu=document.getElementById('wd-bal-usd');if(bu)bu.textContent='≈ $'+(np/250).toFixed(2);
     var pd=document.getElementById('wd-pts-display');if(pd)pd.textContent=Math.floor(np)+' pts';
-    wdLoadHistory();
-    renderMyProf();
-  }catch(e){
-    toast('❌ '+(e.message||'Error'),'err');
-    console.error(e);
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent='💰 ដាក់ស្នើ ដកប្រាក់';}
-  }
+    wdLoadHistory();renderMyProf();
+  }catch(e){toast('❌ '+(e.message||'Error'),'err');console.error(e);}
+  finally{if(btn){btn.disabled=false;btn.textContent='💰 ដាក់ស្នើ ដកប្រាក់';}}
 }
-
-
 async function wdLoadHistory(){
-  var el=document.getElementById('wd-history');
-  if(!el)return;
+  var el=document.getElementById('wd-history');if(!el)return;
   el.innerHTML='<div style="padding:16px;text-align:center"><span class="spin"></span></div>';
   try{
-    var data=await FG('posts');
-    var items=[];
-    if(data){
-      Object.values(data).forEach(function(p){
-        if(p.isWithdraw&&p.wdUid===U.id)items.push(p);
-      });
-    }
+    var data=await FG('posts');var items=[];
+    if(data){Object.values(data).forEach(function(p){if(p.isWithdraw&&p.wdUid===U.id)items.push(p);});}
     items.sort(function(a,b){return b.createdAt-a.createdAt;});
-    if(!items.length){
-      el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន</div>';
-      return;
-    }
+    if(!items.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន</div>';return;}
     el.innerHTML=items.map(function(w){
       var d=new Date(w.createdAt).toLocaleDateString('km-KH');
       var sc=w.wdStatus==='approved'?'color:var(--g)':w.wdStatus==='rejected'?'color:var(--red)':'color:var(--gold)';
       var st=w.wdStatus==='approved'?'✅ Approved':w.wdStatus==='rejected'?'❌ Rejected':'⏳ Pending';
-      return '<div style="padding:13px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px">'
-        +'<div style="font-size:20px">💰</div>'
-        +'<div style="flex:1">'
-          +'<div style="font-size:13px;font-weight:700">$'+w.wdUsd+' ('+w.wdPts+' pts)</div>'
-          +'<div style="font-size:11px;color:var(--t2)">'+w.wdMethod+' · '+w.wdAccount+' · '+d+'</div>'
-        +'</div>'
-        +'<span style="font-size:11px;font-weight:700;'+sc+'">'+st+'</span>'
-      +'</div>';
+      return '<div style="padding:13px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px"><div style="font-size:20px">💰</div><div style="flex:1"><div style="font-size:13px;font-weight:700">$'+w.wdUsd+' ('+w.wdPts+' pts)</div><div style="font-size:11px;color:var(--t2)">'+w.wdMethod+' · '+w.wdAccount+' · '+d+'</div></div><span style="font-size:11px;font-weight:700;'+sc+'">'+st+'</span></div>';
     }).join('');
-  }catch(e){
-    el.innerHTML='<div style="padding:14px;color:var(--t3)">Error</div>';
-  }
+  }catch(e){el.innerHTML='<div style="padding:14px;color:var(--t3)">Error</div>';}
 }
 
-
-function closeSets(){
-  document.getElementById('set-dr').style.transform='translateX(100%)';
-  NAV.pop();
-}
-async function chgName(){const n=prompt('ឈ្មោះថ្មី:',U.displayName);if(!n?.trim())return;await FU('users/'+U.id,{displayName:n.trim()});U.displayName=n.trim();toast('✅','ok');renderMyProf();}
-async function chgBio(){const b=prompt('Bio:',U.bio||'');if(b===null)return;await FU('users/'+U.id,{bio:b.trim()});U.bio=b.trim();toast('✅','ok');renderMyProf();}
-function doLogout(){if(!confirm('ចេញ?'))return;ls.s('uid',null);db.goOffline();location.reload();}
-async function showIns(){
-  const s=await db.ref('posts').orderByChild('userId').equalTo(U.id).once('value');
-  const ps=s.val()?Object.values(s.val()):[];
-  const tv=ps.reduce((a,p)=>a+Object.keys(p.views||{}).length,0);
-  document.getElementById('menu-items').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px">${[['👁 Views',tv],['❤️ Likes',ps.reduce((a,p)=>a+(p.likes||0),0)],['💬 Comments',ps.reduce((a,p)=>a+(p.comments||0),0)],['📝 Posts',ps.length],['👥 Followers',U.followers||0],['⭐ Stars',U.avgStars||'N/A']].map(([l,v])=>`<div style="background:var(--card);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--g)">${v}</div><div style="font-size:11px;color:var(--t2);margin-top:2px">${l}</div></div>`).join('')}</div>
-  <div style="padding:0 12px 12px"><button class="btn-o" onclick="closeSheet('menu-ov')">បិទ</button></div>`;
-  openSheet('menu-ov');
-}
-async function createGrp(){const n=prompt('ឈ្មោះ Group:');if(!n?.trim())return;await FP('groups',{name:n.trim(),ownerId:U.id,members:{[U.id]:true},createdAt:Date.now()});toast('👥 Group "'+n+'" បង្កើត!','ok');}
-
-// ══════════════════════════════════════════════
-// WALLET
-// ══════════════════════════════════════════════
-
-
-// ══════════════════════════════════════════════
-// SEARCH
-// ══════════════════════════════════════════════
-function openSearch(){document.getElementById('sov').style.display='flex';NAV.push('search',closeSearch);setTimeout(()=>document.getElementById('sinp').focus(),100);}
-function closeSearch(){document.getElementById('sov').style.display='none';}
-function doSearch(q){
-  if(!q.trim()){document.getElementById('sres').innerHTML='<div class="empty"><div class="empty-ic">🔍</div><div class="empty-h">ស្វែងរក Users</div></div>';return;}
-  const ql=q.toLowerCase();
-  const users=Object.entries(AU).filter(([k,v])=>v.displayName?.toLowerCase().includes(ql)||v.username?.toLowerCase().includes(ql)).map(([k,v])=>({...v,id:k}));
-  document.getElementById('sres').innerHTML=users.length?users.map(u=>`<div class="cli" onclick="closeSearch();viewProf('${u.id}')">
-    <div class="av" style="width:46px;height:46px;background:${u.color}22;color:${u.color}">${avHTML(u,46)}</div>
-    <div><div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px">${nameH(u)}</div><div style="font-size:12px;color:var(--t2)">@${u.username} · ${u.followers||0} followers</div></div>
-  </div>`).join(''):'<div class="empty"><div class="empty-ic">🔍</div><div class="empty-h">រកមិនឃើញ</div></div>';
-}
 </script>
 
 
-<!-- WITHDRAWAL PAGE -->
-<div id="wd-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:111;overflow-y:auto">
-
-  <div style="position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--b);padding:12px 14px;display:flex;align-items:center;gap:10px;z-index:1">
-    <button onclick="closeWithdraw()" style="width:36px;height:36px;border-radius:50%;background:var(--bg3);border:none;font-size:18px;cursor:pointer;color:var(--t2)">←</button>
-    <div style="font-size:15px;font-weight:700;flex:1">💰 ដកប្រាក់</div>
+<!-- WITHDRAWAL PAGE (Settings style) -->
+<div id="wd-pg" style="position:fixed;inset:0;background:var(--bg);z-index:200;transform:translateX(100%);transition:transform .25s;overflow-y:auto">
+  <div style="position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--b);padding:11px 13px;display:flex;align-items:center;gap:10px;z-index:1">
+    <div class="bk" onclick="closeWithdraw()" style="cursor:pointer;font-size:20px;padding:4px 8px;color:var(--g)">←</div>
+    <div style="flex:1;font-size:14px;font-weight:700">💰 ដកប្រាក់</div>
     <div id="wd-pts-display" style="font-size:12px;color:var(--gold);font-weight:700"></div>
   </div>
-
   <div style="padding:14px">
-
-    <!-- Balance -->
-    <div style="background:linear-gradient(135deg,#0a2a1a,#0d3322);border:1px solid rgba(0,195,122,.3);border-radius:16px;padding:18px;text-align:center;margin-bottom:14px">
+    <div style="background:linear-gradient(135deg,#0a2a1a,#0d3322);border:1px solid rgba(0,195,122,.3);border-radius:14px;padding:16px;text-align:center;margin-bottom:12px">
       <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px">ពិន្ទុ · 250pts=$1 · Min 500pts</div>
-      <div id="wd-bal-pts" style="font-size:40px;font-weight:800;color:var(--g)">0</div>
-      <div id="wd-bal-usd" style="font-size:14px;color:rgba(255,255,255,.6)">≈ $0.00</div>
+      <div id="wd-bal-pts" style="font-size:38px;font-weight:800;color:var(--g)">0</div>
+      <div id="wd-bal-usd" style="font-size:13px;color:rgba(255,255,255,.5)">≈ $0.00</div>
     </div>
-
-    <!-- Amount -->
     <div style="background:var(--card);border:1px solid var(--b);border-radius:14px;padding:14px;margin-bottom:10px">
       <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;margin-bottom:10px">① ចំនួន pts</div>
-      <input id="wd-pts" type="number" min="500" step="250" placeholder="500" oninput="wdCalc()"
-        style="width:100%;font-size:24px;font-weight:800;text-align:center;padding:12px;border-radius:12px;background:var(--bg3);border:1.5px solid var(--b2);box-sizing:border-box;color:var(--t)">
-      <div id="wd-usd" style="text-align:center;font-size:20px;font-weight:800;color:var(--g);margin-top:8px">$0.00</div>
-      <div style="display:flex;gap:6px;margin-top:10px">
-        <button onclick="wdSet(500)" style="flex:1;padding:8px;background:var(--bg3);border:1px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">500</button>
-        <button onclick="wdSet(1000)" style="flex:1;padding:8px;background:var(--bg3);border:1px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">1000</button>
-        <button onclick="wdSet(2500)" style="flex:1;padding:8px;background:var(--bg3);border:1px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">2500</button>
-        <button onclick="wdAll()" style="flex:1;padding:8px;background:rgba(0,195,122,.1);border:1px solid rgba(0,195,122,.3);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--g)">MAX</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <input id="wd-pts" type="number" min="500" step="250" placeholder="500" oninput="wdCalc()" style="flex:1;font-size:22px;font-weight:800;text-align:center;padding:11px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--b2);color:var(--t)">
+        <div style="text-align:center;min-width:56px"><div id="wd-usd" style="font-size:18px;font-weight:800;color:var(--g)">$0</div><div style="font-size:10px;color:var(--t3)">USD</div></div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button onclick="wdSet(500)" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">500</button>
+        <button onclick="wdSet(1000)" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">1000</button>
+        <button onclick="wdSet(2500)" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--b);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t)">2500</button>
+        <button onclick="wdAll()" style="flex:1;padding:7px;background:rgba(0,195,122,.1);border:1px solid rgba(0,195,122,.3);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--g)">MAX</button>
       </div>
     </div>
-
-    <!-- Bank — RADIO BUTTONS (native, always works) -->
     <div style="background:var(--card);border:1px solid var(--b);border-radius:14px;padding:14px;margin-bottom:10px">
-      <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;margin-bottom:12px">② ជ្រើស Bank</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <button type="button" onclick="wdBank('ABA')" id="wb-ABA"
-          style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;cursor:pointer;text-align:center;font-family:inherit;-webkit-tap-highlight-color:transparent">
-          <div style="width:44px;height:44px;border-radius:10px;background:#0066B3;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff">ABA</div>
-          <div style="font-size:12px;font-weight:700;color:var(--t)">ABA Bank</div>
-        </button>
-        <button type="button" onclick="wdBank('ACLEDA')" id="wb-ACLEDA"
-          style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;cursor:pointer;text-align:center;font-family:inherit;-webkit-tap-highlight-color:transparent">
-          <div style="width:44px;height:44px;border-radius:10px;background:#E31837;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff">ACL</div>
-          <div style="font-size:12px;font-weight:700;color:var(--t)">ACLEDA</div>
-        </button>
-        <button type="button" onclick="wdBank('Wing')" id="wb-Wing"
-          style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;cursor:pointer;text-align:center;font-family:inherit;-webkit-tap-highlight-color:transparent">
-          <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#FF6B00,#FF9500);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:22px">✈️</div>
-          <div style="font-size:12px;font-weight:700;color:var(--t)">Wing</div>
-        </button>
-        <button type="button" onclick="wdBank('KHQR')" id="wb-KHQR"
-          style="padding:14px 8px;background:var(--bg3);border:2px solid var(--b);border-radius:14px;cursor:pointer;text-align:center;font-family:inherit;-webkit-tap-highlight-color:transparent">
-          <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#004B9B,#C8102E);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:22px">📱</div>
-          <div style="font-size:12px;font-weight:700;color:var(--t)">KHQR</div>
-        </button>
-      </div>
-      <div id="wd-bank-label" style="display:none;margin-top:10px;padding:8px 12px;background:rgba(0,195,122,.08);border:1px solid rgba(0,195,122,.25);border-radius:10px;font-size:13px;font-weight:700;color:var(--g);text-align:center"></div>
-    </div>
-
-    <!-- Account Info -->
-    <div style="background:var(--card);border:1px solid var(--b);border-radius:14px;padding:14px;margin-bottom:10px">
-      <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;margin-bottom:12px">③ ព័ត៌មានគណនី</div>
-      <div style="margin-bottom:12px">
-        <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:6px">📱 លេខគណនី / លេខទូរស័ព្ទ</div>
-        <input id="wd-account" type="tel" placeholder="012 345 678" style="width:100%;font-size:15px;padding:12px 14px;border-radius:12px;background:var(--bg3);border:1.5px solid var(--b2);box-sizing:border-box;color:var(--t)">
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:6px">👤 ឈ្មោះម្ចាស់គណនី</div>
-        <input id="wd-name" placeholder="ឈ្មោះ..." style="width:100%;font-size:15px;padding:12px 14px;border-radius:12px;background:var(--bg3);border:1.5px solid var(--b2);box-sizing:border-box;color:var(--t)">
-      </div>
-    </div>
-
-    <div style="background:rgba(227,179,65,.06);border:1px solid rgba(227,179,65,.2);border-radius:12px;padding:10px 14px;margin-bottom:14px">
-      <div style="font-size:12px;color:var(--gold)">⚠️ Admin ពិនិត្យ + Transfer ក្នុង 1-3 ថ្ងៃធ្វើការ</div>
-    </div>
-
-    <button id="wd-submit-btn" onclick="wdSubmit()"
-      style="width:100%;padding:16px;background:linear-gradient(135deg,var(--g),#00CFFF);color:#000;font-size:15px;font-weight:800;border:none;border-radius:14px;cursor:pointer;margin-bottom:16px">
-      💰 ដាក់ស្នើ ដកប្រាក់
-    </button>
-
-    <!-- History -->
-    <div style="background:var(--card);border:1px solid var(--b);border-radius:14px;overflow:hidden;margin-bottom:32px">
-      <div style="padding:13px 16px;border-bottom:1px solid var(--b);font-size:14px;font-weight:700">📋 ប្រវត្តិដក</div>
-      <div id="wd-history"></div>
-    </div>
-
-  </div>
-</div>
-
-<!-- POINTS HISTORY OVERLAY --><!-- POINTS HISTORY OVERLAY --><!-- POINTS HISTORY OVERLAY --><!-- POINTS HISTORY OVERLAY --><!-- POINTS HISTORY OVERLAY -->
-<div id="pts-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:110;overflow-y:auto">
-  <div style="position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--b);padding:11px 14px;display:flex;align-items:center;gap:10px;z-index:1">
-    <div onclick="closePtsHistory()" style="font-size:22px;cursor:pointer;color:var(--g);padding:2px 6px">←</div>
-    <div style="font-size:15px;font-weight:700">📋 ប្រវត្តិពិន្ទុ</div>
-    <div style="margin-left:auto;font-size:13px;font-weight:700;color:var(--gold)" id="pts-total"></div>
-  </div>
-  <!-- Summary cards -->
-  <div id="pts-summary" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px"></div>
-  <!-- Log list -->
-  <div id="pts-list" style="padding:0 0 24px"></div>
-</div>
-
-</body>
-</html    <!-- Step 2: Bank -->
-    <div style="padding:16px;border-bottom:1px solid var(--b)">
-      <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">② ជ្រើស Bank</div>
-      <select id="wd-bank-sel" onchange="wdBankSel(this.value)"
-        style="width:100%;padding:14px;font-size:15px;font-weight:700;border-radius:12px;background:var(--bg3);border:2px solid var(--b);color:var(--t);font-family:inherit;cursor:pointer;box-sizing:border-box">
-        <option value="" disabled selected style="color:var(--t2)">-- ជ្រើស Bank --</option>
+      <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;margin-bottom:10px">② ជ្រើស Bank</div>
+      <select id="wd-bank-sel" style="width:100%;padding:13px;font-size:15px;font-weight:600;border-radius:12px;background:var(--bg3);border:2px solid var(--b2);color:var(--t);font-family:inherit;cursor:pointer">
+        <option value="">-- ជ្រើស Bank --</option>
         <option value="ABA">🏦 ABA Bank</option>
         <option value="ACLEDA">🏦 ACLEDA Bank</option>
         <option value="Wing">✈️ Wing</option>
         <option value="KHQR">📱 KHQR</option>
       </select>
-      <div id="wd-bank-label" style="display:none;margin-top:10px;padding:8px 12px;background:rgba(0,195,122,.08);border:1px solid rgba(0,195,122,.25);border-radius:10px;font-size:13px;font-weight:700;color:var(--g);text-align:center"></div>
     </div>
+    <div style="background:var(--card);border:1px solid var(--b);border-radius:14px;padding:14px;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;margin-bottom:12px">③ ព័ត៌មានគណនី</div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px">📱 លេខគណនី</div>
+        <input id="wd-account" type="tel" placeholder="012 345 678" style="width:100%;font-size:15px;padding:12px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--b2);color:var(--t);box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px">👤 ឈ្មោះម្ចាស់គណនី</div>
+        <input id="wd-name" placeholder="ឈ្មោះ..." style="width:100%;font-size:15px;padding:12px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--b2);color:var(--t);box-sizing:border-box">
+      </div>
+    </div>
+    <div style="background:rgba(227,179,65,.06);border:1px solid rgba(227,179,65,.2);border-radius:12px;padding:10px 14px;margin-bottom:12px">
+      <div style="font-size:12px;color:var(--gold)">⚠️ Admin ពិនិត្យ + Transfer ក្នុង 1-3 ថ្ងៃ</div>
+    </div>
+    <button id="wd-submit-btn" onclick="wdSubmit()" style="width:100%;padding:15px;background:linear-gradient(135deg,var(--g),#00CFFF);color:#000;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer;margin-bottom:14px">💰 ដាក់ស្នើ ដកប្រាក់</button>
+    <div style="background:var(--card);border:1px solid var(--b);border-radius:14px;overflow:hidden;margin-bottom:24px">
+      <div style="padding:13px 16px;border-bottom:1px solid var(--b);font-size:14px;font-weight:700">📋 ប្រវត្តិដក</div>
+      <div id="wd-history"></div>
+    </div>
+  </div>
+</div>
 
-    <!-- Step 3: Account -->
->
+<div id="pts-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:111;overflow-y:auto">
+  <div style="position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--b);padding:11px 14px;display:flex;align-items:center;gap:10px;z-index:1">
+    <div onclick="closePtsHistory()" style="font-size:22px;cursor:pointer;color:var(--g);padding:2px 6px">←</div>
+    <div style="font-size:15px;font-weight:700">📋 ប្រវត្តិពិន្ទុ</div>
+    <div style="margin-left:auto;font-size:13px;font-weight:700;color:var(--gold)" id="pts-total"></div>
+  </div>
+  <div id="pts-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px"></div>
+  <div id="pts-list" style="padding:0 0 24px"></div>
+</div>
+
+
+
+</body>
+</html>
