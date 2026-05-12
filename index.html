@@ -2498,7 +2498,8 @@ function openWithdraw(){
   NAV.push('wd',closeWithdraw);
   const pts=Math.floor(U.points||0);
   document.getElementById('wd-pts-display').textContent=pts+' pts';
-  document.getElementById('wd-avail-pts').textContent=pts+' pts';
+  document.getElementById('wd-avail-pts').textContent=pts.toLocaleString();
+  document.getElementById('wd-usd-bal').textContent='$'+(pts/250).toFixed(2);
   document.getElementById('wd-pts').value='';
   document.getElementById('wd-usd').textContent='= $0.00';
   document.getElementById('wd-account').value='';
@@ -2513,13 +2514,31 @@ function closeWithdraw(){
 function calcWdAmount(){
   const pts=parseInt(document.getElementById('wd-pts').value)||0;
   const usd=(pts/250).toFixed(2);
-  document.getElementById('wd-usd').textContent='= $'+usd;
+  document.getElementById('wd-usd').textContent='$'+usd;
+}
+function setWdAmt(n){
+  document.getElementById('wd-pts').value=n;
+  calcWdAmount();
+}
+function setWdAll(){
+  const pts=Math.floor(U.points||0);
+  const rounded=Math.floor(pts/250)*250;
+  document.getElementById('wd-pts').value=rounded;
+  calcWdAmount();
 }
 function selWdMethod(method,el){
   _wdMethod=method;
   document.getElementById('wd-method').value=method;
-  document.querySelectorAll('#wd-method-btns div').forEach(d=>d.style.borderColor='var(--b)');
+  document.querySelectorAll('#wd-method-btns [onclick]').forEach(d=>{
+    d.style.borderColor='var(--b)';
+    d.style.background='var(--bg3)';
+  });
   el.style.borderColor='var(--g)';
+  el.style.background='rgba(0,195,122,.05)';
+  const lbl=document.getElementById('wd-sel-label');
+  const nm=document.getElementById('wd-sel-name');
+  if(lbl)lbl.style.display='block';
+  if(nm)nm.textContent=method;
 }
 async function submitWithdraw(){
   const pts=parseInt(document.getElementById('wd-pts').value)||0;
@@ -2620,91 +2639,190 @@ function doSearch(q){
 
 <!-- WITHDRAWAL OVERLAY -->
 <div id="wd-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:111;overflow-y:auto">
+
+  <!-- Header -->
   <div style="position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--b);
-    padding:11px 14px;display:flex;align-items:center;gap:10px;z-index:1">
-    <div onclick="closeWithdraw()" style="font-size:22px;cursor:pointer;color:var(--g);padding:2px 8px">←</div>
-    <div style="font-size:15px;font-weight:700">💰 ដកប្រាក់</div>
-    <div style="margin-left:auto;font-size:12px;color:var(--gold);font-weight:700" id="wd-pts-display"></div>
+    padding:12px 14px;display:flex;align-items:center;gap:10px;z-index:1">
+    <div onclick="closeWithdraw()" style="width:36px;height:36px;border-radius:50%;
+      background:var(--bg3);display:flex;align-items:center;justify-content:center;
+      font-size:18px;cursor:pointer;color:var(--t2)">←</div>
+    <div style="font-size:15px;font-weight:700;flex:1">💰 ដកប្រាក់</div>
+    <div style="font-size:12px;color:var(--gold);font-weight:700" id="wd-pts-display"></div>
   </div>
 
-  <!-- Rate info -->
-  <div style="margin:14px 14px 0;background:linear-gradient(135deg,rgba(0,195,122,.1),rgba(0,195,122,.05));
-    border:1px solid rgba(0,195,122,.25);border-radius:14px;padding:14px">
-    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-      <span style="font-size:13px;color:var(--t2)">អត្រាប្ដូរ</span>
-      <span style="font-size:13px;font-weight:700">250 pts = $1 USD</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-      <span style="font-size:13px;color:var(--t2)">ដកអប្បបរមា</span>
-      <span style="font-size:13px;font-weight:700;color:var(--g)">500 pts = $2</span>
-    </div>
-    <div style="display:flex;justify-content:space-between">
-      <span style="font-size:13px;color:var(--t2)">ពិន្ទុអ្នក</span>
-      <span id="wd-avail-pts" style="font-size:13px;font-weight:800;color:var(--gold)">— pts</span>
+  <!-- Balance Card -->
+  <div style="margin:14px;background:linear-gradient(135deg,#0a2a1a,#0d3322);
+    border:1px solid rgba(0,195,122,.3);border-radius:16px;padding:18px;text-align:center">
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">ពិន្ទុអ្នក</div>
+    <div id="wd-avail-pts" style="font-size:42px;font-weight:800;color:var(--g);line-height:1">0</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.5);margin-top:4px">pts</div>
+    <div style="display:flex;justify-content:center;gap:20px;margin-top:12px;
+      padding-top:12px;border-top:1px solid rgba(255,255,255,.1)">
+      <div style="text-align:center">
+        <div style="font-size:11px;color:rgba(255,255,255,.5)">250 pts</div>
+        <div style="font-size:13px;font-weight:700;color:#fff">= $1</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:rgba(255,255,255,.5)">អប្បបរមា</div>
+        <div style="font-size:13px;font-weight:700;color:var(--g)">500 pts</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:rgba(255,255,255,.5)">ប្រហែល</div>
+        <div id="wd-usd-bal" style="font-size:13px;font-weight:700;color:#fff">$0</div>
+      </div>
     </div>
   </div>
 
-  <!-- Withdraw Form -->
-  <div style="margin:14px;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:16px">
-    <div style="font-size:14px;font-weight:700;margin-bottom:14px">📝 សំណើដក</div>
+  <!-- Withdraw Form Card -->
+  <div style="margin:0 14px 14px;background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden">
 
-    <div style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase">ចំនួន pts ចង់ដក</div>
-      <input id="wd-pts" type="number" min="500" step="250" placeholder="500"
-        style="font-size:16px;font-weight:700;text-align:center"
-        oninput="calcWdAmount()">
-      <div id="wd-usd" style="text-align:center;font-size:13px;color:var(--g);margin-top:6px;font-weight:600">= $0.00</div>
-    </div>
-
-    <div style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase">វិធីទូទាត់</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="wd-method-btns">
-        <div onclick="selWdMethod('ABA',this)" data-method="ABA"
-          style="padding:10px;background:var(--bg3);border:2px solid var(--b);border-radius:10px;text-align:center;cursor:pointer;transition:border .15s">
-          <div style="font-size:18px">🏦</div><div style="font-size:12px;font-weight:600;margin-top:4px">ABA Bank</div>
-        </div>
-        <div onclick="selWdMethod('ACLEDA',this)" data-method="ACLEDA"
-          style="padding:10px;background:var(--bg3);border:2px solid var(--b);border-radius:10px;text-align:center;cursor:pointer;transition:border .15s">
-          <div style="font-size:18px">🏦</div><div style="font-size:12px;font-weight:600;margin-top:4px">ACLEDA</div>
-        </div>
-        <div onclick="selWdMethod('KHQR',this)" data-method="KHQR"
-          style="padding:10px;background:var(--bg3);border:2px solid var(--b);border-radius:10px;text-align:center;cursor:pointer;transition:border .15s">
-          <div style="font-size:18px">📱</div><div style="font-size:12px;font-weight:600;margin-top:4px">KHQR</div>
-        </div>
-        <div onclick="selWdMethod('Wing',this)" data-method="Wing"
-          style="padding:10px;background:var(--bg3);border:2px solid var(--b);border-radius:10px;text-align:center;cursor:pointer;transition:border .15s">
-          <div style="font-size:18px">✈️</div><div style="font-size:12px;font-weight:600;margin-top:4px">Wing</div>
+    <!-- Amount -->
+    <div style="padding:16px 16px 12px;border-bottom:1px solid var(--b)">
+      <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;
+        letter-spacing:.6px;margin-bottom:10px">💎 ចំនួន pts</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input id="wd-pts" type="number" min="500" step="250" placeholder="500"
+          oninput="calcWdAmount()"
+          style="flex:1;font-size:22px;font-weight:800;text-align:center;
+          padding:12px;border-radius:12px;background:var(--bg3)">
+        <div style="text-align:center;min-width:70px">
+          <div id="wd-usd" style="font-size:18px;font-weight:800;color:var(--g)">$0.00</div>
+          <div style="font-size:10px;color:var(--t3)">USD</div>
         </div>
       </div>
+      <!-- Quick amount chips -->
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <div onclick="setWdAmt(500)" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--b);
+          border-radius:20px;text-align:center;cursor:pointer;font-size:12px;font-weight:600">500</div>
+        <div onclick="setWdAmt(1000)" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--b);
+          border-radius:20px;text-align:center;cursor:pointer;font-size:12px;font-weight:600">1000</div>
+        <div onclick="setWdAmt(2500)" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--b);
+          border-radius:20px;text-align:center;cursor:pointer;font-size:12px;font-weight:600">2500</div>
+        <div id="wd-all-btn" onclick="setWdAll()" style="flex:1;padding:7px;background:rgba(0,195,122,.1);
+          border:1px solid rgba(0,195,122,.3);border-radius:20px;text-align:center;
+          cursor:pointer;font-size:12px;font-weight:600;color:var(--g)">ទាំងអស់</div>
+      </div>
+    </div>
+
+    <!-- Payment Method -->
+    <div style="padding:16px;border-bottom:1px solid var(--b)">
+      <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;
+        letter-spacing:.6px;margin-bottom:12px">🏦 វិធីទូទាត់</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="wd-method-btns">
+
+        <!-- ABA -->
+        <div onclick="selWdMethod('ABA',this)"
+          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);
+          border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
+          <div style="width:48px;height:48px;border-radius:12px;background:#0066B3;
+            display:flex;align-items:center;justify-content:center;margin:0 auto 8px;
+            font-size:22px;font-weight:900;color:#fff;letter-spacing:-1px">ABA</div>
+          <div style="font-size:12px;font-weight:700">ABA Bank</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:2px">ផ្ទេរភ្លាម</div>
+        </div>
+
+        <!-- ACLEDA -->
+        <div onclick="selWdMethod('ACLEDA',this)"
+          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);
+          border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
+          <div style="width:48px;height:48px;border-radius:12px;background:#E31837;
+            display:flex;align-items:center;justify-content:center;margin:0 auto 8px;
+            font-size:11px;font-weight:900;color:#fff;letter-spacing:-.5px">ACL</div>
+          <div style="font-size:12px;font-weight:700">ACLEDA</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:2px">ផ្ទេរភ្លាម</div>
+        </div>
+
+        <!-- Wing -->
+        <div onclick="selWdMethod('Wing',this)"
+          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);
+          border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
+          <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#FF6B00,#FF9500);
+            display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:22px">✈️</div>
+          <div style="font-size:12px;font-weight:700">Wing</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:2px">លេខ Wing</div>
+        </div>
+
+        <!-- KHQR -->
+        <div onclick="selWdMethod('KHQR',this)"
+          style="padding:14px 10px;background:var(--bg3);border:2px solid var(--b);
+          border-radius:14px;text-align:center;cursor:pointer;transition:all .2s">
+          <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#004B9B,#C8102E);
+            display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:22px">📱</div>
+          <div style="font-size:12px;font-weight:700">KHQR</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:2px">ស្កែន QR</div>
+        </div>
+
+      </div>
       <input type="hidden" id="wd-method" value="">
+      <!-- Selected method indicator -->
+      <div id="wd-sel-label" style="display:none;margin-top:10px;padding:8px 12px;
+        background:rgba(0,195,122,.08);border:1px solid rgba(0,195,122,.2);
+        border-radius:10px;font-size:12px;font-weight:600;color:var(--g);text-align:center">
+        ✅ ជ្រើស: <span id="wd-sel-name"></span>
+      </div>
     </div>
 
-    <div style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase">លេខគណនី / លេខទូរស័ព្ទ</div>
-      <input id="wd-account" placeholder="012 345 678 ឬ លេខ ABA..."
-        style="font-size:14px">
+    <!-- Account Info -->
+    <div style="padding:16px;border-bottom:1px solid var(--b)">
+      <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;
+        letter-spacing:.6px;margin-bottom:12px">📋 ព័ត៌មានគណនី</div>
+
+      <!-- Account number -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:7px;
+          display:flex;align-items:center;gap:6px">
+          <span style="width:24px;height:24px;background:rgba(0,195,122,.1);border-radius:50%;
+            display:inline-flex;align-items:center;justify-content:center;font-size:12px">📱</span>
+          លេខគណនី / លេខទូរស័ព្ទ
+        </div>
+        <input id="wd-account" type="tel" placeholder="012 345 678"
+          style="padding:13px 14px;border-radius:12px;font-size:15px;letter-spacing:.5px">
+      </div>
+
+      <!-- Account name -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:7px;
+          display:flex;align-items:center;gap:6px">
+          <span style="width:24px;height:24px;background:rgba(75,139,255,.1);border-radius:50%;
+            display:inline-flex;align-items:center;justify-content:center;font-size:12px">👤</span>
+          ឈ្មោះម្ចាស់គណនី (ខ្មែរ)
+        </div>
+        <input id="wd-name" placeholder="ឈ្មោះពេញ..."
+          style="padding:13px 14px;border-radius:12px;font-size:15px">
+      </div>
     </div>
 
-    <div style="margin-bottom:16px">
-      <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase">ឈ្មោះម្ចាស់គណនី</div>
-      <input id="wd-name" placeholder="ឈ្មោះ..." style="font-size:14px">
+    <!-- Note -->
+    <div style="padding:12px 16px;border-bottom:1px solid var(--b);
+      background:rgba(227,179,65,.05)">
+      <div style="font-size:12px;color:var(--gold);line-height:1.7">
+        ⚠️ Admin និង Review + Transfer ក្នុង 1-3 ថ្ងៃធ្វើការ<br>
+        💡 pts ត្រូវដកចេញភ្លាម ពេលដាក់ស្នើ
+      </div>
     </div>
 
-    <button onclick="submitWithdraw()" id="wd-submit-btn"
-      style="width:100%;padding:14px;background:linear-gradient(135deg,var(--g),#00CFFF);
-      color:#000;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">
-      💰 ដកប្រាក់
-    </button>
+    <!-- Submit -->
+    <div style="padding:14px 16px">
+      <button onclick="submitWithdraw()" id="wd-submit-btn"
+        style="width:100%;padding:15px;background:linear-gradient(135deg,var(--g),#00CFFF);
+        color:#000;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer;
+        transition:transform .1s">
+        💰 ដាក់ស្នើ ដកប្រាក់
+      </button>
+    </div>
   </div>
 
   <!-- History -->
-  <div style="margin:0 14px 24px;background:var(--card);border:1px solid var(--b);border-radius:14px;overflow:hidden">
-    <div style="padding:13px 16px;border-bottom:1px solid var(--b);font-size:14px;font-weight:700">📋 ប្រវត្តិដក</div>
+  <div style="margin:0 14px 32px;background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden">
+    <div style="padding:13px 16px;border-bottom:1px solid var(--b);
+      font-size:14px;font-weight:700">📋 ប្រវត្តិដក</div>
     <div id="wd-history"></div>
   </div>
 </div>
 
-<!-- POINTS HISTORY OVERLAY -->
+<!-- POINTS HISTORY OVERLAY --><!-- POINTS HISTORY OVERLAY -->
 <div id="pts-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:110;overflow-y:auto">
   <div style="position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--b);padding:11px 14px;display:flex;align-items:center;gap:10px;z-index:1">
     <div onclick="closePtsHistory()" style="font-size:22px;cursor:pointer;color:var(--g);padding:2px 6px">←</div>
