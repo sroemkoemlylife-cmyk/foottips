@@ -1004,8 +1004,8 @@ function initPTR(){
     if(tx)tx.textContent='Refreshing...';
     Promise.all([db.ref('posts').limitToLast(60).once('value'),db.ref('users').once('value')])
     .then(([ps,us])=>{
-      AU=us.val()||AU;const d=ps.val();if(d)allPosts=d;
-      renderFeed(allPosts);renderLead(AU);
+      AU=us.val()||AU;const d=ps.val();if(d){allPosts={};Object.assign(allPosts,d);}
+      renderFeed(allPosts);if(typeof renderLead==='function')renderLead(AU);
       if(ic)ic.innerHTML='✓';if(tx)tx.textContent='Refresh ហើយ!';
       setTimeout(()=>{reset();setTimeout(()=>busy=false,250);},900);
     }).catch(()=>{reset();busy=false;});
