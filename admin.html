@@ -491,21 +491,6 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
     </div>
   </div>
 
-  <!-- POINTS LOG -->
-  <div class="pg" id="pg-ptslog">
-    <div class="card">
-      <div class="ch">
-        <div class="ct">📋 Points History</div>
-        <input id="pts-uid-inp" placeholder="ស្វែងរក Username..." oninput="searchPtsUser(this.value)" style="width:180px;font-size:12px;padding:6px 10px">
-      </div>
-      <div id="pts-user-result" style="padding:12px 16px;border-bottom:1px solid var(--b);display:none">
-        <div id="pts-user-info"></div>
-      </div>
-      <div id="pts-admin-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px;border-bottom:1px solid var(--b)"></div>
-      <div id="pts-admin-list"><div style="padding:20px;text-align:center;color:var(--t3)">ជ្រើស User ដើម្បីមើល Points Log</div></div>
-    </div>
-  </div>
-
   <!-- WITHDRAWALS -->
   <div class="pg" id="pg-withdraw">
     <div class="card">
@@ -525,21 +510,6 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
   <!-- PREDICTION MATCHES -->
   
   <!-- LEADERBOARD -->
-  <!-- POINTS LOG -->
-  <div class="pg" id="pg-ptslog">
-    <div class="card">
-      <div class="ch">
-        <div class="ct">📋 Points History</div>
-        <input id="pts-uid-inp" placeholder="ស្វែងរក Username..." oninput="searchPtsUser(this.value)" style="width:180px;font-size:12px;padding:6px 10px">
-      </div>
-      <div id="pts-user-result" style="padding:12px 16px;border-bottom:1px solid var(--b);display:none">
-        <div id="pts-user-info"></div>
-      </div>
-      <div id="pts-admin-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px;border-bottom:1px solid var(--b)"></div>
-      <div id="pts-admin-list"><div style="padding:20px;text-align:center;color:var(--t3)">ជ្រើស User ដើម្បីមើល Points Log</div></div>
-    </div>
-  </div>
-
   <!-- WITHDRAWALS -->
   <div class="pg" id="pg-withdraw">
     <div class="card">
@@ -691,8 +661,7 @@ border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;vertica
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js">
-//</script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script>
 // ══ FIREBASE ══
 firebase.initializeApp({
@@ -720,8 +689,6 @@ function toast(m,ok=true){
   document.getElementById('toasts').appendChild(d);
   setTimeout(()=>d.remove(),3000);
 }
-const tok=m=>toast(m,true);
-const terr=m=>toast(m,false);
 
 // ══ AUTH ══
 function doLogin(){
@@ -759,9 +726,6 @@ function goTab(id,el){
   if(id==='users')renderUsers();
   if(id==='lead')renderLead();
   if(id==='promo')initPromoPage();
-  if(id==='ptslog')resetPtsLog();
-  if(id==='withdraw')loadWithdrawals();
-  if(id==='pred')pmLoad();
   if(id==='ptslog')resetPtsLog();
   if(id==='withdraw')loadWithdrawals();
   if(id==='pred'){pmLoad();}
@@ -1452,234 +1416,176 @@ async function loadPtsLog(uid){
   const u=AU[uid]||{};
   document.getElementById('pts-admin-list').innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
 
-  const snap=await db.ref('users/'+uid+'/plog').once('value');
-  const logs=snap.val();
-
+  const logs=await FG('users/'+uid+'/plog');
   if(!logs){
-    document.getElementById('pts-admin-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">😶 មិនទាន់មាន Points Log</div>';
+    document.getElementById('pts-admin-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មាន Points Log</div>';
     return;
   }
   const entries=Object.values(logs).sort((a,b)=>b.ts-a.ts);
 
   // Summary
-  const SRC={like:'❤️',comment:'💬',prediction:'🎯',tip:'✅',referral:'👥',withdraw:'💰',other:'⭐'};
-  const COL={like:'var(--red)',comment:'var(--blue)',prediction:'var(--g)',tip:'var(--g)',referral:'var(--gold)',withdraw:'var(--red)',other:'var(--t2)'};
-  const totals={};
-  entries.forEach(e=>{const s=e.source||'other';totals[s]=(totals[s]||0)+(e.pts||0);});
-
+  const sum={like:0,comment:0,prediction:0,referral:0,tip:0,other:0};
+  entries.forEach(e=>{const s=e.source||'other';sum[s]=(sum[s]||0)+(e.pts||0);});
+  const cols={like:'var(--red)',comment:'var(--blue)',prediction:'var(--g)',referral:'var(--gold)',tip:'#00C37A',other:'var(--t2)'};
+  const ics={like:'❤️',comment:'💬',prediction:'🎯',referral:'👥',tip:'✅',other:'⭐'};
   document.getElementById('pts-admin-summary').innerHTML=
-    Object.entries(totals).map(([k,v])=>
+    Object.entries(sum).map(([k,v])=>
       '<div style="background:var(--bg3);border-radius:10px;padding:10px;text-align:center">'
-        +'<div style="font-size:16px">'+(SRC[k]||'⭐')+'</div>'
-        +'<div style="font-size:13px;font-weight:800;color:'+(COL[k]||'var(--t2)')+'">'+v.toFixed(1)+'</div>'
-        +'<div style="font-size:10px;color:var(--t2)">'+k+'</div>'
+      +'<div style="font-size:16px">'+(ics[k]||'⭐')+'</div>'
+      +'<div style="font-size:13px;font-weight:800;color:'+(cols[k]||'var(--t2)')+'">'+v.toFixed(1)+'</div>'
+      +'<div style="font-size:10px;color:var(--t2)">'+k+'</div>'
       +'</div>'
     ).join('');
 
+  // List
   document.getElementById('pts-admin-list').innerHTML=
     '<div style="padding:0 4px">'
     +'<div style="padding:10px 12px;font-size:12px;color:var(--t2);border-bottom:1px solid var(--b)">'
-      +entries.length+' entries · '+Math.floor(u.points||0)+' pts total'
+      +'Total '+(entries.length)+' entries · '+Math.floor(u.points||0)+' pts total'
     +'</div>'
     +entries.map(e=>{
-      const s=e.source||'other';
-      const d=new Date(e.ts).toLocaleString('km-KH');
-      const pts=e.pts||0;
+      const d=new Date(e.ts);
       return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--b)">'
-        +'<div style="font-size:18px">'+(SRC[s]||'⭐')+'</div>'
-        +'<div style="flex:1">'
-          +'<div style="font-size:13px;font-weight:600">'+(e.desc||s)+'</div>'
-          +'<div style="font-size:11px;color:var(--t2)">'+d+'</div>'
+        +'<div style="font-size:18px">'+(ics[e.source]||'⭐')+'</div>'
+        +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:13px;font-weight:600">'+(e.desc||e.source||'—')+'</div>'
+          +'<div style="font-size:11px;color:var(--t2)">'+d.toLocaleString('km-KH')+'</div>'
         +'</div>'
-        +'<div style="font-size:14px;font-weight:800;color:'+(pts>=0?'var(--g)':'var(--red)')+'">'+(pts>=0?'+':'')+pts.toFixed(1)+'</div>'
+        +'<div style="font-size:14px;font-weight:800;color:var(--g)">+'+(e.pts||0).toFixed(1)+'</div>'
       +'</div>';
     }).join('')
     +'</div>';
 }
 
-// ── loadLivePromo ──
-async function loadLivePromo(){
-  const el=document.getElementById('p-live');
-  if(!el)return;
-  el.innerHTML='Loading...';
-  try{
-    const snap=await db.ref('posts').orderByChild('isPromo').equalTo(true).limitToLast(1).once('value');
-    const data=snap.val();
-    const p=data?Object.values(data)[0]:null;
-    if(!p){el.innerHTML='<div style="color:var(--t3)">⭕ គ្មាន Promo Active</div>';return;}
-    el.innerHTML=
-      '<div style="background:linear-gradient(135deg,#0D1B2A,#1B2838);border-radius:12px;padding:14px;border:1px solid rgba(255,160,0,.25)">'
-      +'<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">'+(p.linkTitle||p.caption||'—')+'</div>'
-      +(p.linkDesc?'<div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:8px">'+p.linkDesc+'</div>':'')
-      +'<div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:10px">'+(p.linkUrl||'')+'</div>'
-      +'<span class="badge bg">✅ Active</span>'
-      +'</div>';
-    const ue=document.getElementById('p-url');const te=document.getElementById('p-title');const de=document.getElementById('p-desc');
-    if(ue&&!ue.value)ue.value=p.linkUrl||'';
-    if(te&&!te.value)te.value=p.linkTitle||p.caption||'';
-    if(de&&!de.value)de.value=p.linkDesc||'';
-    pPreview();
-  }catch(e){el.innerHTML='<span style="color:var(--red)">❌ '+e.message+'</span>';}
-}
-
-// ── approveWd / rejectWd ──
-async function approveWd(postId,uid,usd,pts){
-  if(!confirm('Approve $'+usd+'?'))return;
-  await FU('posts/'+postId,{wdStatus:'approved',wdApprovedAt:Date.now()});
-  if(uid)await db.ref('users/'+uid+'/plog').push({pts:0,source:'withdraw_approved',desc:'✅ ការដក $'+usd+' Approved',ts:Date.now()});
-  tok('✅ Approved $'+usd);loadWithdrawals();
-}
-async function rejectWd(postId,uid,pts){
-  const reason=prompt('មូលហេតុ (optional):','');
-  await FU('posts/'+postId,{wdStatus:'rejected',wdRejectedAt:Date.now(),wdNote:reason||''});
-  if(uid&&pts){
-    const cur=(await FG('users/'+uid+'/points'))||0;
-    await FS('users/'+uid+'/points',cur+parseInt(pts));
-    await db.ref('users/'+uid+'/plog').push({pts:parseInt(pts),source:'withdraw_rejected',desc:'↩️ ដក Rejected — '+pts+' pts refunded',ts:Date.now()});
-  }
-  tok('❌ Rejected + '+pts+' pts refunded');loadWithdrawals();
-}
-
-// ── pmSetStatus / pmSetWinner / pmDelete ──
-async function pmSetStatus(id,status){
-  await db.ref('matches/'+id+'/status').set(status);
-  tok(status==='closed'?'🔒 Closed!':'✅ Updated');
-}
-async function pmSetWinner(matchId,winner,pts){
-  if(!confirm('Winner: '+winner+'?'))return;
-  const snap=await db.ref('matches/'+matchId+'/predictions').once('value');
-  const preds=snap.val()||{};let count=0;
-  for(const [uid,pick] of Object.entries(preds)){
-    if(pick===winner){
-      const cur=(await FG('users/'+uid+'/points'))||0;
-      await FS('users/'+uid+'/points',cur+pts);
-      await db.ref('users/'+uid+'/plog').push({pts,source:'prediction',desc:'🎯 ទស្សន៍ទាយត្រឹម: '+winner,ts:Date.now()});
-      count++;
-    }
-  }
-  await db.ref('matches/'+matchId).update({status:'done',result:winner,settledAt:Date.now()});
-  tok('✅ '+count+' Users ទទួល '+pts+' pts!');
-}
-async function pmDelete(id){
-  if(!confirm('Delete?'))return;
-  await db.ref('matches/'+id).remove();
-  tok('🗑 Deleted');
-}
-
-// ── resetPtsLog ──
 function resetPtsLog(){
   const el=document.getElementById('pts-admin-list');
   if(el)el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">ជ្រើស User ដើម្បីមើល Points Log</div>';
-  const ur=document.getElementById('pts-user-result');if(ur)ur.style.display='none';
-  const inp=document.getElementById('pts-uid-inp');if(inp)inp.value='';
-  const sum=document.getElementById('pts-admin-summary');if(sum)sum.innerHTML='';
+  const ur=document.getElementById('pts-user-result');
+  if(ur)ur.style.display='none';
+  const inp=document.getElementById('pts-uid-inp');
+  if(inp)inp.value='';
 }
 
-
-// ══ LEADERBOARD ══
-function renderLead(){
-  const el=document.getElementById('lead-list');
+// ══ WITHDRAWALS ══
+async function loadWithdrawals(){
+  const el=document.getElementById('wd-admin-list');
   if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
-  const users=Object.entries(AU).map(([k,v])=>({...v,id:k}))
-    .filter(u=>!u.isAdmin)
-    .sort((a,b)=>(b.points||0)-(a.points||0))
-    .slice(0,50);
-  if(!users.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">No users</div>';return;}
-  el.innerHTML=users.map((u,i)=>{
-    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--b)">'
-      +'<div style="font-size:16px;width:28px;text-align:center">'+(medal||'#'+(i+1))+'</div>'
-      +'<div style="width:36px;height:36px;border-radius:50%;background:'+(u.color||'#00C37A')+'22;color:'+(u.color||'#00C37A')+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">'+(u.displayName||'?')[0]+'</div>'
-      +'<div style="flex:1"><div style="font-size:13px;font-weight:700">'+(u.displayName||'—')+'</div><div style="font-size:11px;color:var(--t2)">@'+(u.username||'—')+'</div></div>'
-      +'<div style="font-size:14px;font-weight:800;color:var(--gold)">'+(Math.floor(u.points||0))+' pts</div>'
-    +'</div>';
-  }).join('');
+  const filter=document.getElementById('wd-filter')?.value||'pending';
+  const data=await FG('posts');
+  if(!data){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មានសំណើ</div>';return;}
+  let items=Object.entries(data)
+    .filter(([k,v])=>v.isWithdraw)
+    .map(([k,v])=>({...v,postId:k}));
+  if(filter!=='all')items=items.filter(w=>w.wdStatus===filter);
+  items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(!items.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">គ្មានសំណើ ('+filter+')</div>';return;}
+  el.innerHTML='';
+  items.forEach(w=>{
+    const div=document.createElement('div');
+    div.style.cssText='padding:14px 16px;border-bottom:1px solid var(--b)';
+    const d=new Date(w.createdAt||0).toLocaleString('km-KH');
+    const st=w.wdStatus==='approved'?'✅ Approved':w.wdStatus==='rejected'?'❌ Rejected':'⏳ Pending';
+    const bc=w.wdStatus==='approved'?'badge bg':w.wdStatus==='rejected'?'badge br':'badge by';
+    div.innerHTML=
+      '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:'+(w.wdStatus==='pending'?10:0)+'px">'
+        +'<div style="width:42px;height:42px;border-radius:50%;background:rgba(0,195,122,.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">💰</div>'
+        +'<div style="flex:1">'
+          +'<div style="font-size:14px;font-weight:700">'+(w.wdName||'User')+' (@'+(w.wdUsername||'')+')</div>'
+          +'<div style="font-size:13px;color:var(--gold);font-weight:700;margin:2px 0">$'+(w.wdUsd||0)+' ('+(w.wdPts||0)+' pts)</div>'
+          +'<div style="font-size:12px;color:var(--t2)">📱 '+(w.wdMethod||'')+': '+(w.wdAccount||'')+'</div>'
+          +'<div style="font-size:12px;color:var(--t2)">👤 '+(w.wdOwner||'')+'</div>'
+          +'<div style="font-size:11px;color:var(--t3)">'+d+'</div>'
+        +'</div>'
+        +'<span class="'+bc+'">'+st+'</span>'
+      +'</div>';
+    if(w.wdStatus==='pending'){
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;gap:8px';
+      const ab=document.createElement('button');
+      ab.className='btn btn-g';ab.style.cssText='flex:1;padding:8px;font-size:13px';
+      ab.textContent='✅ Approve';
+      ab.onclick=()=>approveWd(w.postId,w.wdUid,w.wdUsd,w.wdPts);
+      const rb=document.createElement('button');
+      rb.className='btn btn-r';rb.style.cssText='flex:1;padding:8px;font-size:13px';
+      rb.textContent='❌ Reject';
+      rb.onclick=()=>rejectWd(w.postId,w.wdUid,w.wdPts);
+      row.appendChild(ab);row.appendChild(rb);div.appendChild(row);
+    }
+    el.appendChild(div);
+  });
 }
 
-// ══ PREDICTION MATCH BUILDER ══
+
+async function approveWd(postId,uid,usd,pts){
+  if(!confirm('Approve $'+usd+'?'))return;
+  // Update status in posts path
+  await db.ref('posts/'+postId).update({wdStatus:'approved',wdApprovedAt:Date.now()});
+  // Log to user plog
+  if(uid) await db.ref('users/'+uid+'/plog').push({
+    pts:0,source:'withdraw_approved',
+    desc:'✅ ការដក $'+usd+' Approved',ts:Date.now()
+  });
+  tok('✅ Approved! $'+usd);
+  loadWithdrawals();
+}
+
+async function rejectWd(postId,uid,pts){
+  const reason=prompt('មូលហេតុ (optional):','');
+  // Update status in posts path
+  await db.ref('posts/'+postId).update({
+    wdStatus:'rejected',wdRejectedAt:Date.now(),
+    wdNote:reason||''
+  });
+  // Refund points
+  if(uid&&pts){
+    const cur=(await FG('users/'+uid+'/points'))||0;
+    await FS('users/'+uid+'/points',cur+parseInt(pts));
+    await db.ref('users/'+uid+'/plog').push({
+      pts:parseInt(pts),source:'withdraw_rejected',
+      desc:'↩️ ការដកបដិសេធ — '+parseInt(pts)+' pts refunded',ts:Date.now()
+    });
+  }
+  tok('❌ Rejected + '+pts+' pts refunded');
+  loadWithdrawals();
+}
+
+// ══ PREDICTION MATCHES ══
+let pmData={home:'',away:'',league:'',date:'',time:'',choices:[],pts:10};
+
 let _pmSide='';
-
-function pmPreview(){
-  const home=(document.getElementById('pm-nm-h')||{}).textContent||'';
-  const away=(document.getElementById('pm-nm-a')||{}).textContent||'';
-  const league=(document.getElementById('pm-league')||{}).value||'';
-  const time=(document.getElementById('pm-time')||{}).value||'';
-  const date=(document.getElementById('pm-date')||{}).value||'';
-  const choicesRaw=(document.getElementById('pm-choices')||{}).value||'';
-  const choices=choicesRaw.split(',').map(s=>s.trim()).filter(Boolean);
-  const box=document.getElementById('pm-preview');
-  if(!box)return;
-  const cleanHome=home==='ចុចជ្រើស'?'':home;
-  const cleanAway=away==='ចុចជ្រើស'?'':away;
-  if(!cleanHome&&!cleanAway){box.style.display='none';return;}
-  box.style.display='block';
-  const dateStr=date?new Date(date).toLocaleDateString('km-KH',{weekday:'short',month:'short',day:'numeric'}):'';
-
-  // Update choice chips
-  const cpBox=document.getElementById('pm-choice-preview');
-  const cpChips=document.getElementById('pm-choice-chips');
-  if(cpBox&&cpChips){
-    if(choices.length){
-      cpBox.style.display='block';
-      cpChips.innerHTML=choices.map(ch=>'<span style="padding:5px 12px;background:rgba(0,195,122,.1);border:1.5px solid rgba(0,195,122,.3);border-radius:20px;font-size:12px;font-weight:700;color:var(--g)">'+ch+'</span>').join('');
-    }else{cpBox.style.display='none';}
-  }
-
-  // Get logos
-  const hImg=(document.getElementById('pm-lg-h')||{}).querySelector&&document.getElementById('pm-lg-h').querySelector('img');
-  const aImg=(document.getElementById('pm-lg-a')||{}).querySelector&&document.getElementById('pm-lg-a').querySelector('img');
-  const hLogoHTML=hImg?'<img src="'+hImg.src+'" style="width:52px;height:52px;object-fit:contain;margin:0 auto 6px;display:block">':'<div style="font-size:38px;text-align:center;margin-bottom:6px">🏠</div>';
-  const aLogoHTML=aImg?'<img src="'+aImg.src+'" style="width:52px;height:52px;object-fit:contain;margin:0 auto 6px;display:block">':'<div style="font-size:38px;text-align:center;margin-bottom:6px">✈️</div>';
-
-  const content=document.getElementById('pm-prev-content');
-  if(content){
-    content.innerHTML=
-      '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">'+league+'</div>'
-      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
-        +'<div style="flex:1;text-align:center">'+hLogoHTML+'<div style="font-size:14px;font-weight:800;color:#fff">'+cleanHome+'</div></div>'
-        +'<div style="text-align:center;padding:0 10px">'+(dateStr||time?'<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px">'+(dateStr?dateStr+' ':'')+time+'</div>':'')+'<div style="font-size:18px;font-weight:900;color:rgba(255,255,255,.5)">VS</div></div>'
-        +'<div style="flex:1;text-align:center">'+aLogoHTML+'<div style="font-size:14px;font-weight:800;color:#fff">'+cleanAway+'</div></div>'
-      +'</div>'
-      +(choices.length?'<div style="display:flex;gap:6px;flex-wrap:wrap">'+choices.map(ch=>'<div style="flex:1;min-width:70px;padding:8px 6px;background:rgba(0,195,122,.08);border:1.5px solid rgba(0,195,122,.25);border-radius:10px;text-align:center;font-size:12px;font-weight:700;color:#fff">'+ch+'</div>').join('')+'</div>':'');
-  }
-}
-
-function pmSetChoices(type){
-  const inp=document.getElementById('pm-choices');
-  if(!inp)return;
-  if(type==='result') inp.value='ម្ចាស់ (Home), ស្មើ (Draw), ភ្ញៀវ (Away)';
-  else if(type==='goals') inp.value='Over 2.5, Under 2.5, Over 3.5, Under 3.5';
-  else if(type==='both') inp.value='ម្ចាស់ (Home), ស្មើ (Draw), ភ្ញៀវ (Away), Over 2.5, Under 2.5';
-  pmPreview();
-}
-
 function pmActivatePicker(side){
   _pmSide=side;
   const box=document.getElementById('pm-tsearch');
   const title=document.getElementById('pm-ts-title');
   const inp=document.getElementById('pm-ts-inp');
   if(!box)return;
-  if(box.style.display==='block'&&box.dataset.side===side){box.style.display='none';return;}
+  // Toggle if same side
+  if(box.style.display==='block'&&box.dataset.side===side){
+    box.style.display='none';return;
+  }
   box.dataset.side=side;
-  if(title)title.textContent=side==='home'?'🏠 ជ្រើស ក្រុមម្ចាស់':'✈️ ជ្រើស ក្រុមភ្ញៀវ';
+  if(title)title.textContent=side==='home'?'🏠 ជ្រើស ក្រុមម្ចាស់ផ្ទះ':'✈️ ជ្រើស ក្រុមភ្ញៀវ';
+  if(inp){inp.value='';}
   pmRenderTeams('');
   box.style.display='block';
-  if(inp){inp.value='';inp.focus();}
+  if(inp)inp.focus();
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-
 function pmRenderTeams(q){
   const list=document.getElementById('pm-t-list');
   if(!list)return;
-  const filtered=q?T.filter(t=>t[0].toLowerCase().includes(q.toLowerCase())):T.slice(0,40);
+  const filtered=q?T.filter(t=>t[0].toLowerCase().includes(q.toLowerCase())||t[2].toLowerCase().includes(q.toLowerCase())):T;
+  if(!filtered.length){list.innerHTML='<div style="padding:12px;text-align:center;color:var(--t3)">រកមិនឃើញ</div>';return;}
   list.innerHTML='';
-  filtered.slice(0,40).forEach(t=>{
+  filtered.forEach(t=>{
     const row=document.createElement('div');
     row.className='trow';
     row.onclick=()=>pmPickTeam(t[0],t[1]);
     const img=document.createElement('img');
     img.src='https://media.api-sports.io/football/teams/'+t[1]+'.png';
-    img.width=32;img.height=32;img.style.cssText='object-fit:contain;flex-shrink:0';
+    img.width=32;img.height=32;
+    img.style.cssText='object-fit:contain;flex-shrink:0';
     img.onerror=function(){this.style.display='none';};
     const info=document.createElement('div');
     const n=document.createElement('div');n.className='trow-n';n.textContent=t[0];
@@ -1689,9 +1595,6 @@ function pmRenderTeams(q){
     list.appendChild(row);
   });
 }
-
-function pmFilterT(q){pmRenderTeams(q);}
-
 function pmPickTeam(name,id){
   const logo='https://media.api-sports.io/football/teams/'+id+'.png';
   const side=_pmSide;
@@ -1700,52 +1603,240 @@ function pmPickTeam(name,id){
   const btnEl=document.getElementById(side==='home'?'pm-btn-h':'pm-btn-a');
   if(lgEl){
     const im=document.createElement('img');
-    im.src=logo;im.style.cssText='max-width:44px;max-height:44px;object-fit:contain';
+    im.src=logo;
+    im.style.cssText='max-width:44px;max-height:44px;object-fit:contain';
     im.onerror=function(){this.style.display='none';};
-    lgEl.innerHTML='';lgEl.appendChild(im);
+    lgEl.innerHTML='';
+    lgEl.appendChild(im);
   }
   if(nmEl)nmEl.textContent=name;
   if(btnEl)btnEl.classList.add('on');
-  const box=document.getElementById('pm-tsearch');
-  if(box)box.style.display='none';
+  document.getElementById('pm-tsearch').style.display='none';
+  pmPreview();
+}
+function pmFilterT(q){pmRenderTeams(q);}
+function pmSetChoices(type){
+  const inp = document.getElementById('pm-choices');
+  if(type === 'result'){
+    inp.value = 'ម្ចាស់ (Home Win), ស្មើ (Draw), ភ្ញៀវ (Away Win)';
+  } else if(type === 'goals'){
+    inp.value = 'Over 2.5 ⬆️, Under 2.5 ⬇️, Over 3.5 ⬆️, Under 3.5 ⬇️';
+  } else if(type === 'both'){
+    inp.value = 'ម្ចាស់ (Home), ស្មើ (Draw), ភ្ញៀវ (Away), Over 2.5, Under 2.5';
+  }
   pmPreview();
 }
 
+function pmPreview(){
+  const home=(document.getElementById('pm-nm-h').textContent||'').trim();
+  const away=(document.getElementById('pm-nm-a').textContent||'').trim();
+  if(home==='ចុចជ្រើស'||!home||away==='ចុចជ្រើស'||!away){
+    const box=document.getElementById('pm-preview');if(box)box.style.display='none';
+  }
+  const league=document.getElementById('pm-league').value||'';
+  const time=(document.getElementById('pm-time').value||'').trim();
+  const date=(document.getElementById('pm-date').value||'').trim();
+  const choicesRaw=(document.getElementById('pm-choices').value||'');
+  const choices=choicesRaw.split(',').map(s=>s.trim()).filter(Boolean);
+  const box=document.getElementById('pm-preview');
+  const content=document.getElementById('pm-prev-content');
+  if(!home&&!away){if(box)box.style.display='none';return;}
+  if(box)box.style.display='block';
+  const dateStr=date?new Date(date).toLocaleDateString('km-KH',{weekday:'short',month:'short',day:'numeric'}):'';
+  // Update choice chips display
+  const cpBox = document.getElementById('pm-choice-preview');
+  const cpChips = document.getElementById('pm-choice-chips');
+  if(cpBox && cpChips){
+    if(choices.length){
+      cpBox.style.display='block';
+      cpChips.innerHTML = choices.map(ch =>
+        '<span style="padding:5px 12px;background:rgba(0,195,122,.1);border:1.5px solid rgba(0,195,122,.3);border-radius:20px;font-size:12px;font-weight:700;color:var(--g)">'+ch+'</span>'
+      ).join('');
+    } else {
+      cpBox.style.display='none';
+    }
+  }
+  const choiceHTML=choices.length
+    ?'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'+
+      choices.map(ch=>'<div style="flex:1;min-width:80px;padding:10px 6px;background:rgba(0,195,122,.08);border:1.5px solid rgba(0,195,122,.25);border-radius:10px;text-align:center;cursor:pointer"><div style="font-size:12px;font-weight:700;color:#fff">'+ch+'</div></div>').join('')+
+      '</div>'
+    :'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">ជ្រើស ឬ ដាក់ choices</div>';
+  // Get logos from picker
+  const hImgEl=document.getElementById('pm-lg-h').querySelector('img');
+  const aImgEl=document.getElementById('pm-lg-a').querySelector('img');
+  const hLogoSrc=hImgEl?hImgEl.src:'';
+  const aLogoSrc=aImgEl?aImgEl.src:'';
+  const hLogoHTML=hLogoSrc?'<img src="'+hLogoSrc+'" style="width:48px;height:48px;object-fit:contain;margin-bottom:6px">':'<div style="font-size:36px;margin-bottom:6px">🏠</div>';
+  const aLogoHTML=aLogoSrc?'<img src="'+aLogoSrc+'" style="width:48px;height:48px;object-fit:contain;margin-bottom:6px">':'<div style="font-size:36px;margin-bottom:6px">✈️</div>';
+  content.innerHTML=
+    '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">'+league+'</div>'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+      +'<div style="flex:1;text-align:center">'+hLogoHTML+'<div style="font-size:14px;font-weight:800;color:#fff">'+(home||'ក្រុមមេ')+'</div></div>'
+      +'<div style="text-align:center;padding:0 10px">'
+        +(time||dateStr?'<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px">'+(dateStr?dateStr+' ':'')+time+'</div>':'')
+        +'<div style="font-size:18px;font-weight:900;color:rgba(255,255,255,.5)">VS</div>'
+      +'</div>'
+      +'<div style="flex:1;text-align:center">'+aLogoHTML+'<div style="font-size:14px;font-weight:800;color:#fff">'+(away||'ក្រុមភ្ញៀវ')+'</div></div>'
+    +'</div>'
+    +choiceHTML;
+}
+
 async function pmSubmit(){
-  const home=(document.getElementById('pm-nm-h')||{}).textContent||'';
-  const away=(document.getElementById('pm-nm-a')||{}).textContent||'';
-  const cleanHome=home==='ចុចជ្រើស'?'':home.trim();
-  const cleanAway=away==='ចុចជ្រើស'?'':away.trim();
-  const league=(document.getElementById('pm-league')||{}).value||'';
-  const date=(document.getElementById('pm-date')||{}).value||'';
-  const time=(document.getElementById('pm-time')||{}).value||'';
-  const pts=parseInt((document.getElementById('pm-pts')||{}).value)||10;
-  const desc=((document.getElementById('pm-desc')||{}).value||'').trim();
-  const choicesRaw=((document.getElementById('pm-choices')||{}).value||'');
+  const home=(document.getElementById('pm-nm-h').textContent||'').trim();
+  const away=(document.getElementById('pm-nm-a').textContent||'').trim();
+  const cleanHome=home==='ចុចជ្រើស'?'':home;
+  const cleanAway=away==='ចុចជ្រើស'?'':away;
+  const league=document.getElementById('pm-league').value||'';
+  const date=(document.getElementById('pm-date').value||'').trim();
+  const time=(document.getElementById('pm-time').value||'').trim();
+  const pts=parseInt(document.getElementById('pm-pts').value)||10;
+  const desc=(document.getElementById('pm-desc').value||'').trim();
+  const choicesRaw=document.getElementById('pm-choices').value||'';
   const choices=choicesRaw.split(',').map(s=>s.trim()).filter(Boolean);
   if(!cleanHome||!cleanAway){terr('⚠️ ជ្រើស ក្រុមមេ + ភ្ញៀវ');return;}
-  if(!choices.length){terr('⚠️ ដាក់ ជម្រើស');return;}
+  if(!choices.length){terr('⚠️ ដាក់ ជម្រើស យ៉ាងតិច ១');return;}
   if(!date&&!time){terr('⚠️ ដាក់ ថ្ងៃ ឬ ម៉ោង');return;}
   const btn=document.getElementById('pm-post-btn');
   if(btn){btn.disabled=true;btn.textContent='⏳ Posting...';}
   try{
-    const hImg=document.getElementById('pm-lg-h')&&document.getElementById('pm-lg-h').querySelector('img');
-    const aImg=document.getElementById('pm-lg-a')&&document.getElementById('pm-lg-a').querySelector('img');
+    const hImg=document.getElementById('pm-lg-h').querySelector('img');
+    const aImg=document.getElementById('pm-lg-a').querySelector('img');
+    const hLogo=hImg?hImg.src:'';
+    const aLogo=aImg?aImg.src:'';
     await db.ref('matches').push({
-      home:cleanHome,away:cleanAway,league,date,time,pts,desc,choices,
-      homelogo:hImg?hImg.src:'',awaylogo:aImg?aImg.src:'',
-      status:'open',createdAt:Date.now(),result:null
+      home:cleanHome, away:cleanAway, league, date, time, pts,
+      homelogo:hLogo, awaylogo:aLogo,
+      desc, choices,
+      status:'open',
+      createdAt:Date.now(),
+      result:null
     });
     tok('✅ ប្រកួតបន្ថែម!');
-    // Reset
-    ['pm-nm-h','pm-nm-a'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='ចុចជ្រើស';});
-    ['pm-lg-h','pm-lg-a'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.innerHTML='<span style="font-size:34px">'+(i===0?'🏠':'✈️')+'</span>';});
-    ['pm-btn-h','pm-btn-a'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('on');});
-    ['pm-time','pm-date','pm-choices','pm-desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    // Reset form
+    document.getElementById('pm-nm-h').textContent='ចុចជ្រើស';
+    document.getElementById('pm-lg-h').innerHTML='<span style="font-size:34px">🏠</span>';
+    document.getElementById('pm-btn-h').classList.remove('on');
+    document.getElementById('pm-nm-a').textContent='ចុចជ្រើស';
+    document.getElementById('pm-lg-a').innerHTML='<span style="font-size:34px">✈️</span>';
+    document.getElementById('pm-btn-a').classList.remove('on');
+    document.getElementById('pm-time').value='';
+    document.getElementById('pm-date').value='';
+    document.getElementById('pm-choices').value='';
+    document.getElementById('pm-desc').value='';
     const cpBox=document.getElementById('pm-choice-preview');if(cpBox)cpBox.style.display='none';
     const pvBox=document.getElementById('pm-preview');if(pvBox)pvBox.style.display='none';
-  }catch(e){terr('❌ '+e.message);console.error(e);}
-  finally{if(btn){btn.disabled=false;btn.textContent='➕ Post ការប្រកួត';}}
+    pmLoad();
+  }catch(e){
+    console.error(e);
+    terr('❌ '+(e.message||'Error'));
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='➕ Post ការប្រកួត';}
+  }
+}
+
+
+let _pmListener=null;
+async function pmLoad(){
+  const el=document.getElementById('pm-list');
+  if(!el)return;
+  el.innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
+  // Detach old listener
+  if(_pmListener){db.ref('matches').off('value',_pmListener);_pmListener=null;}
+  // Realtime listener — updates instantly when data changes
+  _pmListener=db.ref('matches').orderByChild('createdAt').on('value',snap=>{
+    const data=snap.val();
+    if(!data){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">មិនទាន់មានការប្រកួត</div>';return;}
+    const items=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.createdAt-a.createdAt);
+  el.innerHTML='';
+  items.forEach(m=>{
+    const div=document.createElement('div');
+    div.style.cssText='padding:14px 16px;border-bottom:1px solid var(--b)';
+    const totalPreds=Object.values(m.predictions||{}).reduce((s,v)=>s+Object.keys(v).length,0);
+    const stColor=m.status==='open'?'var(--g)':m.status==='closed'?'var(--gold)':'var(--t3)';
+    const stTxt=m.status==='open'?'🟢 Open':m.status==='closed'?'🔒 Closed':'✅ Done';
+    const dateStr=m.date?new Date(m.date).toLocaleDateString('km-KH',{month:'short',day:'numeric'}):'';
+    div.innerHTML=
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">'
+        +'<div style="flex:1">'
+          +'<div style="font-size:14px;font-weight:800">'+m.home+' vs '+m.away+'</div>'
+          +'<div style="font-size:11px;color:var(--t2)">'+m.league+' · '+(dateStr?dateStr+' ':'')+m.time+'</div>'
+          +'<div style="font-size:11px;color:var(--t2);margin-top:2px">👥 '+totalPreds+' ការទស្សន៍ · 🎯 '+m.pts+' pts</div>'
+        +'</div>'
+        +'<span style="font-size:12px;font-weight:700;color:'+stColor+'">'+stTxt+'</span>'
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--t2);margin-bottom:8px">Choices: '+(m.choices||[]).join(' · ')+'</div>';
+    // Action buttons
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
+    if(m.status==='open'){
+      const cb=document.createElement('button');
+      cb.className='btn btn-r btn-sm';cb.textContent='🔒 Close';
+      cb.onclick=()=>pmSetStatus(m.id,'closed');row.appendChild(cb);
+    }
+    if(m.status==='closed'&&m.choices){
+      m.choices.forEach(ch=>{
+        const wb=document.createElement('button');
+        wb.className='btn btn-g btn-sm';wb.textContent='✅ '+ch+' Won';
+        wb.onclick=()=>pmSetWinner(m.id,ch,m.pts);row.appendChild(wb);
+      });
+    }
+    if(m.status!=='open'){
+      const db2=document.createElement('button');
+      db2.className='btn btn-sm';db2.style.cssText='background:var(--bg3);border:1px solid var(--b)';
+      db2.textContent='🗑 Delete';db2.onclick=()=>pmDelete(m.id);row.appendChild(db2);
+    }
+    div.appendChild(row);
+    el.appendChild(div);
+  });
+  }); // end realtime listener
+}
+
+async function pmSetStatus(id,status){
+  await db.ref('matches/'+id+'/status').set(status);
+  tok(status==='closed'?'🔒 Closed!':'✅ Updated');
+  pmLoad();
+}
+
+async function pmSetWinner(matchId,winner,pts){
+  if(!confirm('Winner: '+winner+'? pts award to all who picked!'))return;
+  const snap=await db.ref('matches/'+matchId+'/predictions').once('value');
+  const preds=snap.val()||{};
+  let count=0;
+  for(const [uid,pick] of Object.entries(preds)){
+    if(pick===winner){
+      const cur=(await FG('users/'+uid+'/points'))||0;
+      await FS('users/'+uid+'/points',cur+pts);
+      await db.ref('users/'+uid+'/plog').push({pts,source:'prediction',desc:'🎯 ទស្សន៍ទាយត្រឹមត្រូវ: '+winner,ts:Date.now()});
+      count++;
+    }
+  }
+  await db.ref('matches/'+matchId).update({status:'done',result:winner,settledAt:Date.now()});
+  tok('✅ '+count+' Users ទទួល '+pts+' pts!');
+  pmLoad();
+}
+
+async function pmDelete(id){
+  if(!confirm('Delete match?'))return;
+  await db.ref('matches/'+id).remove();
+  tok('🗑 Deleted');pmLoad();
+}
+
+function renderLead(){
+  const users=Object.values(AU).filter(u=>u.points>0)
+    .sort((a,b)=>(b.points||0)-(a.points||0)).slice(0,50);
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('lb-tb').innerHTML=users.map((u,i)=>`<tr>
+    <td style="font-size:16px">${medals[i]||i+1}</td>
+    <td><div style="display:flex;align-items:center;gap:8px">
+      <div style="width:26px;height:26px;border-radius:50%;
+        background:${u.color||'#00C37A'}22;color:${u.color||'#00C37A'};
+        display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">
+        ${(u.displayName||'?')[0]}</div>${u.displayName||'—'}
+    </div></td>
+    <td style="font-weight:700;color:var(--g)">${Math.round(u.points||0).toLocaleString()}</td>
+    <td>${u.winRate!=null?u.winRate+'%':'—'}</td>
+    <td>${u.wonTips||0}/${u.settledTips||0}</td>
+  </tr>`).join('');
 }
 </script>
 </body>
